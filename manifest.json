@@ -9,7 +9,7 @@
       "purpose": "any maskable"
     }
   ],
-  "start_url": "./ManribsTech%20Store.html",
+  "start_url": "./store.html",
   "background_color": "#0d1b2a",
   "theme_color": "#f17829",
   "display": "standalone",
