@@ -1574,20 +1574,25 @@ renderCart();
       items: window.cart,
       total: document.getElementById('cart-total').innerText,
       // Captures your M-Pesa/Cash selection from line 822
-      paymentMethod: window.currentPayMethod || 'cash', 
+      paymentMethod: window.currentPayMethod || 'cash',
+      tendered: amountPaid,
       store: "ManribsTech_Hardware_001"
     };
-
-    const salesRef = ref(db, 'sales');
     
-    push(salesRef, saleData)
+  push(salesRef, saleData)
       .then(() => {
+        // Trigger Receipt Printing before clearing data
+        if (window.printReceipt) {
+            window.printReceipt(saleData); 
+        } else {
+            window.print(); // Browser fallback
+        }
+
         alert(`✅ Sale Saved! Method: ${saleData.paymentMethod.toUpperCase()}`);
         
-        // Clear cart and update UI
+        // Clear UI and go to Records
         if (window.clearCart) window.clearCart();
-        
-        // Show the Transactions page automatically
+        if (window.closeModal) window.closeModal('modal-payment');
         if (window.showPage) window.showPage('page-transactions');
       })
       .catch((error) => {
@@ -1596,26 +1601,29 @@ renderCart();
       });
   };
 
-  // --- 2. THE RECORD SHOWING LOGIC ---
-  // This "listens" to the cloud and updates your records list instantly
-  const salesRef = ref(db, 'sales');
+  // 3. THE LIVE SYNC LISTENER (Updates Records & Reports)
   onValue(salesRef, (snapshot) => {
     const data = snapshot.val();
     if (data) {
-      // Convert the Firebase object into an array for your UI
       const salesArray = Object.keys(data).map(key => ({
         id: key,
         ...data[key]
-      }));
+      })).reverse(); // Most recent first
       
-      // Send the data to your existing records table
+      // Update Transactions Table
       if (window.renderTransactions) {
         window.renderTransactions(salesArray);
+      }
+
+      // Update Dashboard & Reports Stats
+      if (window.updateDashboardStats) {
+        window.updateDashboardStats(salesArray);
       }
     }
   });
 
-  console.log("ManribsTech Cloud Database Connected!");
-</script>
+  console.log("ManribsTech Cloud Engine Active & Synced!");
+</script>  
+
 </body>
 </html>
