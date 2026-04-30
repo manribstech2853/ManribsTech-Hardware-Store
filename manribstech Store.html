@@ -1,0 +1,1528 @@
+jbdfgfgvedgbfgvbdkjsbvfjkdsbfjkbsdjkfbjksdbfjksdbfj
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1565C0">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ManribsTech Hardware—Store </title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #0F1F35;
+    --navy-light: #1A3152;
+    --navy-mid: #152844;
+    --orange: #F47B20;
+    --orange-light: #FF9A4A;
+    --orange-dim: #7A3E10;
+    --steel: #3A5270;
+    --bg: #F0F2F5;
+    --surface: #FFFFFF;
+    --border: #D8DDE5;
+    --text: #0F1F35;
+    --text-muted: #5A7090;
+    --green: #1A7A4A;
+    --green-bg: #E8F5EE;
+    --red: #C0392B;
+    --red-bg: #FDECEA;
+    --amber: #B8720A;
+    --amber-bg: #FFF3E0;
+    --blue: #1565C0;
+    --blue-bg: #E3F2FD;
+    --radius: 8px;
+    --shadow: 0 2px 8px rgba(15,31,53,0.10);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'IBM Plex Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+  
+  /* ── LOGIN ── */
+  #login-screen {
+    min-height: 100vh; display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%);
+  }
+  .login-box {
+    background: var(--surface); border-radius: 12px; padding: 40px 44px;
+    width: 400px; box-shadow: 0 16px 48px rgba(0,0,0,0.3);
+  }
+  .login-logo { text-align: center; margin-bottom: 28px; }
+  .login-logo .icon { width: 56px; height: 56px; background: var(--orange); border-radius: 12px;
+    display: inline-flex; align-items: center; justify-content: center; font-size: 28px; margin-bottom: 12px; }
+  .login-logo h1 { font-size: 20px; font-weight: 600; color: var(--navy); letter-spacing: -0.3px; }
+  .login-logo p { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
+  .form-group { margin-bottom: 16px; }
+  .form-group label { display: block; font-size: 12px; font-weight: 600; color: var(--text-muted);
+    text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px; }
+  .form-group input, .form-group select {
+    width: 100%; padding: 10px 12px; border: 1.5px solid var(--border); border-radius: var(--radius);
+    font-family: inherit; font-size: 14px; color: var(--text); transition: border-color .2s;
+    background: var(--surface);
+  }
+  .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--orange); }
+  .btn-primary {
+    width: 100%; padding: 12px; background: var(--orange); color: #fff; border: none;
+    border-radius: var(--radius); font-family: inherit; font-size: 15px; font-weight: 600;
+    cursor: pointer; transition: background .2s;
+  }
+  .btn-primary:hover { background: var(--orange-light); }
+  .demo-hint { font-size: 12px; color: var(--text-muted); text-align: center; margin-top: 16px; }
+  .demo-hint span { color: var(--orange); font-weight: 500; }
+  .error-msg { background: var(--red-bg); color: var(--red); padding: 10px 12px; border-radius: var(--radius);
+    font-size: 13px; margin-bottom: 14px; display: none; }
+
+  /* ── APP SHELL ── */
+  #app { display: none; height: 100vh; flex-direction: row; }
+  
+  /* ── SIDEBAR ── */
+  .sidebar {
+    width: 220px; background: var(--navy); display: flex; flex-direction: column;
+    flex-shrink: 0; overflow: hidden;
+  }
+  .sidebar-brand {
+    padding: 20px 16px 16px; border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+  .sidebar-brand .brand-icon {
+    width: 36px; height: 36px; background: var(--orange); border-radius: 8px;
+    display: inline-flex; align-items: center; justify-content: center; font-size: 18px;
+    margin-bottom: 8px;
+  }
+  .sidebar-brand h2 { font-size: 13px; font-weight: 600; color: #fff; letter-spacing: 0.2px; }
+  .sidebar-brand p { font-size: 11px; color: rgba(255,255,255,0.45); margin-top: 1px; }
+  .sidebar-nav { flex: 1; padding: 12px 8px; overflow-y: auto; }
+  .nav-section { margin-bottom: 4px; }
+  .nav-label { font-size: 10px; font-weight: 600; color: rgba(255,255,255,0.3);
+    text-transform: uppercase; letter-spacing: 1px; padding: 8px 10px 4px; }
+  .nav-item {
+    display: flex; align-items: center; gap: 10px; padding: 9px 10px;
+    border-radius: 6px; cursor: pointer; transition: all .15s;
+    color: rgba(255,255,255,0.6); font-size: 13px; font-weight: 500;
+    text-decoration: none; margin-bottom: 2px;
+  }
+  .nav-item:hover { background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.9); }
+  .nav-item.active { background: var(--orange); color: #fff; }
+  .nav-item .nav-icon { font-size: 16px; width: 18px; text-align: center; }
+  .sidebar-footer {
+    padding: 12px 8px; border-top: 1px solid rgba(255,255,255,0.08);
+  }
+  .user-badge {
+    display: flex; align-items: center; gap: 10px; padding: 8px 10px;
+    background: rgba(255,255,255,0.06); border-radius: 6px;
+  }
+  .user-avatar {
+    width: 28px; height: 28px; background: var(--orange); border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 600; color: #fff; flex-shrink: 0;
+  }
+  .user-info { flex: 1; min-width: 0; }
+  .user-info .name { font-size: 12px; font-weight: 600; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .user-info .role { font-size: 10px; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 0.5px; }
+  .logout-btn { background: none; border: none; color: rgba(255,255,255,0.35); cursor: pointer;
+    font-size: 16px; padding: 2px; transition: color .15s; }
+  .logout-btn:hover { color: rgba(255,255,255,0.7); }
+
+  /* ── MAIN CONTENT ── */
+  .main { flex: 1; overflow-y: auto; display: flex; flex-direction: column; }
+  .topbar {
+    background: var(--surface); border-bottom: 1px solid var(--border);
+    padding: 14px 24px; display: flex; align-items: center; justify-content: space-between;
+    flex-shrink: 0;
+  }
+  .topbar h1 { font-size: 18px; font-weight: 600; color: var(--navy); }
+  .topbar .subtitle { font-size: 12px; color: var(--text-muted); margin-top: 1px; }
+  .topbar-actions { display: flex; gap: 8px; align-items: center; }
+  .content { padding: 24px; flex: 1; }
+  
+  /* ── PAGES ── */
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* ── BUTTONS ── */
+  .btn {
+    padding: 8px 16px; border-radius: var(--radius); border: none;
+    font-family: inherit; font-size: 13px; font-weight: 500; cursor: pointer; transition: all .15s;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .btn-sm { padding: 6px 12px; font-size: 12px; }
+  .btn-orange { background: var(--orange); color: #fff; }
+  .btn-orange:hover { background: var(--orange-light); }
+  .btn-outline { background: transparent; border: 1.5px solid var(--border); color: var(--text); }
+  .btn-outline:hover { border-color: var(--orange); color: var(--orange); background: #FFF6F0; }
+  .btn-ghost { background: transparent; color: var(--text-muted); border: none; }
+  .btn-ghost:hover { background: var(--bg); color: var(--text); }
+  .btn-danger { background: var(--red-bg); color: var(--red); border: 1px solid #FBBAB5; }
+  .btn-danger:hover { background: #FBBAB5; }
+  .btn-success { background: var(--green-bg); color: var(--green); border: 1px solid #A8D5BC; }
+  .btn-success:hover { background: #A8D5BC; }
+
+  /* ── CARDS ── */
+  .card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 20px; margin-bottom: 16px;
+  }
+  .card-title { font-size: 13px; font-weight: 600; color: var(--text-muted);
+    text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 16px; }
+
+  /* ── STAT CARDS ── */
+  .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+  .stat-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 16px 20px; position: relative; overflow: hidden;
+  }
+  .stat-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  }
+  .stat-card.orange::before { background: var(--orange); }
+  .stat-card.green::before { background: var(--green); }
+  .stat-card.blue::before { background: var(--blue); }
+  .stat-card.red::before { background: var(--red); }
+  .stat-label { font-size: 11px; font-weight: 600; color: var(--text-muted);
+    text-transform: uppercase; letter-spacing: 0.7px; margin-bottom: 6px; }
+  .stat-value { font-size: 26px; font-weight: 600; color: var(--navy); line-height: 1; font-family: 'IBM Plex Mono', monospace; }
+  .stat-sub { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+
+  /* ── TABLES ── */
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  thead th {
+    background: var(--bg); padding: 10px 14px; text-align: left;
+    font-size: 11px; font-weight: 600; color: var(--text-muted);
+    text-transform: uppercase; letter-spacing: 0.7px; white-space: nowrap;
+    border-bottom: 1px solid var(--border);
+  }
+  tbody td { padding: 12px 14px; border-bottom: 1px solid var(--border); color: var(--text); }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover td { background: #FAFBFC; }
+
+  /* ── BADGES ── */
+  .badge {
+    display: inline-flex; align-items: center; padding: 3px 10px;
+    border-radius: 99px; font-size: 11px; font-weight: 600;
+  }
+  .badge-green { background: var(--green-bg); color: var(--green); }
+  .badge-red { background: var(--red-bg); color: var(--red); }
+  .badge-amber { background: var(--amber-bg); color: var(--amber); }
+  .badge-blue { background: var(--blue-bg); color: var(--blue); }
+  .badge-navy { background: rgba(15,31,53,0.08); color: var(--navy); }
+
+  /* ── SEARCH ── */
+  .search-bar {
+    position: relative; flex: 1;
+  }
+  .search-bar input {
+    width: 100%; padding: 8px 12px 8px 36px;
+    border: 1.5px solid var(--border); border-radius: var(--radius);
+    font-family: inherit; font-size: 13px; color: var(--text);
+  }
+  .search-bar input:focus { outline: none; border-color: var(--orange); }
+  .search-bar .search-icon {
+    position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
+    font-size: 14px; color: var(--text-muted);
+  }
+
+  /* ── POS ── */
+  .pos-layout { display: grid; grid-template-columns: 1fr 360px; gap: 20px; height: calc(100vh - 120px); }
+  .pos-products { overflow-y: auto; }
+  .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+  .product-card {
+    background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--radius);
+    padding: 14px 12px; cursor: pointer; transition: all .15s; text-align: center;
+  }
+  .product-card:hover { border-color: var(--orange); background: #FFF6F0; transform: translateY(-1px); }
+  .product-card.out-of-stock { opacity: 0.45; cursor: not-allowed; pointer-events: none; }
+  .product-card .pcat { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+  .product-card .pname { font-size: 13px; font-weight: 600; color: var(--navy); margin-bottom: 6px; line-height: 1.3; }
+  .product-card .pprice { font-size: 15px; font-weight: 600; color: var(--orange); font-family: 'IBM Plex Mono', monospace; }
+  .product-card .pstock { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+
+  /* ── CART ── */
+  .cart-panel {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+    display: flex; flex-direction: column; overflow: hidden;
+  }
+  .cart-header {
+    padding: 14px 16px; border-bottom: 1px solid var(--border);
+    background: var(--navy); color: #fff;
+  }
+  .cart-header h3 { font-size: 14px; font-weight: 600; }
+  .cart-items { flex: 1; overflow-y: auto; padding: 8px; }
+  .cart-item {
+    display: flex; align-items: center; gap: 8px; padding: 10px 8px;
+    border-bottom: 1px solid var(--border); font-size: 12px;
+  }
+  .cart-item:last-child { border-bottom: none; }
+  .cart-item-name { flex: 1; font-weight: 500; color: var(--navy); }
+  .cart-item-price { font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--text-muted); }
+  .qty-ctrl { display: flex; align-items: center; gap: 4px; }
+  .qty-btn {
+    width: 22px; height: 22px; border-radius: 4px; border: 1px solid var(--border);
+    background: var(--bg); font-size: 14px; cursor: pointer; display: flex;
+    align-items: center; justify-content: center; font-weight: 600; color: var(--navy);
+  }
+  .qty-btn:hover { background: var(--orange); color: #fff; border-color: var(--orange); }
+  .qty-num { font-size: 13px; font-weight: 600; min-width: 20px; text-align: center; }
+  .cart-remove { background: none; border: none; cursor: pointer; color: var(--text-muted); font-size: 14px; }
+  .cart-remove:hover { color: var(--red); }
+  .cart-footer { padding: 12px 14px; border-top: 2px solid var(--border); }
+  .cart-total { display: flex; justify-content: space-between; margin-bottom: 4px; font-size: 13px; }
+  .cart-total.grand { font-size: 18px; font-weight: 700; color: var(--navy); margin-bottom: 14px; }
+  .cart-total.grand span:last-child { color: var(--orange); font-family: 'IBM Plex Mono', monospace; }
+  .cart-empty { text-align: center; padding: 40px 20px; color: var(--text-muted); }
+  .cart-empty .empty-icon { font-size: 36px; margin-bottom: 10px; opacity: 0.4; }
+
+  /* ── MODAL ── */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(15,31,53,0.55); display: none;
+    align-items: center; justify-content: center; z-index: 1000; padding: 20px;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--surface); border-radius: 12px; width: 100%; max-width: 500px;
+    max-height: 90vh; overflow-y: auto; box-shadow: var(--shadow);
+  }
+  .modal-header {
+    padding: 20px 24px 16px; border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .modal-header h2 { font-size: 16px; font-weight: 600; color: var(--navy); }
+  .modal-close { background: none; border: none; font-size: 20px; cursor: pointer; color: var(--text-muted); }
+  .modal-body { padding: 20px 24px; }
+  .modal-footer { padding: 16px 24px; border-top: 1px solid var(--border); display: flex; gap: 10px; justify-content: flex-end; }
+
+  /* ── PAYMENT ── */
+  .payment-methods { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 16px; }
+  .pay-method {
+    border: 2px solid var(--border); border-radius: var(--radius); padding: 14px 10px;
+    cursor: pointer; text-align: center; transition: all .15s;
+  }
+  .pay-method:hover { border-color: var(--orange); background: #FFF6F0; }
+  .pay-method.selected { border-color: var(--orange); background: #FFF6F0; }
+  .pay-method .pm-icon { font-size: 24px; margin-bottom: 6px; }
+  .pay-method .pm-name { font-size: 12px; font-weight: 600; color: var(--navy); }
+  .pay-detail { margin-top: 14px; }
+  .pay-total-display {
+    background: var(--navy); color: #fff; border-radius: var(--radius);
+    padding: 14px 16px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;
+  }
+  .pay-total-display .ptlabel { font-size: 12px; color: rgba(255,255,255,0.6); }
+  .pay-total-display .ptvalue { font-size: 22px; font-weight: 700; font-family: 'IBM Plex Mono', monospace; color: var(--orange); }
+
+  /* ── INVENTORY ── */
+  .inv-toolbar { display: flex; gap: 10px; margin-bottom: 16px; align-items: center; }
+  .cat-filter { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
+  .cat-btn {
+    padding: 5px 12px; border-radius: 99px; border: 1.5px solid var(--border);
+    background: var(--surface); font-size: 12px; font-weight: 500; cursor: pointer;
+    color: var(--text-muted); transition: all .15s;
+  }
+  .cat-btn:hover, .cat-btn.active { background: var(--orange); color: #fff; border-color: var(--orange); }
+  
+  /* ── REPORTS ── */
+  .report-tabs { display: flex; gap: 2px; background: var(--bg); border-radius: var(--radius); padding: 3px; margin-bottom: 20px; }
+  .report-tab {
+    flex: 1; padding: 8px 12px; border-radius: 6px; border: none;
+    background: transparent; font-family: inherit; font-size: 13px; font-weight: 500;
+    cursor: pointer; color: var(--text-muted); transition: all .15s; text-align: center;
+  }
+  .report-tab.active { background: var(--surface); color: var(--navy); box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+  .mini-bar { display: flex; align-items: flex-end; gap: 4px; height: 80px; margin-top: 8px; }
+  .bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; }
+  .bar-fill { background: var(--orange); border-radius: 3px 3px 0 0; width: 100%; min-height: 4px; opacity: 0.85; }
+  .bar-label { font-size: 9px; color: var(--text-muted); }
+
+  /* ── FORM ── */
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .form-field { margin-bottom: 14px; }
+  .form-field label { display: block; font-size: 12px; font-weight: 600; color: var(--text-muted);
+    text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 6px; }
+  .form-field input, .form-field select, .form-field textarea {
+    width: 100%; padding: 9px 12px; border: 1.5px solid var(--border); border-radius: var(--radius);
+    font-family: inherit; font-size: 14px; color: var(--text); background: var(--surface);
+  }
+  .form-field input:focus, .form-field select:focus { outline: none; border-color: var(--orange); }
+
+  /* ── RECEIPT ── */
+  .receipt {
+    border: 2px dashed var(--border); border-radius: var(--radius); padding: 20px;
+    font-family: 'IBM Plex Mono', monospace; font-size: 12px;
+  }
+  .receipt h3 { font-size: 15px; font-weight: 600; text-align: center; margin-bottom: 4px; }
+  .receipt .rec-divider { border: none; border-top: 1px dashed var(--border); margin: 10px 0; }
+  .receipt .rec-row { display: flex; justify-content: space-between; margin-bottom: 3px; }
+  .receipt .rec-total { font-size: 15px; font-weight: 700; color: var(--orange); }
+
+  /* ── USERS PAGE ── */
+  .user-role-admin { color: var(--orange); }
+  .user-role-cashier { color: var(--blue); }
+
+  /* ── LOW STOCK ── */
+  .low-stock-alert {
+    background: var(--amber-bg); border: 1px solid #F5D080; border-radius: var(--radius);
+    padding: 12px 16px; margin-bottom: 16px; display: flex; align-items: center; gap: 10px;
+  }
+  .low-stock-alert .alert-icon { font-size: 18px; }
+  .low-stock-alert .alert-text { font-size: 13px; color: var(--amber); font-weight: 500; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 900px) {
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .pos-layout { grid-template-columns: 1fr; height: auto; }
+    .products-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
+  }
+  @media (max-width: 600px) {
+    .sidebar { width: 180px; }
+    .stats-grid { grid-template-columns: 1fr 1fr; }
+  }
+  
+  .split-amounts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+  
+  @media print {
+    body * { visibility: hidden; }
+    .receipt, .receipt * { visibility: visible; }
+    .receipt { position: fixed; inset: 0; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══ LOGIN SCREEN ═══ -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">
+      <div class="icon">🔧</div>
+      <h1>ManribsTech Hardware-Store</h1>
+      <p>Business Management System</p>
+    </div>
+    <div class="error-msg" id="login-error">Invalid username or password. Please try again.</div>
+    <div class="form-group">
+      <label>Username</label>
+      <input type="text" id="l-user" placeholder="Enter your username" autocomplete="off">
+    </div>
+    <div class="form-group">
+      <label>Password</label>
+      <input type="password" id="l-pass" placeholder="Enter your password">
+    </div>
+    <button class="btn-primary" onclick="doLogin()">Sign In</button>
+    <div class="demo-hint">
+      Demo: <span>admin / admin123</span> (Admin) &nbsp;|&nbsp; <span>cashier1 / cash123</span> (Cashier)
+    </div>
+  </div>
+</div>
+
+<!-- ═══ APP SHELL ═══ -->
+<div id="app">
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-icon">🔧</div>
+      <h2>Hardware BMS</h2>
+      <p>Store Management</p>
+    </div>
+    <div class="sidebar-nav">
+      <div class="nav-section">
+        <div class="nav-label">Main</div>
+        <div class="nav-item active" onclick="goPage('dashboard',this)"><span class="nav-icon">📊</span>Dashboard</div>
+        <div class="nav-item" onclick="goPage('pos',this)"><span class="nav-icon">🛒</span>New Sale</div>
+        <div class="nav-item" onclick="goPage('transactions',this)"><span class="nav-icon">📋</span>Transactions</div>
+      </div>
+      <div class="nav-section" id="admin-nav">
+        <div class="nav-label">Management</div>
+        <div class="nav-item" onclick="goPage('inventory',this)"><span class="nav-icon">📦</span>Inventory</div>
+        <div class="nav-item" onclick="goPage('reports',this)"><span class="nav-icon">📈</span>Reports</div>
+        <div class="nav-item" onclick="goPage('users',this)"><span class="nav-icon">👥</span>Users</div>
+      </div>
+    </div>
+    <div class="sidebar-footer">
+      <div class="user-badge">
+        <div class="user-avatar" id="user-avatar">A</div>
+        <div class="user-info">
+          <div class="name" id="user-name-display">Admin</div>
+          <div class="role" id="user-role-display">Administrator</div>
+        </div>
+        <button class="logout-btn" onclick="doLogout()" title="Logout">⏻</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main">
+    <div class="topbar">
+      <div>
+        <h1 id="page-title">Dashboard</h1>
+        <div class="subtitle" id="page-sub">Overview of today's business activity</div>
+      </div>
+      <div class="topbar-actions" id="topbar-actions"></div>
+    </div>
+    <div class="content">
+
+      <!-- ── DASHBOARD ── -->
+      <div class="page active" id="page-dashboard">
+        <div class="stats-grid">
+          <div class="stat-card orange">
+            <div class="stat-label">Today's Revenue</div>
+            <div class="stat-value" id="stat-revenue">KES 0</div>
+            <div class="stat-sub" id="stat-revenue-sub">0 transactions</div>
+          </div>
+          <div class="stat-card green">
+            <div class="stat-label">Cash Sales</div>
+            <div class="stat-value" id="stat-cash">KES 0</div>
+            <div class="stat-sub">Today</div>
+          </div>
+          <div class="stat-card blue">
+            <div class="stat-label">M-Pesa Sales</div>
+            <div class="stat-value" id="stat-mpesa">KES 0</div>
+            <div class="stat-sub">Today</div>
+          </div>
+          <div class="stat-card red">
+            <div class="stat-label">Low Stock Items</div>
+            <div class="stat-value" id="stat-lowstock">0</div>
+            <div class="stat-sub">Need restocking</div>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+          <div class="card">
+            <div class="card-title">Recent Transactions</div>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Receipt</th><th>Time</th><th>Amount</th><th>Method</th></tr></thead>
+                <tbody id="recent-tx-table"><tr><td colspan="4" style="text-align:center;color:var(--text-muted);padding:24px">No transactions yet today</td></tr></tbody>
+              </table>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-title">Low Stock Alerts</div>
+            <div id="low-stock-list"><p style="color:var(--text-muted);font-size:13px">All items are well stocked.</p></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── POS ── -->
+      <div class="page" id="page-pos">
+        <div class="pos-layout">
+          <div class="pos-products">
+            <div style="display:flex;gap:10px;margin-bottom:12px">
+              <div class="search-bar" style="flex:1">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="pos-search" placeholder="Search products..." oninput="renderProducts()">
+              </div>
+              <select id="pos-cat-filter" onchange="renderProducts()" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:var(--radius);font-family:inherit;font-size:13px;color:var(--text);background:var(--surface)">
+                <option value="">All Categories</option>
+                <option>Building</option>
+                <option>Plumbing</option>
+                <option>Electrical</option>
+                <option>Tools</option>
+                <option>Paint</option>
+                <option>Other</option>
+              </select>
+            </div>
+            <div class="products-grid" id="products-grid"></div>
+          </div>
+          <div class="cart-panel">
+            <div class="cart-header">
+              <h3>🛒 Sale Cart</h3>
+            </div>
+            <div class="cart-items" id="cart-items">
+              <div class="cart-empty">
+                <div class="empty-icon">🛒</div>
+                <p>Cart is empty</p>
+                <p style="font-size:11px;margin-top:4px">Click products to add them</p>
+              </div>
+            </div>
+            <div class="cart-footer">
+              <div class="cart-total"><span>Subtotal</span><span id="cart-subtotal">KES 0.00</span></div>
+              <div class="cart-total grand"><span>Total</span><span id="cart-total">KES 0.00</span></div>
+              <button class="btn btn-orange" style="width:100%" onclick="openPayment()" id="checkout-btn" disabled>
+                Proceed to Payment →
+              </button>
+              <button class="btn btn-ghost" style="width:100%;margin-top:6px;font-size:12px" onclick="clearCart()">Clear Cart</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── TRANSACTIONS ── -->
+      <div class="page" id="page-transactions">
+        <div class="card">
+          <div class="card-title">All Transactions</div>
+          <div class="inv-toolbar">
+            <div class="search-bar" style="max-width:300px">
+              <span class="search-icon">🔍</span>
+              <input type="text" id="tx-search" placeholder="Search receipt #..." oninput="renderTransactions()">
+            </div>
+            <select id="tx-method" onchange="renderTransactions()" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:var(--radius);font-family:inherit;font-size:13px">
+              <option value="">All Methods</option>
+              <option value="cash">Cash</option>
+              <option value="mpesa">M-Pesa</option>
+              <option value="mobile">Mobile Banking</option>
+              <option value="split">Split</option>
+            </select>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Receipt #</th><th>Date & Time</th><th>Cashier</th><th>Items</th><th>Amount</th><th>Method</th><th>Status</th><th>Action</th></tr></thead>
+              <tbody id="tx-table-body"><tr><td colspan="8" style="text-align:center;color:var(--text-muted);padding:32px">No transactions recorded</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── INVENTORY ── -->
+      <div class="page" id="page-inventory">
+        <div id="low-stock-inv-alert"></div>
+        <div class="card">
+          <div class="inv-toolbar">
+            <div class="search-bar" style="max-width:280px">
+              <span class="search-icon">🔍</span>
+              <input type="text" id="inv-search" placeholder="Search inventory..." oninput="renderInventory()">
+            </div>
+            <div class="cat-filter" id="inv-cat-filter">
+              <button class="cat-btn active" onclick="setCatFilter('',this)">All</button>
+              <button class="cat-btn" onclick="setCatFilter('Building',this)">Building</button>
+              <button class="cat-btn" onclick="setCatFilter('Plumbing',this)">Plumbing</button>
+              <button class="cat-btn" onclick="setCatFilter('Electrical',this)">Electrical</button>
+              <button class="cat-btn" onclick="setCatFilter('Tools',this)">Tools</button>
+              <button class="cat-btn" onclick="setCatFilter('Paint',this)">Paint</button>
+              <button class="cat-btn" onclick="setCatFilter('Other',this)">Other</button>
+            </div>
+            <div style="margin-left:auto" id="admin-inv-btn"></div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>#</th><th>Product Name</th><th>Category</th><th>Unit Price</th><th>Stock</th><th>Min Stock</th><th>Status</th><th id="inv-actions-hdr"></th></tr></thead>
+              <tbody id="inventory-table-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── REPORTS ── -->
+      <div class="page" id="page-reports">
+        <div class="report-tabs">
+          <button class="report-tab active" onclick="setReportTab('summary',this)">Sales Summary</button>
+          <button class="report-tab" onclick="setReportTab('payment',this)">Payment Breakdown</button>
+          <button class="report-tab" onclick="setReportTab('inventory',this)">Inventory Report</button>
+        </div>
+        <div id="report-content"></div>
+      </div>
+
+      <!-- ── USERS ── -->
+      <div class="page" id="page-users">
+        <div class="card">
+          <div class="card-title" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+            <span>User Accounts</span>
+            <button class="btn btn-orange btn-sm" onclick="openAddUser()">+ Add User</button>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Username</th><th>Role</th><th>Created</th><th>Last Login</th><th>Status</th><th>Actions</th></tr></thead>
+              <tbody id="users-table-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<!-- ═══ MODALS ═══ -->
+
+<!-- Product Modal -->
+<div class="modal-overlay" id="modal-product">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="product-modal-title">Add Product</h2>
+      <button class="modal-close" onclick="closeModal('modal-product')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="pm-id">
+      <div class="form-row">
+        <div class="form-field" style="grid-column:1/-1">
+          <label>Product Name</label>
+          <input type="text" id="pm-name" placeholder="e.g. Portland Cement 50kg">
+        </div>
+        <div class="form-field">
+          <label>Category</label>
+          <select id="pm-cat">
+            <option>Building</option><option>Plumbing</option><option>Electrical</option>
+            <option>Tools</option><option>Paint</option><option>Other</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label>Unit Price (KES)</label>
+          <input type="number" id="pm-price" placeholder="0.00" min="0" step="0.01">
+        </div>
+        <div class="form-field">
+          <label>Stock Quantity</label>
+          <input type="number" id="pm-stock" placeholder="0" min="0">
+        </div>
+        <div class="form-field">
+          <label>Min Stock (Alert)</label>
+          <input type="number" id="pm-min" placeholder="5" min="0">
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-product')">Cancel</button>
+      <button class="btn btn-orange" onclick="saveProduct()">Save Product</button>
+    </div>
+  </div>
+</div>
+
+<!-- Payment Modal -->
+<div class="modal-overlay" id="modal-payment">
+  <div class="modal" style="max-width:440px">
+    <div class="modal-header">
+      <h2>💳 Payment</h2>
+      <button class="modal-close" onclick="closeModal('modal-payment')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="pay-total-display">
+        <div>
+          <div class="ptlabel">Total Amount Due</div>
+          <div class="ptvalue" id="pay-total-display">KES 0.00</div>
+        </div>
+        <div style="font-size:28px">🧾</div>
+      </div>
+      <div style="font-size:12px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.7px;margin-bottom:10px">Select Payment Method</div>
+      <div class="payment-methods">
+        <div class="pay-method selected" onclick="selectPayMethod('cash',this)">
+          <div class="pm-icon">💵</div><div class="pm-name">Cash</div>
+        </div>
+        <div class="pay-method" onclick="selectPayMethod('mpesa',this)">
+          <div class="pm-icon">📱</div><div class="pm-name">M-Pesa</div>
+        </div>
+        <div class="pay-method" onclick="selectPayMethod('mobile',this)">
+          <div class="pm-icon">🏦</div><div class="pm-name">Mobile Banking</div>
+        </div>
+        <div class="pay-method" onclick="selectPayMethod('split',this)">
+          <div class="pm-icon">✂️</div><div class="pm-name">Split Payment</div>
+        </div>
+      </div>
+      <div class="pay-detail" id="pay-detail">
+        <div class="form-field">
+          <label>Amount Tendered (KES)</label>
+          <input type="number" id="pay-cash-amount" placeholder="Enter amount" min="0" oninput="calcChange()">
+        </div>
+        <div id="change-display" style="background:var(--green-bg);color:var(--green);padding:10px 12px;border-radius:var(--radius);font-size:13px;font-weight:600;display:none">
+          Change Due: <span id="change-amount">KES 0.00</span>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-payment')">Cancel</button>
+      <button class="btn btn-orange" onclick="completeSale()" id="complete-sale-btn">Complete Sale ✓</button>
+    </div>
+  </div>
+</div>
+
+<!-- Receipt Modal -->
+<div class="modal-overlay" id="modal-receipt">
+  <div class="modal" style="max-width:400px">
+    <div class="modal-header">
+      <h2>✅ Sale Complete</h2>
+      <button class="modal-close" onclick="closeReceiptAndReset()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="receipt" id="receipt-content"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="window.print()">🖨️ Print</button>
+      <button class="btn btn-orange" onclick="closeReceiptAndReset()">New Sale →</button>
+    </div>
+  </div>
+</div>
+
+<!-- User Modal -->
+<div class="modal-overlay" id="modal-user">
+  <div class="modal" style="max-width:400px">
+    <div class="modal-header">
+      <h2 id="user-modal-title">Add User</h2>
+      <button class="modal-close" onclick="closeModal('modal-user')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="um-id">
+      <div class="form-field">
+        <label>Username</label>
+        <input type="text" id="um-username" placeholder="e.g. cashier2">
+      </div>
+      <div class="form-field">
+        <label>Password</label>
+        <input type="password" id="um-password" placeholder="Minimum 6 characters">
+      </div>
+      <div class="form-field">
+        <label>Role</label>
+        <select id="um-role">
+          <option value="cashier">Cashier</option>
+          <option value="admin">Admin</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-user')">Cancel</button>
+      <button class="btn btn-orange" onclick="saveUser()">Save User</button>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Confirm Modal -->
+<div class="modal-overlay" id="modal-confirm">
+  <div class="modal" style="max-width:380px">
+    <div class="modal-header">
+      <h2>⚠️ Confirm Delete</h2>
+      <button class="modal-close" onclick="closeModal('modal-confirm')">✕</button>
+    </div>
+    <div class="modal-body">
+      <p id="confirm-msg" style="font-size:14px;color:var(--text)">Are you sure you want to delete this item?</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-confirm')">Cancel</button>
+      <button class="btn btn-danger" id="confirm-action-btn">Delete</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════
+// DATA STORE
+// ═══════════════════════════════════════════
+let db = {
+  users: [
+    { id: 1, username: 'admin', password: 'admin123', role: 'admin', created: '2025-01-01', lastLogin: null, active: true },
+    { id: 2, username: 'cashier1', password: 'cash123', role: 'cashier', created: '2025-01-01', lastLogin: null, active: true }
+  ],
+  products: [
+    { id: 1, name: 'Portland Cement 50kg', category: 'Building', price: 650, stock: 120, minStock: 20 },
+    { id: 2, name: 'Iron Roofing Sheet 3m', category: 'Building', price: 1200, stock: 45, minStock: 10 },
+    { id: 3, name: 'Deformed Bar Y12 12m', category: 'Building', price: 1850, stock: 60, minStock: 15 },
+    { id: 4, name: 'PVC Pipe 2 inch 3m', category: 'Plumbing', price: 280, stock: 80, minStock: 20 },
+    { id: 5, name: 'Ball Valve 1 inch', category: 'Plumbing', price: 180, stock: 35, minStock: 10 },
+    { id: 6, name: 'Copper Wire 2.5mm 100m', category: 'Electrical', price: 4500, stock: 8, minStock: 5 },
+    { id: 7, name: 'MCB Switch 20A', category: 'Electrical', price: 380, stock: 25, minStock: 10 },
+    { id: 8, name: 'Claw Hammer 500g', category: 'Tools', price: 350, stock: 3, minStock: 10 },
+    { id: 9, name: 'Paint Dulux Emulsion 4L', category: 'Paint', price: 1800, stock: 22, minStock: 8 },
+    { id: 10, name: 'Masonry Nails 3 inch 1kg', category: 'Building', price: 120, stock: 200, minStock: 50 },
+    { id: 11, name: 'Pipe Wrench 14 inch', category: 'Tools', price: 650, stock: 12, minStock: 5 },
+    { id: 12, name: 'Electrical Tape 10m', category: 'Electrical', price: 45, stock: 4, minStock: 20 }
+  ],
+  transactions: [],
+  auditLog: [],
+  nextId: { product: 13, user: 3, transaction: 1 }
+};
+
+let currentUser = null;
+let cart = [];
+let currentPayMethod = 'cash';
+let currentInvCatFilter = '';
+let currentReportTab = 'summary';
+
+// ═══════════════════════════════════════════
+// AUTH
+// ═══════════════════════════════════════════
+function doLogin() {
+  const u = document.getElementById('l-user').value.trim();
+  const p = document.getElementById('l-pass').value;
+  const user = db.users.find(x => x.username === u && x.password === p && x.active);
+  if (!user) {
+    document.getElementById('login-error').style.display = 'block';
+    return;
+  }
+  user.lastLogin = new Date().toISOString();
+  currentUser = user;
+  document.getElementById('login-error').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'flex';
+  document.getElementById('user-avatar').textContent = user.username[0].toUpperCase();
+  document.getElementById('user-name-display').textContent = user.username;
+  document.getElementById('user-role-display').textContent = user.role === 'admin' ? 'Administrator' : 'Cashier';
+  document.getElementById('admin-nav').style.display = user.role === 'admin' ? 'block' : 'none';
+  goPage('dashboard', document.querySelector('.nav-item.active'));
+  renderProducts();
+}
+
+document.getElementById('l-pass').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+
+function doLogout() {
+  currentUser = null; cart = [];
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('l-user').value = '';
+  document.getElementById('l-pass').value = '';
+}
+
+// ═══════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════
+const pageTitles = {
+  dashboard: ['Dashboard', 'Overview of today\'s business activity'],
+  pos: ['New Sale', 'Select products and process payment'],
+  transactions: ['Transactions', 'All recorded sales'],
+  inventory: ['Inventory', 'Product catalog and stock levels'],
+  reports: ['Reports & Analytics', 'Business performance reports'],
+  users: ['User Management', 'Manage system accounts']
+};
+
+function goPage(name, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  if (el) el.classList.add('active');
+  const [title, sub] = pageTitles[name] || [name, ''];
+  document.getElementById('page-title').textContent = title;
+  document.getElementById('page-sub').textContent = sub;
+  const actions = document.getElementById('topbar-actions');
+  actions.innerHTML = '';
+  if (name === 'pos') renderProducts();
+  if (name === 'inventory') { renderInventory(); setupInventoryPage(); }
+  if (name === 'dashboard') updateDashboard();
+  if (name === 'transactions') renderTransactions();
+  if (name === 'reports') renderReport();
+  if (name === 'users') renderUsers();
+}
+
+// ═══════════════════════════════════════════
+// DASHBOARD
+// ═══════════════════════════════════════════
+function updateDashboard() {
+  const today = new Date().toDateString();
+  const todayTx = db.transactions.filter(t => new Date(t.date).toDateString() === today);
+  const totalRev = todayTx.reduce((s, t) => s + t.total, 0);
+  const cashRev = todayTx.filter(t => t.method === 'cash' || (t.method === 'split' && t.cashAmount)).reduce((s, t) => s + (t.method === 'split' ? (t.cashAmount || 0) : t.total), 0);
+  const mpesaRev = todayTx.filter(t => t.method === 'mpesa' || (t.method === 'split' && t.mpesaAmount)).reduce((s, t) => s + (t.method === 'split' ? (t.mpesaAmount || 0) : t.total), 0);
+  const lowStock = db.products.filter(p => p.stock <= p.minStock);
+  document.getElementById('stat-revenue').textContent = fKES(totalRev);
+  document.getElementById('stat-revenue-sub').textContent = todayTx.length + ' transaction' + (todayTx.length !== 1 ? 's' : '');
+  document.getElementById('stat-cash').textContent = fKES(cashRev);
+  document.getElementById('stat-mpesa').textContent = fKES(mpesaRev);
+  document.getElementById('stat-lowstock').textContent = lowStock.length;
+
+  // Recent transactions
+  const recTbl = document.getElementById('recent-tx-table');
+  if (todayTx.length === 0) {
+    recTbl.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--text-muted);padding:24px">No transactions yet today</td></tr>';
+  } else {
+    const latest = [...todayTx].reverse().slice(0, 6);
+    recTbl.innerHTML = latest.map(t => `<tr>
+      <td><span style="font-family:monospace;font-size:11px">${t.receipt}</span></td>
+      <td>${fTime(t.date)}</td>
+      <td style="font-weight:600;color:var(--orange)">${fKES(t.total)}</td>
+      <td>${methodBadge(t.method)}</td>
+    </tr>`).join('');
+  }
+
+  // Low stock list
+  const lsl = document.getElementById('low-stock-list');
+  if (lowStock.length === 0) {
+    lsl.innerHTML = '<p style="color:var(--text-muted);font-size:13px">✅ All items are well stocked.</p>';
+  } else {
+    lsl.innerHTML = lowStock.slice(0, 8).map(p => `
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px">
+        <span style="color:var(--text)">${p.name}</span>
+        <span class="badge badge-${p.stock === 0 ? 'red' : 'amber'}">${p.stock} left</span>
+      </div>`).join('');
+  }
+}
+
+// ═══════════════════════════════════════════
+// POS & CART
+// ═══════════════════════════════════════════
+function renderProducts() {
+  const search = (document.getElementById('pos-search')?.value || '').toLowerCase();
+  const cat = document.getElementById('pos-cat-filter')?.value || '';
+  const grid = document.getElementById('products-grid');
+  if (!grid) return;
+  const filtered = db.products.filter(p =>
+    (!search || p.name.toLowerCase().includes(search)) &&
+    (!cat || p.category === cat)
+  );
+  if (filtered.length === 0) {
+    grid.innerHTML = '<p style="color:var(--text-muted);padding:20px;grid-column:1/-1">No products found.</p>';
+    return;
+  }
+  grid.innerHTML = filtered.map(p => `
+    <div class="product-card ${p.stock === 0 ? 'out-of-stock' : ''}" onclick="addToCart(${p.id})">
+      <div class="pcat">${p.category}</div>
+      <div class="pname">${p.name}</div>
+      <div class="pprice">${fKES(p.price)}</div>
+      <div class="pstock">${p.stock === 0 ? '⚠ Out of stock' : p.stock + ' in stock'}</div>
+    </div>`).join('');
+}
+
+function addToCart(pid) {
+  const product = db.products.find(p => p.id === pid);
+  if (!product || product.stock === 0) return;
+  const existing = cart.find(c => c.id === pid);
+  if (existing) {
+    if (existing.qty >= product.stock) { alert('Cannot add more — max stock reached.'); return; }
+    existing.qty++;
+  } else {
+    cart.push({ id: pid, name: product.name, price: product.price, qty: 1 });
+  }
+  renderCart();
+}
+
+function removeFromCart(pid) {
+  cart = cart.filter(c => c.id !== pid);
+  renderCart();
+}
+
+function changeQty(pid, delta) {
+  const item = cart.find(c => c.id === pid);
+  const product = db.products.find(p => p.id === pid);
+  if (!item) return;
+  item.qty += delta;
+  if (item.qty <= 0) removeFromCart(pid);
+  else if (product && item.qty > product.stock) item.qty = product.stock;
+  else renderCart();
+}
+
+function clearCart() { cart = []; renderCart(); }
+
+function renderCart() {
+  const container = document.getElementById('cart-items');
+  const btn = document.getElementById('checkout-btn');
+  if (cart.length === 0) {
+    container.innerHTML = '<div class="cart-empty"><div class="empty-icon">🛒</div><p>Cart is empty</p><p style="font-size:11px;margin-top:4px">Click products to add them</p></div>';
+    btn.disabled = true;
+  } else {
+    container.innerHTML = cart.map(c => `
+      <div class="cart-item">
+        <div style="flex:1">
+          <div class="cart-item-name">${c.name}</div>
+          <div class="cart-item-price">${fKES(c.price)} each → ${fKES(c.price * c.qty)}</div>
+        </div>
+        <div class="qty-ctrl">
+          <button class="qty-btn" onclick="changeQty(${c.id},-1)">−</button>
+          <span class="qty-num">${c.qty}</span>
+          <button class="qty-btn" onclick="changeQty(${c.id},1)">+</button>
+        </div>
+        <button class="cart-remove" onclick="removeFromCart(${c.id})">✕</button>
+      </div>`).join('');
+    btn.disabled = false;
+  }
+  const total = cart.reduce((s, c) => s + c.price * c.qty, 0);
+  document.getElementById('cart-subtotal').textContent = fKES(total);
+  document.getElementById('cart-total').textContent = fKES(total);
+}
+
+// ═══════════════════════════════════════════
+// PAYMENT
+// ═══════════════════════════════════════════
+function openPayment() {
+  if (cart.length === 0) return;
+  const total = cart.reduce((s, c) => s + c.price * c.qty, 0);
+  document.getElementById('pay-total-display').textContent = fKES(total);
+  currentPayMethod = 'cash';
+  document.querySelectorAll('.pay-method').forEach((el, i) => {
+    el.classList.toggle('selected', i === 0);
+  });
+  renderPayDetail('cash');
+  openModal('modal-payment');
+}
+
+function selectPayMethod(method, el) {
+  currentPayMethod = method;
+  document.querySelectorAll('.pay-method').forEach(e => e.classList.remove('selected'));
+  el.classList.add('selected');
+  renderPayDetail(method);
+}
+
+function renderPayDetail(method) {
+  const total = cart.reduce((s, c) => s + c.price * c.qty, 0);
+  const d = document.getElementById('pay-detail');
+  if (method === 'cash') {
+    d.innerHTML = `
+      <div class="form-field"><label>Amount Tendered (KES)</label>
+      <input type="number" id="pay-cash-amount" placeholder="${total.toFixed(2)}" min="0" oninput="calcChange()"></div>
+      <div id="change-display" style="background:var(--green-bg);color:var(--green);padding:10px 12px;border-radius:var(--radius);font-size:13px;font-weight:600;display:none">
+        Change Due: <span id="change-amount">KES 0.00</span>
+      </div>`;
+  } else if (method === 'mpesa') {
+    d.innerHTML = `
+      <div class="form-field"><label>Customer Phone (M-Pesa)</label>
+      <input type="tel" id="mpesa-phone" placeholder="07XXXXXXXX"></div>
+      <div style="background:var(--amber-bg);color:var(--amber);padding:10px 12px;border-radius:var(--radius);font-size:12px;margin-bottom:10px">
+        📱 <strong>Online:</strong> STK Push will be sent to customer's phone.<br>
+        <strong>Offline:</strong> Enter M-Pesa code after customer pays.
+      </div>
+      <div class="form-field"><label>M-Pesa Code (Offline / Confirm)</label>
+      <input type="text" id="mpesa-code" placeholder="e.g. QHG12345AB" style="font-family:monospace;text-transform:uppercase"></div>`;
+  } else if (method === 'mobile') {
+    d.innerHTML = `
+      <div class="form-field"><label>Bank / Wallet Name</label>
+      <input type="text" id="mobile-bank" placeholder="e.g. Equity, KCB, Airtel Money"></div>
+      <div class="form-field"><label>Reference Number</label>
+      <input type="text" id="mobile-ref" placeholder="Transaction reference" style="font-family:monospace"></div>`;
+  } else if (method === 'split') {
+    d.innerHTML = `
+      <p style="font-size:12px;color:var(--text-muted);margin-bottom:10px">Total: <strong>${fKES(total)}</strong> — split between Cash and M-Pesa</p>
+      <div class="split-amounts">
+        <div class="form-field">
+          <label>Cash Amount (KES)</label>
+          <input type="number" id="split-cash" placeholder="0.00" min="0" oninput="calcSplitRemainder()">
+        </div>
+        <div class="form-field">
+          <label>M-Pesa Amount (KES)</label>
+          <input type="number" id="split-mpesa" placeholder="0.00" min="0">
+        </div>
+      </div>
+      <div class="form-field"><label>M-Pesa Code</label>
+      <input type="text" id="split-mpesa-code" placeholder="e.g. QHG12345AB" style="font-family:monospace;text-transform:uppercase"></div>`;
+  }
+}
+
+function calcChange() {
+  const total = cart.reduce((s, c) => s + c.price * c.qty, 0);
+  const tendered = parseFloat(document.getElementById('pay-cash-amount')?.value) || 0;
+  const cd = document.getElementById('change-display');
+  if (tendered >= total) {
+    document.getElementById('change-amount').textContent = fKES(tendered - total);
+    if (cd) cd.style.display = 'block';
+  } else {
+    if (cd) cd.style.display = 'none';
+  }
+}
+
+function calcSplitRemainder() {
+  const total = cart.reduce((s, c) => s + c.price * c.qty, 0);
+  const cash = parseFloat(document.getElementById('split-cash')?.value) || 0;
+  const rem = Math.max(0, total - cash);
+  const mpesaField = document.getElementById('split-mpesa');
+  if (mpesaField) mpesaField.value = rem.toFixed(2);
+}
+
+function completeSale() {
+  const total = cart.reduce((s, c) => s + c.price * c.qty, 0);
+  let payInfo = {};
+  if (currentPayMethod === 'cash') {
+    const tendered = parseFloat(document.getElementById('pay-cash-amount')?.value) || 0;
+    if (tendered < total) { alert('Amount tendered is less than total. Please enter a valid amount.'); return; }
+    payInfo = { tendered, change: tendered - total };
+  } else if (currentPayMethod === 'mpesa') {
+    const code = document.getElementById('mpesa-code')?.value?.trim();
+    payInfo = { phone: document.getElementById('mpesa-phone')?.value?.trim(), code };
+  } else if (currentPayMethod === 'mobile') {
+    payInfo = { bank: document.getElementById('mobile-bank')?.value?.trim(), ref: document.getElementById('mobile-ref')?.value?.trim() };
+  } else if (currentPayMethod === 'split') {
+    const cash = parseFloat(document.getElementById('split-cash')?.value) || 0;
+    const mpesa = parseFloat(document.getElementById('split-mpesa')?.value) || 0;
+    if (Math.abs((cash + mpesa) - total) > 1) { alert('Split amounts must add up to the total.'); return; }
+    payInfo = { cashAmount: cash, mpesaAmount: mpesa, code: document.getElementById('split-mpesa-code')?.value?.trim() };
+  }
+
+  // Deduct stock
+  cart.forEach(c => {
+    const p = db.products.find(pr => pr.id === c.id);
+    if (p) p.stock -= c.qty;
+  });
+
+  // Create transaction
+  const tx = {
+    id: db.nextId.transaction++,
+    receipt: 'RCP-' + String(db.nextId.transaction - 1).padStart(4, '0'),
+    date: new Date().toISOString(),
+    cashier: currentUser.username,
+    items: [...cart],
+    total,
+    method: currentPayMethod,
+    ...payInfo,
+    status: 'completed'
+  };
+  db.transactions.push(tx);
+
+  // Log audit
+  db.auditLog.push({ action: 'SALE', user: currentUser.username, detail: 'Receipt: ' + tx.receipt, time: new Date().toISOString() });
+
+  closeModal('modal-payment');
+  showReceipt(tx);
+}
+
+function showReceipt(tx) {
+  const r = document.getElementById('receipt-content');
+  r.innerHTML = `
+    <h3>🔧 HARDWARE STORE</h3>
+    <p style="text-align:center;font-size:11px;color:var(--text-muted)">Business Management System</p>
+    <hr class="rec-divider">
+    <div class="rec-row"><span>Receipt:</span><span>${tx.receipt}</span></div>
+    <div class="rec-row"><span>Date:</span><span>${fDate(tx.date)}</span></div>
+    <div class="rec-row"><span>Time:</span><span>${fTime(tx.date)}</span></div>
+    <div class="rec-row"><span>Cashier:</span><span>${tx.cashier}</span></div>
+    <hr class="rec-divider">
+    ${tx.items.map(i => `
+    <div class="rec-row"><span>${i.name}</span></div>
+    <div class="rec-row" style="padding-left:8px"><span>${i.qty} x ${fKES(i.price)}</span><span>${fKES(i.price * i.qty)}</span></div>`).join('')}
+    <hr class="rec-divider">
+    <div class="rec-row rec-total"><span>TOTAL</span><span>${fKES(tx.total)}</span></div>
+    <div class="rec-row"><span>Payment</span><span style="text-transform:capitalize">${tx.method === 'mpesa' ? 'M-Pesa' : tx.method}</span></div>
+    ${tx.method === 'cash' ? `<div class="rec-row"><span>Tendered</span><span>${fKES(tx.tendered)}</span></div>
+    <div class="rec-row"><span>Change</span><span>${fKES(tx.change)}</span></div>` : ''}
+    ${tx.method === 'split' ? `<div class="rec-row"><span>Cash</span><span>${fKES(tx.cashAmount)}</span></div>
+    <div class="rec-row"><span>M-Pesa</span><span>${fKES(tx.mpesaAmount)}</span></div>` : ''}
+    <hr class="rec-divider">
+    <p style="text-align:center;font-size:10px;color:var(--text-muted)">Thank you for your business!</p>`;
+  openModal('modal-receipt');
+}
+
+function closeReceiptAndReset() {
+  closeModal('modal-receipt');
+  cart = [];
+  renderCart();
+  renderProducts();
+  updateDashboard();
+}
+
+// ═══════════════════════════════════════════
+// INVENTORY
+// ═══════════════════════════════════════════
+function setupInventoryPage() {
+  if (currentUser.role === 'admin') {
+    document.getElementById('admin-inv-btn').innerHTML = '<button class="btn btn-orange" onclick="openAddProduct()">+ Add Product</button>';
+    document.getElementById('inv-actions-hdr').textContent = 'Actions';
+  } else {
+    document.getElementById('admin-inv-btn').innerHTML = '';
+    document.getElementById('inv-actions-hdr').textContent = '';
+  }
+  renderInventory();
+}
+
+function setCatFilter(cat, btn) {
+  currentInvCatFilter = cat;
+  document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderInventory();
+}
+
+function renderInventory() {
+  const search = (document.getElementById('inv-search')?.value || '').toLowerCase();
+  const filtered = db.products.filter(p =>
+    (!search || p.name.toLowerCase().includes(search)) &&
+    (!currentInvCatFilter || p.category === currentInvCatFilter)
+  );
+
+  const lowStock = db.products.filter(p => p.stock <= p.minStock);
+  const alertDiv = document.getElementById('low-stock-inv-alert');
+  if (lowStock.length > 0) {
+    alertDiv.innerHTML = `<div class="low-stock-alert"><span class="alert-icon">⚠️</span><span class="alert-text">${lowStock.length} item(s) are at or below minimum stock level and need restocking.</span></div>`;
+  } else {
+    alertDiv.innerHTML = '';
+  }
+
+  const isAdmin = currentUser.role === 'admin';
+  const tbody = document.getElementById('inventory-table-body');
+  if (filtered.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--text-muted);padding:32px">No products found</td></tr>';
+    return;
+  }
+  tbody.innerHTML = filtered.map((p, i) => {
+    const isLow = p.stock <= p.minStock;
+    const isOut = p.stock === 0;
+    return `<tr>
+      <td style="color:var(--text-muted);font-size:12px">${i + 1}</td>
+      <td style="font-weight:500">${p.name}</td>
+      <td><span class="badge badge-navy">${p.category}</span></td>
+      <td style="font-family:monospace;font-weight:600;color:var(--orange)">${fKES(p.price)}</td>
+      <td style="font-weight:600;color:${isOut ? 'var(--red)' : isLow ? 'var(--amber)' : 'var(--green)'}">${p.stock}</td>
+      <td style="color:var(--text-muted)">${p.minStock}</td>
+      <td>${isOut ? '<span class="badge badge-red">Out of Stock</span>' : isLow ? '<span class="badge badge-amber">Low Stock</span>' : '<span class="badge badge-green">In Stock</span>'}</td>
+      <td>${isAdmin ? `<div style="display:flex;gap:6px">
+        <button class="btn btn-outline btn-sm" onclick="editProduct(${p.id})">✏️ Edit</button>
+        <button class="btn btn-danger btn-sm" onclick="confirmDelete('product',${p.id})">🗑</button>
+      </div>` : ''}</td>
+    </tr>`;
+  }).join('');
+}
+
+function openAddProduct() {
+  document.getElementById('pm-id').value = '';
+  document.getElementById('pm-name').value = '';
+  document.getElementById('pm-cat').value = 'Building';
+  document.getElementById('pm-price').value = '';
+  document.getElementById('pm-stock').value = '';
+  document.getElementById('pm-min').value = '10';
+  document.getElementById('product-modal-title').textContent = 'Add New Product';
+  openModal('modal-product');
+}
+
+function editProduct(id) {
+  const p = db.products.find(x => x.id === id);
+  if (!p) return;
+  document.getElementById('pm-id').value = id;
+  document.getElementById('pm-name').value = p.name;
+  document.getElementById('pm-cat').value = p.category;
+  document.getElementById('pm-price').value = p.price;
+  document.getElementById('pm-stock').value = p.stock;
+  document.getElementById('pm-min').value = p.minStock;
+  document.getElementById('product-modal-title').textContent = 'Edit Product';
+  openModal('modal-product');
+}
+
+function saveProduct() {
+  const id = document.getElementById('pm-id').value;
+  const name = document.getElementById('pm-name').value.trim();
+  const cat = document.getElementById('pm-cat').value;
+  const price = parseFloat(document.getElementById('pm-price').value);
+  const stock = parseInt(document.getElementById('pm-stock').value);
+  const min = parseInt(document.getElementById('pm-min').value) || 5;
+  if (!name || isNaN(price) || isNaN(stock)) { alert('Please fill in all required fields.'); return; }
+  if (id) {
+    const p = db.products.find(x => x.id === parseInt(id));
+    if (p) { Object.assign(p, { name, category: cat, price, stock, minStock: min }); }
+    db.auditLog.push({ action: 'EDIT_PRODUCT', user: currentUser.username, detail: 'Updated: ' + name, time: new Date().toISOString() });
+  } else {
+    db.products.push({ id: db.nextId.product++, name, category: cat, price, stock, minStock: min });
+    db.auditLog.push({ action: 'ADD_PRODUCT', user: currentUser.username, detail: 'Added: ' + name, time: new Date().toISOString() });
+  }
+  closeModal('modal-product');
+  renderInventory();
+  renderProducts();
+}
+
+function deleteProduct(id) {
+  const idx = db.products.findIndex(p => p.id === id);
+  if (idx !== -1) {
+    const name = db.products[idx].name;
+    db.products.splice(idx, 1);
+    db.auditLog.push({ action: 'DELETE_PRODUCT', user: currentUser.username, detail: 'Deleted: ' + name, time: new Date().toISOString() });
+    renderInventory();
+    renderProducts();
+  }
+}
+
+// ═══════════════════════════════════════════
+// TRANSACTIONS
+// ═══════════════════════════════════════════
+function renderTransactions() {
+  const search = (document.getElementById('tx-search')?.value || '').toLowerCase();
+  const method = document.getElementById('tx-method')?.value || '';
+  const filtered = db.transactions.filter(t =>
+    (!search || t.receipt.toLowerCase().includes(search)) &&
+    (!method || t.method === method)
+  ).reverse();
+  const tbody = document.getElementById('tx-table-body');
+  if (filtered.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--text-muted);padding:32px">No transactions found</td></tr>';
+    return;
+  }
+  tbody.innerHTML = filtered.map(t => `<tr>
+    <td style="font-family:monospace;font-size:11px;font-weight:600">${t.receipt}</td>
+    <td style="font-size:12px">${fDate(t.date)} ${fTime(t.date)}</td>
+    <td>${t.cashier}</td>
+    <td>${t.items.length} item(s)</td>
+    <td style="font-weight:600;color:var(--orange)">${fKES(t.total)}</td>
+    <td>${methodBadge(t.method)}</td>
+    <td><span class="badge badge-green">Completed</span></td>
+    <td><button class="btn btn-outline btn-sm" onclick="viewReceipt(${t.id})">🧾 View</button></td>
+  </tr>`).join('');
+}
+
+function viewReceipt(id) {
+  const tx = db.transactions.find(t => t.id === id);
+  if (tx) showReceipt(tx);
+}
+
+// ═══════════════════════════════════════════
+// REPORTS
+// ═══════════════════════════════════════════
+function setReportTab(tab, btn) {
+  currentReportTab = tab;
+  document.querySelectorAll('.report-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderReport();
+}
+
+function renderReport() {
+  const container = document.getElementById('report-content');
+  if (currentReportTab === 'summary') {
+    const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+    const vals = [12400, 8900, 15600, 11200, 18500, 22000, 9800];
+    const maxV = Math.max(...vals);
+    const allTx = db.transactions;
+    const totalAll = allTx.reduce((s, t) => s + t.total, 0);
+    const today = allTx.filter(t => new Date(t.date).toDateString() === new Date().toDateString());
+    const todayTotal = today.reduce((s, t) => s + t.total, 0);
+    container.innerHTML = `
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px">
+        <div class="stat-card orange"><div class="stat-label">All Time Revenue</div><div class="stat-value">${fKES(totalAll)}</div><div class="stat-sub">${allTx.length} transactions</div></div>
+        <div class="stat-card green"><div class="stat-label">Today's Revenue</div><div class="stat-value">${fKES(todayTotal)}</div><div class="stat-sub">${today.length} transactions</div></div>
+        <div class="stat-card blue"><div class="stat-label">Avg Transaction</div><div class="stat-value">${allTx.length > 0 ? fKES(totalAll / allTx.length) : 'KES 0'}</div><div class="stat-sub">Per sale</div></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Weekly Sales Trend (Demo)</div>
+        <div class="mini-bar">
+          ${vals.map((v, i) => `<div class="bar-col"><div class="bar-fill" style="height:${Math.round((v/maxV)*70)}px"></div><div class="bar-label">${days[i]}</div></div>`).join('')}
+        </div>
+        <p style="font-size:11px;color:var(--text-muted);margin-top:10px">* Sample data for illustration. Actual bars reflect recorded transactions.</p>
+      </div>`;
+  } else if (currentReportTab === 'payment') {
+    const cash = db.transactions.filter(t => t.method === 'cash').reduce((s, t) => s + t.total, 0);
+    const mpesa = db.transactions.filter(t => t.method === 'mpesa').reduce((s, t) => s + t.total, 0);
+    const mobile = db.transactions.filter(t => t.method === 'mobile').reduce((s, t) => s + t.total, 0);
+    const split = db.transactions.filter(t => t.method === 'split').reduce((s, t) => s + t.total, 0);
+    const total = cash + mpesa + mobile + split || 1;
+    container.innerHTML = `
+      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:20px">
+        <div class="stat-card green"><div class="stat-label">Cash</div><div class="stat-value">${fKES(cash)}</div><div class="stat-sub">${Math.round(cash/total*100)}% of sales</div></div>
+        <div class="stat-card blue"><div class="stat-label">M-Pesa</div><div class="stat-value">${fKES(mpesa)}</div><div class="stat-sub">${Math.round(mpesa/total*100)}% of sales</div></div>
+        <div class="stat-card orange"><div class="stat-label">Mobile Banking</div><div class="stat-value">${fKES(mobile)}</div><div class="stat-sub">${Math.round(mobile/total*100)}% of sales</div></div>
+        <div class="stat-card red"><div class="stat-label">Split Payments</div><div class="stat-value">${fKES(split)}</div><div class="stat-sub">${Math.round(split/total*100)}% of sales</div></div>
+      </div>
+      <div class="card"><div class="card-title">Payment Method Distribution</div>
+        ${[['Cash',cash,'green'],['M-Pesa',mpesa,'blue'],['Mobile Banking',mobile,'orange'],['Split',split,'red']].map(([n,v,c]) => `
+        <div style="margin-bottom:12px">
+          <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px">
+            <span>${n}</span><span style="font-weight:600">${fKES(v)}</span>
+          </div>
+          <div style="background:var(--bg);border-radius:99px;height:8px;overflow:hidden">
+            <div style="width:${Math.round(v/total*100)}%;height:100%;background:var(--${c === 'green' ? 'green' : c === 'blue' ? 'blue' : c === 'orange' ? 'orange' : 'red'});border-radius:99px"></div>
+          </div>
+        </div>`).join('')}
+      </div>`;
+  } else {
+    const lowStock = db.products.filter(p => p.stock <= p.minStock);
+    const totalValue = db.products.reduce((s, p) => s + p.price * p.stock, 0);
+    container.innerHTML = `
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px">
+        <div class="stat-card orange"><div class="stat-label">Total Products</div><div class="stat-value">${db.products.length}</div><div class="stat-sub">In catalog</div></div>
+        <div class="stat-card green"><div class="stat-label">Inventory Value</div><div class="stat-value" style="font-size:18px">${fKES(totalValue)}</div><div class="stat-sub">At selling price</div></div>
+        <div class="stat-card red"><div class="stat-label">Low Stock Items</div><div class="stat-value">${lowStock.length}</div><div class="stat-sub">Need restocking</div></div>
+      </div>
+      <div class="card"><div class="card-title">All Products</div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Product</th><th>Category</th><th>Price</th><th>Stock</th><th>Value</th><th>Status</th></tr></thead>
+          <tbody>${db.products.map(p => {
+            const isLow = p.stock <= p.minStock;
+            return `<tr>
+              <td style="font-weight:500">${p.name}</td>
+              <td><span class="badge badge-navy">${p.category}</span></td>
+              <td style="font-family:monospace">${fKES(p.price)}</td>
+              <td style="font-weight:600;color:${p.stock === 0 ? 'var(--red)' : isLow ? 'var(--amber)' : 'var(--green)'}">${p.stock}</td>
+              <td style="font-family:monospace">${fKES(p.price * p.stock)}</td>
+              <td>${p.stock === 0 ? '<span class="badge badge-red">Out</span>' : isLow ? '<span class="badge badge-amber">Low</span>' : '<span class="badge badge-green">OK</span>'}</td>
+            </tr>`;
+          }).join('')}</tbody>
+        </table></div>
+      </div>`;
+  }
+}
+
+// ═══════════════════════════════════════════
+// USERS
+// ═══════════════════════════════════════════
+function renderUsers() {
+  const tbody = document.getElementById('users-table-body');
+  tbody.innerHTML = db.users.map(u => `<tr>
+    <td style="font-weight:600">${u.username}</td>
+    <td><span class="badge ${u.role === 'admin' ? 'badge-amber' : 'badge-blue'}">${u.role === 'admin' ? '👑 Admin' : '💼 Cashier'}</span></td>
+    <td style="font-size:12px">${u.created}</td>
+    <td style="font-size:12px">${u.lastLogin ? fDate(u.lastLogin) : 'Never'}</td>
+    <td><span class="badge ${u.active ? 'badge-green' : 'badge-red'}">${u.active ? 'Active' : 'Inactive'}</span></td>
+    <td><div style="display:flex;gap:6px">
+      <button class="btn btn-outline btn-sm" onclick="editUser(${u.id})">✏️ Edit</button>
+      ${u.id !== currentUser.id ? `<button class="btn btn-danger btn-sm" onclick="toggleUser(${u.id})">${u.active ? '🔒 Disable' : '🔓 Enable'}</button>` : ''}
+    </div></td>
+  </tr>`).join('');
+}
+
+function openAddUser() {
+  document.getElementById('um-id').value = '';
+  document.getElementById('um-username').value = '';
+  document.getElementById('um-password').value = '';
+  document.getElementById('um-role').value = 'cashier';
+  document.getElementById('user-modal-title').textContent = 'Add User';
+  openModal('modal-user');
+}
+
+function editUser(id) {
+  const u = db.users.find(x => x.id === id);
+  if (!u) return;
+  document.getElementById('um-id').value = id;
+  document.getElementById('um-username').value = u.username;
+  document.getElementById('um-password').value = '';
+  document.getElementById('um-role').value = u.role;
+  document.getElementById('user-modal-title').textContent = 'Edit User';
+  openModal('modal-user');
+}
+
+function saveUser() {
+  const id = document.getElementById('um-id').value;
+  const username = document.getElementById('um-username').value.trim();
+  const password = document.getElementById('um-password').value;
+  const role = document.getElementById('um-role').value;
+  if (!username) { alert('Please enter a username.'); return; }
+  if (id) {
+    const u = db.users.find(x => x.id === parseInt(id));
+    if (u) {
+      u.username = username;
+      u.role = role;
+      if (password) u.password = password;
+    }
+  } else {
+    if (!password || password.length < 6) { alert('Password must be at least 6 characters.'); return; }
+    if (db.users.find(u => u.username === username)) { alert('Username already exists.'); return; }
+    db.users.push({ id: db.nextId.user++, username, password, role, created: new Date().toLocaleDateString('en-KE'), lastLogin: null, active: true });
+  }
+  closeModal('modal-user');
+  renderUsers();
+}
+
+function toggleUser(id) {
+  const u = db.users.find(x => x.id === id);
+  if (u) { u.active = !u.active; renderUsers(); }
+}
+
+// ═══════════════════════════════════════════
+// CONFIRM DELETE
+// ═══════════════════════════════════════════
+function confirmDelete(type, id) {
+  let msg = 'Are you sure you want to delete this item?';
+  if (type === 'product') {
+    const p = db.products.find(x => x.id === id);
+    msg = `Delete product "${p?.name}"? This cannot be undone.`;
+  }
+  document.getElementById('confirm-msg').textContent = msg;
+  document.getElementById('confirm-action-btn').onclick = () => {
+    if (type === 'product') deleteProduct(id);
+    closeModal('modal-confirm');
+  };
+  openModal('modal-confirm');
+}
+
+// ═══════════════════════════════════════════
+// MODAL HELPERS
+// ═══════════════════════════════════════════
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', e => {
+    if (e.target === overlay) overlay.classList.remove('open');
+  });
+});
+
+// ═══════════════════════════════════════════
+// FORMATTERS
+// ═══════════════════════════════════════════
+function fKES(n) { return 'KES ' + (n || 0).toLocaleString('en-KE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+function fDate(d) { return new Date(d).toLocaleDateString('en-KE', { day:'2-digit', month:'short', year:'numeric' }); }
+function fTime(d) { return new Date(d).toLocaleTimeString('en-KE', { hour:'2-digit', minute:'2-digit' }); }
+function methodBadge(m) {
+  const map = { cash:'badge-green', mpesa:'badge-blue', mobile:'badge-amber', split:'badge-navy' };
+  const names = { cash:'💵 Cash', mpesa:'📱 M-Pesa', mobile:'🏦 Mobile', split:'✂️ Split' };
+  return `<span class="badge ${map[m] || 'badge-navy'}">${names[m] || m}</span>`;
+}
+
+// Init
+renderCart();
+
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js')
+        .then(reg => console.log('ManribsTech App Registered!'))
+        .catch(err => console.log('Registration failed', err));
+    });
+  }
+</script>
+</body>
+</html>

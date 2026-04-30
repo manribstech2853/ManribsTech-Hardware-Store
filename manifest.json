@@ -1,0 +1,17 @@
+{
+  "short_name": "ManribsTech",
+  "name": "ManribsTech Hardware Management System",
+  "icons": [
+    {
+      "src": "logo.png",
+      "sizes": "192x192 512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "./ManribsTech%20Store.html",
+  "background_color": "#0d1b2a",
+  "theme_color": "#f17829",
+  "display": "standalone",
+  "orientation": "portrait"
+}
