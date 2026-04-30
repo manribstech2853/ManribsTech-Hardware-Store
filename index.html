@@ -41,6 +41,13 @@
     min-height: 100vh; display: flex; align-items: center; justify-content: center;
     background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%);
   }
+  /* Fix for the oversized logo image */
+.login-logo img {
+    width: 120px !important; 
+    height: auto !important;
+    display: block;
+    margin: 0 auto 15px;
+}
   .login-box {
     background: var(--surface); border-radius: 12px; padding: 40px 44px;
     width: 400px; box-shadow: 0 16px 48px rgba(0,0,0,0.3);
