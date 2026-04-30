@@ -6,7 +6,7 @@
       "src": "logo.png",
       "sizes": "1024x1024",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     }
   ],
   "screenshots": [
@@ -15,19 +15,19 @@
       "sizes": "1024x1024",
       "type": "image/png",
       "form_factor": "wide",
-      "label": "ManribsTech Desktop Dashboard"
+      "label": "Desktop View"
     },
     {
       "src": "logo.png",
       "sizes": "1024x1024",
       "type": "image/png",
       "form_factor": "narrow",
-      "label": "ManribsTech Mobile App"
+      "label": "Mobile View"
     }
   ],
   "start_url": "./index.html",
   "background_color": "#0d1b2a",
-  "theme_color": "#f17829",
+  "theme_color": "#1565C0",
   "display": "standalone",
   "orientation": "portrait"
 }
