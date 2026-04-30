@@ -9,6 +9,22 @@
       "purpose": "any maskable"
     }
   ],
+  "screenshots": [
+    {
+      "src": "logo.png",
+      "sizes": "1024x1024",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "ManribsTech Desktop Dashboard"
+    },
+    {
+      "src": "logo.png",
+      "sizes": "1024x1024",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "ManribsTech Mobile App"
+    }
+  ],
   "start_url": "./index.html",
   "background_color": "#0d1b2a",
   "theme_color": "#f17829",
