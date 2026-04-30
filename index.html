@@ -818,7 +818,7 @@ let db = {
 };
 
 let currentUser = null;
-let cart = [];
+window.cart = [];
 let currentPayMethod = 'cash';
 let currentInvCatFilter = '';
 let currentReportTab = 'summary';
@@ -956,21 +956,34 @@ function renderProducts() {
 }
 
 function addToCart(pid) {
-  const product = db.products.find(p => p.id === pid);
-  if (!product || product.stock === 0) return;
-  const existing = cart.find(c => c.id === pid);
-  if (existing) {
-    if (existing.qty >= product.stock) { alert('Cannot add more — max stock reached.'); return; }
-    existing.qty++;
-  } else {
-    cart.push({ id: pid, name: product.name, price: product.price, qty: 1 });
-  }
-  renderCart();
+    const product = db.products.find(p => p.id === pid);
+    if (!product || product.stock === 0) return;
+
+    // Change 'cart.find' to 'window.cart.find'
+    const existing = window.cart.find(c => c.id === pid); 
+    
+    if (existing) {
+        if (existing.qty >= product.stock) {
+            alert('Cannot add more — max stock reached.'); 
+            return; 
+        }
+        existing.qty++;
+    } else {
+        // Change 'cart.push' to 'window.cart.push'
+        window.cart.push({ 
+            id: pid, 
+            name: product.name, 
+            price: product.price, 
+            qty: 1 
+        });
+    }
+    renderCart();
 }
 
 function removeFromCart(pid) {
-  cart = cart.filter(c => c.id !== pid);
-  renderCart();
+    // Change 'cart =' to 'window.cart ='
+    window.cart = window.cart.filter(c => c.id !== pid);
+    renderCart();
 }
 
 function changeQty(pid, delta) {
