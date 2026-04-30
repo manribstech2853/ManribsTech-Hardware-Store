@@ -1555,28 +1555,33 @@ renderCart();
 
   console.log("ManribsTech Cloud Database Connected!");
     
-    // Place this after window.dbPush = push; on line 1554
+  // Place this at the bottom of your script section
 function processFinalSale() {
-    // 1. Gather your cart data
+    console.log("Button clicked!"); // Check your console to see if this appears
+
+    // Check if cart is empty first
+    if (typeof cart === 'undefined' || cart.length === 0) {
+        alert("Your cart is empty!");
+        return;
+    }
+
     const saleData = {
         timestamp: new Date().toISOString(),
-        items: cart, // This uses your existing cart array
+        items: cart,
         total: document.getElementById('cart-total').innerText,
-        storeId: "ManribsTech_Kisii_001" // Useful for multi-client sales
+        storeId: "ManribsTech_001"
     };
 
-    // 2. Reference your live database
     const salesRef = window.dbRef(window.db, 'sales');
 
-    // 3. Push to the cloud
     window.dbPush(salesRef, saleData)
         .then(() => {
-            alert("✅ Sale synced to cloud dashboard!");
-            clearCart(); // Call your existing clear function
+            alert("✅ Success! Sale saved to Firebase.");
+            if (typeof clearCart === 'function') clearCart();
         })
         .catch((error) => {
-            console.error("Cloud sync failed:", error);
-            alert("❌ Error: Sale not saved. Check internet.");
+            console.error("Firebase Error:", error);
+            alert("❌ Failed to save. Check your Firebase Rules.");
         });
 }
 </script>
