@@ -1542,10 +1542,11 @@ renderCart();
     });
   }
 </script>
- <script type="module">
+<script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
-  import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-database.js";
+  import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-database.js";
 
+  // Configuration from your Firebase console
   const firebaseConfig = {
     apiKey: "AIzaSyBez8Pwram5ACy6CgC1NUMH-fEh59kzoDg",
     authDomain: "manribstech-store.firebaseapp.com",
@@ -1559,9 +1560,8 @@ renderCart();
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
 
-  // --- THE FIX: Define the function inside the module ---
-  function processFinalSale() {
-    // Check if cart exists and has items
+  // --- 1. THE SAVE FUNCTION ---
+  window.processFinalSale = function() {
     if (!window.cart || window.cart.length === 0) {
       alert("Cart is empty!");
       return;
@@ -1571,6 +1571,8 @@ renderCart();
       timestamp: new Date().toISOString(),
       items: window.cart,
       total: document.getElementById('cart-total').innerText,
+      // Captures your M-Pesa/Cash selection from line 822
+      paymentMethod: window.currentPayMethod || 'cash', 
       store: "ManribsTech_Hardware_001"
     };
 
@@ -1578,17 +1580,38 @@ renderCart();
     
     push(salesRef, saleData)
       .then(() => {
-        alert("✅ Sale Saved Successfully!");
+        alert(`✅ Sale Saved! Method: ${saleData.paymentMethod.toUpperCase()}`);
+        
+        // Clear cart and update UI
         if (window.clearCart) window.clearCart();
+        
+        // Show the Transactions page automatically
+        if (window.showPage) window.showPage('page-transactions');
       })
       .catch((error) => {
         console.error("Cloud Error:", error);
-        alert("❌ Error saving sale. Check internet.");
+        alert("❌ Error saving sale.");
       });
-  }
+  };
 
-  // --- THE MAGIC LINE: Make it public so line 541 can see it ---
-  window.processFinalSale = processFinalSale;
+  // --- 2. THE RECORD SHOWING LOGIC ---
+  // This "listens" to the cloud and updates your records list instantly
+  const salesRef = ref(db, 'sales');
+  onValue(salesRef, (snapshot) => {
+    const data = snapshot.val();
+    if (data) {
+      // Convert the Firebase object into an array for your UI
+      const salesArray = Object.keys(data).map(key => ({
+        id: key,
+        ...data[key]
+      }));
+      
+      // Send the data to your existing records table
+      if (window.renderTransactions) {
+        window.renderTransactions(salesArray);
+      }
+    }
+  });
 
   console.log("ManribsTech Cloud Database Connected!");
 </script>
