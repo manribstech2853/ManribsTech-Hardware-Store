@@ -538,8 +538,8 @@
             <div class="cart-footer">
               <div class="cart-total"><span>Subtotal</span><span id="cart-subtotal">KES 0.00</span></div>
               <div class="cart-total grand"><span>Total</span><span id="cart-total">KES 0.00</span></div>
-              <button class="btn btn-orange" style="width:100%" onclick="openPayment()" id="checkout-btn" disabled>
-                Proceed to Payment →
+              <button class="btn btn-orange" style="width:100%" onclick="processFinalSale()" id="checkout-btn" disabled>
+        Confirm & Save Sale →
               </button>
               <button class="btn btn-ghost" style="width:100%;margin-top:6px;font-size:12px" onclick="clearCart()">Clear Cart</button>
             </div>
@@ -1554,6 +1554,31 @@ renderCart();
   window.dbPush = push;
 
   console.log("ManribsTech Cloud Database Connected!");
+    
+    // Place this after window.dbPush = push; on line 1554
+function processFinalSale() {
+    // 1. Gather your cart data
+    const saleData = {
+        timestamp: new Date().toISOString(),
+        items: cart, // This uses your existing cart array
+        total: document.getElementById('cart-total').innerText,
+        storeId: "ManribsTech_Kisii_001" // Useful for multi-client sales
+    };
+
+    // 2. Reference your live database
+    const salesRef = window.dbRef(window.db, 'sales');
+
+    // 3. Push to the cloud
+    window.dbPush(salesRef, saleData)
+        .then(() => {
+            alert("✅ Sale synced to cloud dashboard!");
+            clearCart(); // Call your existing clear function
+        })
+        .catch((error) => {
+            console.error("Cloud sync failed:", error);
+            alert("❌ Error: Sale not saved. Check internet.");
+        });
+}
 </script>
 </body>
 </html>
