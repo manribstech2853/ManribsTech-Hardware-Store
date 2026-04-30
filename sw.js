@@ -1,5 +1,5 @@
 const CACHE_NAME = 'manribstech-v1';
-const assets = ['./ManribsTech%20Store.html', './logo.png'];
+const assets = ['./store.html', './logo.png'];
 
 // Install the service worker and cache files
 self.addEventListener('install', (e) => {
