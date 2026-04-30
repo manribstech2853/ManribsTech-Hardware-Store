@@ -538,8 +538,8 @@
             <div class="cart-footer">
               <div class="cart-total"><span>Subtotal</span><span id="cart-subtotal">KES 0.00</span></div>
               <div class="cart-total grand"><span>Total</span><span id="cart-total">KES 0.00</span></div>
-              <button class="btn btn-orange" style="width:100%" onclick="processFinalSale()" id="checkout-btn">
-    Confirm & Save Sale →
+              <button class="btn btn-orange" style="width:100%" onclick="openPayment()" id="checkout-btn">
+    Proceed to Payment →
 </button>
               <button class="btn btn-ghost" style="width:100%;margin-top:6px;font-size:12px" onclick="clearCart()">Clear Cart</button>
             </div>
@@ -718,8 +718,10 @@
     </div>
     <div class="modal-footer">
       <button class="btn btn-outline" onclick="closeModal('modal-payment')">Cancel</button>
-      <button class="btn btn-orange" onclick="completeSale()" id="complete-sale-btn">Complete Sale ✓</button>
-    </div>
+   <button class="btn btn-orange" onclick="processFinalSale()" id="complete-sale-btn">
+    Complete Sale ✓
+</button>
+</div>
   </div>
 </div>
 
