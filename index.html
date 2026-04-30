@@ -1529,10 +1529,9 @@ renderCart();
     });
   }
 </script>
-  <script type="module">
-  // 1. Add the "getDatabase" import here
+ <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
-  import { getDatabase, ref, set, push } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-database.js";
+  import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-database.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyBez8Pwram5ACy6CgC1NUMH-fEh59kzoDg",
@@ -1544,46 +1543,41 @@ renderCart();
     measurementId: "G-YFMXJH33GE"
   };
 
-  // 2. Initialize Firebase and the Database
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
 
-  // 3. Make 'db' available to your other functions (like recordSale)
-  window.db = db;
-  window.dbRef = ref;
-  window.dbPush = push;
-
-  console.log("ManribsTech Cloud Database Connected!");
-    
-  // Place this at the bottom of your script section
-function processFinalSale() {
-    console.log("Button clicked!"); // Check your console to see if this appears
-
-    // Check if cart is empty first
-    if (typeof cart === 'undefined' || cart.length === 0) {
-        alert("Your cart is empty!");
-        return;
+  // --- THE FIX: Define the function inside the module ---
+  function processFinalSale() {
+    // Check if cart exists and has items
+    if (!window.cart || window.cart.length === 0) {
+      alert("Cart is empty!");
+      return;
     }
 
     const saleData = {
-        timestamp: new Date().toISOString(),
-        items: cart,
-        total: document.getElementById('cart-total').innerText,
-        storeId: "ManribsTech_001"
+      timestamp: new Date().toISOString(),
+      items: window.cart,
+      total: document.getElementById('cart-total').innerText,
+      store: "ManribsTech_Hardware_001"
     };
 
-    const salesRef = window.dbRef(window.db, 'sales');
+    const salesRef = ref(db, 'sales');
+    
+    push(salesRef, saleData)
+      .then(() => {
+        alert("✅ Sale Saved Successfully!");
+        if (window.clearCart) window.clearCart();
+      })
+      .catch((error) => {
+        console.error("Cloud Error:", error);
+        alert("❌ Error saving sale. Check internet.");
+      });
+  }
 
-    window.dbPush(salesRef, saleData)
-        .then(() => {
-            alert("✅ Success! Sale saved to Firebase.");
-            if (typeof clearCart === 'function') clearCart();
-        })
-        .catch((error) => {
-            console.error("Firebase Error:", error);
-            alert("❌ Failed to save. Check your Firebase Rules.");
-        });
-}
+  // --- THE MAGIC LINE: Make it public so line 541 can see it ---
+  window.processFinalSale = processFinalSale;
+
+  console.log("ManribsTech Cloud Database Connected!");
 </script>
 </body>
 </html>
