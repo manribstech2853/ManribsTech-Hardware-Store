@@ -1529,5 +1529,31 @@ renderCart();
     });
   }
 </script>
+  <script type="module">
+  // 1. Add the "getDatabase" import here
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
+  import { getDatabase, ref, set, push } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBez8Pwram5ACy6CgC1NUMH-fEh59kzoDg",
+    authDomain: "manribstech-store.firebaseapp.com",
+    projectId: "manribstech-store",
+    storageBucket: "manribstech-store.firebasestorage.app",
+    messagingSenderId: "992096289165",
+    appId: "1:992096289165:web:073b6ed44e38b441967dc4",
+    measurementId: "G-YFMXJH33GE"
+  };
+
+  // 2. Initialize Firebase and the Database
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+
+  // 3. Make 'db' available to your other functions (like recordSale)
+  window.db = db;
+  window.dbRef = ref;
+  window.dbPush = push;
+
+  console.log("ManribsTech Cloud Database Connected!");
+</script>
 </body>
 </html>
