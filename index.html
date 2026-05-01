@@ -1257,8 +1257,8 @@ tr:hover td { background: rgba(238,241,245,0.4); }
 // ══════════════════════════════════════════
 // FIREBASE INTEGRATION (SDK v12.12.1)
 // ══════════════════════════════════════════
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
-import { getFirestore, doc, setDoc, getDoc, onSnapshot, collection, addDoc, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getFirestore, doc, setDoc, getDoc, onSnapshot, collection, addDoc, query, orderBy, limit, enableIndexedDbPersistence } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBez8Pwram5ACy6CgC1NUMH-fEh59kzoDg",
@@ -1272,6 +1272,15 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+
+// Enable Offline Persistence
+enableIndexedDbPersistence(db).catch((err) => {
+    if (err.code == 'failed-precondition') {
+        console.warn("Persistence failed: Multiple tabs open");
+    } else if (err.code == 'unimplemented') {
+        console.warn("Persistence failed: Browser doesn't support it");
+    }
+});
 
 // ══════════════════════════════════════════
 // CORE DATA STORE (Local)
@@ -1309,6 +1318,39 @@ let cloudStatus = 'offline';
 let clientID = null; // Multi-client isolation ID
 
 // ══════════════════════════════════════════
+// LOCAL STORAGE PERSISTENCE
+// ══════════════════════════════════════════
+function saveToLocal() {
+  if (!clientID) return;
+  const localData = {
+    products: DB.products,
+    users: DB.users,
+    nextId: DB.nextId,
+    transactions: DB.transactions,
+    lastSaved: new Date().toISOString()
+  };
+  localStorage.setItem('manribs_data_' + clientID, JSON.stringify(localData));
+}
+
+function loadFromLocal() {
+  if (!clientID) return false;
+  const saved = localStorage.getItem('manribs_data_' + clientID);
+  if (saved) {
+    try {
+      const data = JSON.parse(saved);
+      if (data.products) DB.products = data.products;
+      if (data.users) DB.users = data.users;
+      if (data.nextId) DB.nextId = data.nextId;
+      if (data.transactions) DB.transactions = data.transactions;
+      return true;
+    } catch (e) {
+      console.error("Local load error:", e);
+    }
+  }
+  return false;
+}
+
+// ══════════════════════════════════════════
 // CLOUD SYNC LOGIC
 // ══════════════════════════════════════════
 function setCloudStatus(status) {
@@ -1322,6 +1364,7 @@ function setCloudStatus(status) {
 
 async function syncToCloud() {
   if (!clientID) return;
+  saveToLocal(); // Always save locally first
   setCloudStatus('syncing');
   try {
     await setDoc(doc(db, "clients", clientID), {
@@ -1394,16 +1437,31 @@ window.doLogin = async function() {
     // Client ID is derived from username for isolation
     clientID = "client_" + u.toLowerCase().replace(/[^a-z0-9]/g, '');
     
-    // Check if client exists in cloud
-    const clientDoc = await getDoc(doc(db, "clients", clientID));
-    if (clientDoc.exists()) {
+    let clientDoc = null;
+    let isOffline = false;
+
+    // 1. Try loading from LocalStorage first (Instant refresh recovery)
+    const hasLocal = loadFromLocal();
+    
+    try {
+      // 2. Attempt to get from cloud (or cache if offline)
+      clientDoc = await getDoc(doc(db, "clients", clientID));
+    } catch (e) {
+      console.warn("Cloud fetch failed, attempting offline login", e);
+      isOffline = true;
+    }
+
+    if (clientDoc && clientDoc.exists()) {
       const data = clientDoc.data();
+      // Only override if cloud data is newer or local was empty
       if (data.users) DB.users = data.users;
       if (data.products) DB.products = data.products;
       if (data.nextId) DB.nextId = data.nextId;
+      saveToLocal(); // Update local cache with cloud data
     }
 
     const user = DB.users.find(x => x.username === u && x.password === p && x.active);
+    
     if (!user) {
       document.getElementById('login-error').textContent = "Invalid username or password.";
       document.getElementById('login-error').style.display = 'block';
@@ -1412,11 +1470,7 @@ window.doLogin = async function() {
       return;
     }
 
-    // If client didn't exist, initialize it now that we've verified the default user
-    if (!clientDoc.exists()) {
-      await syncToCloud();
-    }
-
+    // Success - proceed to app
     initCloudListeners();
     
     user.lastLogin = new Date().toISOString();
@@ -1431,11 +1485,30 @@ window.doLogin = async function() {
     
     goPage('dashboard', document.querySelector('.nav-item.active'));
     renderProducts();
-    await syncToCloud(); // Update last login in cloud
+
+    // Sync in background if possible
+    if (!isOffline) {
+      syncToCloud().catch(e => console.error("Background sync failed", e));
+    } else {
+      setCloudStatus('offline');
+      toast("Logged in offline mode. Data will sync when online.", "info");
+    }
+
   } catch (error) {
     console.error("Login error:", error);
-    document.getElementById('login-error').textContent = "Connection error. Please try again.";
-    document.getElementById('login-error').style.display = 'block';
+    // Fallback for total failure: Check local DB defaults
+    const user = DB.users.find(x => x.username === u && x.password === p && x.active);
+    if (user) {
+      currentUser = user;
+      document.getElementById('login-screen').style.display = 'none';
+      document.getElementById('app').style.display = 'flex';
+      goPage('dashboard', document.querySelector('.nav-item.active'));
+      setCloudStatus('offline');
+      toast("Emergency offline access granted.", "info");
+    } else {
+      document.getElementById('login-error').textContent = "System error. Please check your connection.";
+      document.getElementById('login-error').style.display = 'block';
+    }
   } finally {
     loginBtn.textContent = originalBtnText;
     loginBtn.disabled = false;
@@ -1766,13 +1839,14 @@ window.completeSale = async function() {
   // Save locally
   DB.transactions.push(tx);
   currentReceiptTx = tx;
+  saveToLocal(); // Immediate LocalStorage save
 
   // Save to Firebase (Cloud)
   if (clientID) {
     setCloudStatus('syncing');
     try {
       await addDoc(collection(db, "clients", clientID, "transactions"), tx);
-      await syncToCloud(); // Sync product stock changes
+      await syncToCloud(); // Sync product stock changes and update LocalStorage
       setCloudStatus('synced');
     } catch (e) {
       console.error("Cloud save error:", e);
