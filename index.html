@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ManribsTech Hardware — BMS</title>
+<title>ManribsTech Store </title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
 <style>
@@ -819,7 +819,7 @@ tr:hover td { background: rgba(238,241,245,0.4); }
   <div class="login-box">
     <div class="login-brand">
       <div class="login-icon">🔧</div>
-      <h1>ManribsTech Hardware</h1>
+      <h1>ManribsTech Store</h1>
       <p>Business Management System</p>
     </div>
     <div class="login-divider"></div>
@@ -1973,7 +1973,7 @@ window.showReceipt = function(tx) {
 function buildReceiptHTML(tx) {
   return `
     <div class="receipt-head">
-      <h3>🔧 ManribsTech Hardware</h3>
+      <h3>🔧 ManribsTech Store</h3>
       <p>Business Management System — Official Receipt</p>
     </div>
     <hr class="r-divider">
@@ -2000,7 +2000,7 @@ function buildReceiptHTML(tx) {
     <hr class="r-divider">
     <div class="receipt-footer">
       Thank you for your business!<br>
-      ManribsTech Hardware — Your Trusted Building Partner
+      ManribsTech Store — Your Trusted Building Partner
     </div>`;
 }
 
@@ -2021,7 +2021,7 @@ window.printReceipt = function() {
       .indent { padding-left: 10px; color: #444; }
       .footer { text-align: center; font-size: 9px; color: #888; margin-top: 10px; }
     </style>
-    <div class="ph"><h2>🔧 ManribsTech Hardware</h2><p>Official Receipt</p></div>
+    <div class="ph"><h2>🔧 ManribsTech Store </h2><p>Official Receipt</p></div>
     <hr>
     <div class="row"><span>Receipt:</span><span>${currentReceiptTx.receipt}</span></div>
     <div class="row"><span>Date:</span><span>${fDate(currentReceiptTx.date)}</span></div>
@@ -2037,7 +2037,7 @@ window.printReceipt = function() {
     ${currentReceiptTx.method === 'cash' ? `<div class="row"><span>Tendered</span><span>${fKES(currentReceiptTx.tendered)}</span></div><div class="row"><span>Change</span><span>${fKES(currentReceiptTx.change)}</span></div>` : ''}
     ${currentReceiptTx.method === 'mpesa' ? `<div class="row"><span>M-Pesa Code</span><span>${currentReceiptTx.code || '—'}</span></div>` : ''}
     ${currentReceiptTx.method === 'split' ? `<div class="row"><span>Cash</span><span>${fKES(currentReceiptTx.cashAmount)}</span></div><div class="row"><span>M-Pesa</span><span>${fKES(currentReceiptTx.mpesaAmount)}</span></div>` : ''}
-    <div class="footer">Thank you for your business! ManribsTech Hardware.</div>`;
+    <div class="footer">Thank you for your business! ManribsTech Store.</div>`;
   window.print();
   setTimeout(() => { printArea.style.display = 'none'; printArea.innerHTML = ''; }, 500);
 }
