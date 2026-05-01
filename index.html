@@ -1566,6 +1566,7 @@ renderCart();
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
   import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-database.js";
 
+  // 1. Firebase Configuration
   const firebaseConfig = {
     apiKey: "AIzaSyBez8Pwram5ACy6CgC1NUMH-fEh59kzoDg",
     authDomain: "manribstech-store.firebaseapp.com",
@@ -1578,59 +1579,106 @@ renderCart();
 
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
-  const salesRef = ref(db, 'sales');
+  const salesRef = ref(db, 'sales'); // Fixed reference for global use
 
-window.completeSale = function() {
-    const totalText = document.getElementById('cart-total').innerText;
-    const paidAmount = document.getElementById('pay-cash-amount').value || 0;
-    const totalNum = parseFloat(totalText.replace(/[^\d.]/g, '')) || 0;
-    const balance = parseFloat(paidAmount) - totalNum;
+  // 2. THE COMPLETE SALE & RECEIPT ENGINE
+  window.completeSale = function() {
+    if (!window.cart || window.cart.length === 0) {
+      alert("Cart is empty!");
+      return;
+    }
+
+    // Capture payment details
+    const cartTotalText = document.getElementById('cart-total').innerText;
+    const amountPaid = parseFloat(document.getElementById('pay-cash-amount').value) || 0;
+    const totalValue = parseFloat(cartTotalText.replace(/[^\d.]/g, '')) || 0;
+    const balance = amountPaid - totalValue;
 
     const saleData = {
-        timestamp: new Date().toLocaleString(),
-        items: [...window.cart],
-        total: totalText,
-        paid: `KES ${parseFloat(paidAmount).toLocaleString()}`,
-        balance: `KES ${balance.toLocaleString()}`,
-        paymentMethod: window.currentPayMethod || 'cash'
+      timestamp: new Date().toLocaleString(),
+      items: [...window.cart],
+      total: cartTotalText,
+      paid: amountPaid,
+      balance: balance.toFixed(2),
+      paymentMethod: window.currentPayMethod || 'cash'
     };
 
-    push(salesRef, saleData).then(() => {
-        // --- AUTO-GENERATE RECEIPT FOR PRINTING ---
-        const receiptContent = `
-            <div style="font-family:monospace; width:80mm; padding:10px;">
-                <center><h2>MANRIBSTECH HARDWARE</h2></center>
-                <hr>
-                ${saleData.items.map(i => `<div>${i.name} x${i.qty}<span style="float:right;">${i.price * i.qty}</span></div>`).join('')}
-                <hr>
-                <b>TOTAL: ${saleData.total}</b><br>
-                CASH PAID: ${saleData.paid}<br>
-                BALANCE: ${saleData.balance}
-                <hr><center>Thank you! Visit again.</center>
-            </div>`;
+    // Step 1: Save to Cloud Firebase
+    push(salesRef, saleData)
+      .then(() => {
+        // Step 2: Generate the Receipt for Viewing
+        let itemRows = saleData.items.map(item => 
+          `<tr>
+            <td style="padding:5px 0;">${item.name} x${item.qty}</td>
+            <td style="text-align:right;">${(item.price * item.qty).toLocaleString()}</td>
+          </tr>`
+        ).join('');
 
-        const printWindow = window.open('', '', 'width=400,height=600');
-        printWindow.document.write(receiptContent);
+        const receiptHTML = `
+          <html>
+            <body style="font-family:monospace; width:80mm; padding:20px; color:#333;">
+              <div style="text-align:center; border-bottom:1px dashed #000; padding-bottom:10px;">
+                <h2 style="margin:5px 0;">MANRIBSTECH HARDWARE</h2>
+                <p style="font-size:12px; margin:0;">Quality Hardware & Plumbing</p>
+              </div>
+              <table style="width:100%; font-size:13px; margin-top:10px;">
+                ${itemRows}
+              </table>
+              <div style="border-top:1px dashed #000; margin-top:10px; padding-top:10px;">
+                <div style="display:flex; justify-content:space-between;"><b>TOTAL:</b> <b>${saleData.total}</b></div>
+                <div style="display:flex; justify-content:space-between;">PAID (${saleData.paymentMethod.toUpperCase()}): <span>KES ${saleData.paid.toLocaleString()}</span></div>
+                <div style="display:flex; justify-content:space-between; font-size:15px; margin-top:5px;"><b>BALANCE:</b> <b>KES ${saleData.balance}</b></div>
+              </div>
+              <p style="text-align:center; font-size:11px; margin-top:20px;">--- THANK YOU FOR YOUR BUSINESS ---</p>
+            </body>
+          </html>
+        `;
+
+        // Step 3: View Receipt First, then ask to Print
+        const printWindow = window.open('', '_blank', 'width=450,height=700');
+        printWindow.document.write(receiptHTML);
         printWindow.document.close();
-        printWindow.print(); // Triggers the print dialog for the admin
-        printWindow.close();
 
-        alert("✅ Sale Saved & Receipt Printed!");
-        if (window.clearCart) window.clearCart();
-        showPage('page-transactions');
-    });
-};
+        setTimeout(() => {
+          if (confirm("Sale Saved! View receipt then click OK to print, or Cancel to skip.")) {
+            printWindow.print();
+          }
+          printWindow.close();
+          
+          // Step 4: Update UI and Dashboard
+          if (window.clearCart) window.clearCart();
+          if (window.closeModal) window.closeModal('modal-payment');
+          if (window.showPage) window.showPage('page-transactions');
+        }, 1000);
+      })
+      .catch((error) => {
+        console.error("Cloud Error:", error);
+        alert("Error saving sale to cloud.");
+      });
+  };
 
-  // Keep your live sync listener to update reports
+  // 3. LIVE DATA SYNC (Updates Dashboard, Reports, and Transactions)
   onValue(salesRef, (snapshot) => {
     const data = snapshot.val();
-    if (data && window.updateDashboardStats) {
-      const salesArray = Object.keys(data).map(key => ({ id: key, ...data[key] }));
-      window.updateDashboardStats(salesArray);
+    if (data) {
+      const salesArray = Object.keys(data).map(key => ({
+        id: key,
+        ...data[key]
+      })).reverse(); // Most recent at the top
+
+      // Update Transactions Table
+      if (window.renderTransactions) {
+        window.renderTransactions(salesArray);
+      }
+
+      // Update Dashboard & Reports Stats
+      if (window.updateDashboardStats) {
+        window.updateDashboardStats(salesArray);
+      }
     }
   });
-  console.log("ManribsTech Cloud Engine Active & Synced!");
-</script>  
 
+  console.log("ManribsTech Cloud Sync Active!");
+</script>
 </body>
 </html>
