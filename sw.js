@@ -1,12 +1,22 @@
-const CACHE_NAME = 'manribstech-v1';
-const assets = ['./index.html', './logo.png'];
+const CACHE_NAME = 'manribstech-v2';
+const ASSETS = [
+  './',
+  './index.html',
+  './logo.png',
+  './manifest.json',
+  // Add other CSS or JS files here
+];
 
-// Install the service worker and cache files
-self.addEventListener('install', (e) => {
-  e.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(assets)));
+// Install: Cache all assets
+self.addEventListener('install', (event) => {
+  event.waitUntil(
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS))
+  );
 });
 
-// Serve files from cache when offline
-self.addEventListener('fetch', (e) => {
-  e.respondWith(caches.match(e.request).then((res) => res || fetch(e.request)));
+// Fetch: Serve from cache if offline
+self.addEventListener('fetch', (event) => {
+  event.respondWith(
+    fetch(event.request).catch(() => caches.match(event.request))
+  );
 });
