@@ -1787,34 +1787,48 @@ window.switchUser = async function(username) {
   const user = DB.users.find(u => u.username === username);
   if (!user || !currentUser) return;
   if (user.id === currentUser.id) { closeModal('modal-switch'); return; }
-  
+
+  // Ask for the target user's password before switching
+  const enteredPass = window.prompt(`Enter password for "${username}":`);
+  if (enteredPass === null) return; // user cancelled
+  if (enteredPass !== user.password) {
+    toast('Incorrect password. Switch cancelled.', 'error');
+    return;
+  }
+
   try {
     await updatePresence(false);
     stopPresence();
-    
+
     currentUser = user;
     currentUser.lastLogin = new Date().toISOString();
     sessionID = generateSessionId();
-    
+
     document.getElementById('user-av').textContent = currentUser.username[0].toUpperCase();
     document.getElementById('user-name-display').textContent = currentUser.username;
     document.getElementById('user-role-display').textContent = currentUser.role === 'admin' ? 'Administrator' : 'Cashier';
     document.getElementById('admin-nav').style.display = currentUser.role === 'admin' ? 'block' : 'none';
-    
+
+    // If the new user is a cashier and we are on an admin-only page, redirect to dashboard
+    const adminOnlyPages = ['reports', 'users'];
+    const targetPage = (currentUser.role !== 'admin' && adminOnlyPages.includes(currentActivePage))
+      ? 'dashboard'
+      : currentActivePage;
+
     localStorage.setItem('manribs_session', JSON.stringify({
       username: currentUser.username,
       password: currentUser.password,
       clientID,
-      page: currentActivePage
+      page: targetPage
     }));
-    
+
     startPresence();
     closeModal('modal-switch');
-    goPage(currentActivePage);
+    goPage(targetPage);
     toast(`Switched to ${username}`, 'success');
   } catch (e) {
-    console.error("Switch error:", e);
-    toast("Failed to switch account", "error");
+    console.error('Switch error:', e);
+    toast('Failed to switch account', 'error');
   }
 }
 
@@ -2079,8 +2093,8 @@ window.doLogout = async function() {
   // Reset cloud status display
   setCloudStatus('offline');
   
-  // Reload the page to ensure a completely fresh state (optional but safer for "any account" requirement)
-  // window.location.reload(); 
+  // Reload the page to ensure a completely fresh state
+  window.location.reload();
 }
 
 document.getElementById('l-pass').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
