@@ -1929,20 +1929,37 @@ window.doLogin = async function() {
 }
 
 window.doLogout = async function() {
-  await updatePresence(false);
+  // Clear online presence first
+  try { await updatePresence(false); } catch(e){}
   stopPresence();
+  
+  // Unsubscribe from real-time listeners
   if (clientUnsubscribe) { clientUnsubscribe(); clientUnsubscribe = null; }
   if (transactionUnsubscribe) { transactionUnsubscribe(); transactionUnsubscribe = null; }
+  
+  // Clear session data
   currentUser = null;
   clientID = null;
   sessionID = null;
   cart = [];
+  
+  // CRITICAL: Remove session from storage to prevent auto-login
   localStorage.removeItem('manribs_session');
+  
+  // Reset UI state
   document.getElementById('app').style.display = 'none';
   document.getElementById('login-screen').style.display = 'flex';
+  
+  // Clear login inputs for the next user
   document.getElementById('l-user').value = '';
   document.getElementById('l-pass').value = '';
+  document.getElementById('login-error').style.display = 'none';
+  
+  // Reset cloud status display
   setCloudStatus('offline');
+  
+  // Reload the page to ensure a completely fresh state (optional but safer for "any account" requirement)
+  // window.location.reload(); 
 }
 
 document.getElementById('l-pass').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
@@ -1963,12 +1980,14 @@ const PAGE_META = {
 window.goPage = function(name, el) {
   currentActivePage = name;
   if (currentUser) {
-    localStorage.setItem('manribs_session', JSON.stringify({
-      username: currentUser.username,
-      password: currentUser.password,
-      clientID,
-      page: name
-    }));
+    if (currentUser) {
+      localStorage.setItem('manribs_session', JSON.stringify({
+        username: currentUser.username,
+        password: currentUser.password,
+        clientID,
+        page: name
+      }));
+    }
   }
 
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
