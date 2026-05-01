@@ -1792,8 +1792,38 @@ function listenForPresence() {
 function startPresence() { if(!currentUser||!clientID) return; sessionID=sessionID||genSession(); clearInterval(presenceTimer); updatePresence(true); presenceTimer=setInterval(()=>updatePresence(true),30000); }
 function stopPresence() { clearInterval(presenceTimer); presenceTimer=null; if(presenceUnsubscribe){presenceUnsubscribe();presenceUnsubscribe=null;} }
 
-window.addEventListener('online', () => { browserOnline=true; if(currentUser){setCloudStatus('syncing');updatePresence(true);syncToCloud().then(()=>toast('Back online. Data synced.','success')).catch(()=>setCloudStatus('offline'));} else setCloudStatus('offline'); });
-window.addEventListener('offline', () => { browserOnline=false; setCloudStatus('offline'); if(currentUser) toast('You are offline. Changes saved locally.','info'); });
+// Function to sync pending data to Firebase (Restored Connection)
+async function syncOfflineData() {
+  if (!currentUser || !clientID) return;
+  console.log("Internet restored. Starting Cloud Sync...");
+  setCloudStatus('syncing');
+  try {
+    // This calls your existing robust sync logic which pushes DB.products, DB.users, and DB.transactions
+    await syncToCloud();
+    toast('Internet restored. All data synced to cloud.', 'success');
+  } catch (error) {
+    console.error("Sync failed:", error);
+    setCloudStatus('offline');
+  }
+}
+
+window.addEventListener('online', () => { 
+  browserOnline=true; 
+  document.body.classList.remove('offline-mode'); // Hide offline UI
+  if(currentUser){
+    updatePresence(true);
+    syncOfflineData();
+  } else {
+    setCloudStatus('offline');
+  }
+});
+
+window.addEventListener('offline', () => { 
+  browserOnline=false; 
+  setCloudStatus('offline'); 
+  document.body.classList.add('offline-mode'); // Show offline UI
+  if(currentUser) toast('You are offline. Changes saved locally.','info'); 
+});
 document.addEventListener('visibilitychange', () => { if(currentUser) updatePresence(!document.hidden); });
 window.addEventListener('beforeunload', () => { updatePresence(false); });
 
@@ -2676,6 +2706,15 @@ async function restoreSession() {
 }
 
 setTimeout(restoreSession, 120);
+
+// ══════════════════════════════════════════
+// SERVICE WORKER REGISTRATION
+// ══════════════════════════════════════════
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js')
+    .then(() => console.log("Manribstech Service Worker Registered"))
+    .catch(err => console.error("Service Worker registration failed:", err));
+}
 </script>
 </body>
 </html>
