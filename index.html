@@ -1214,48 +1214,25 @@ tr:hover td { background: rgba(238,241,245,0.4); }
       <button class="modal-close" onclick="closeModal('modal-register')">✕</button>
     </div>
     <div class="modal-body">
-      <!-- Step 1: Store Details -->
-      <div id="reg-step-1">
-        <div class="form-field">
-          <label>Store Name</label>
-          <input type="text" id="reg-store-name" placeholder="e.g. Manribs Hardware">
-        </div>
-        <div class="form-field">
-          <label>Admin Username</label>
-          <input type="text" id="reg-admin-user" placeholder="e.g. admin">
-        </div>
-        <div class="form-field">
-          <label>Admin Password</label>
-          <input type="password" id="reg-admin-pass" placeholder="Minimum 6 characters">
-        </div>
-        <div class="form-field">
-          <label>Email or Phone for Verification</label>
-          <input type="text" id="reg-contact" placeholder="email@example.com or 0712345678">
-        </div>
-        <div style="background:var(--blue-bg);color:var(--blue);padding:12px;border-radius:var(--r-sm);font-size:12px;line-height:1.5">
-          ℹ️ A verification code will be sent to your contact for security.
-        </div>
+      <div class="form-field">
+        <label>Store Name</label>
+        <input type="text" id="reg-store-name" placeholder="e.g. Manribs Hardware">
       </div>
-      
-      <!-- Step 2: Verification Code -->
-      <div id="reg-step-2" style="display:none">
-        <div style="text-align:center;margin-bottom:20px">
-          <div style="font-size:40px;margin-bottom:10px">🛡️</div>
-          <h3 style="margin-bottom:8px">Verify Your Identity</h3>
-          <p style="font-size:13px;color:var(--text-2)">We've sent a 6-digit code to <strong id="reg-contact-display">...</strong>. Please enter it below to proceed.</p>
-        </div>
-        <div class="form-field">
-          <label>Verification Code</label>
-          <input type="text" id="reg-verify-code" placeholder="Enter 6-digit code" maxlength="6" style="text-align:center;font-size:24px;letter-spacing:8px;font-weight:700">
-        </div>
-        <div style="text-align:center;margin-top:10px">
-          <button class="btn btn-link btn-sm" onclick="resendVerification()" id="resend-btn" style="color:var(--accent);font-size:12px;font-weight:600;background:none;border:none;cursor:pointer">Didn't get the code? Resend</button>
-        </div>
+      <div class="form-field">
+        <label>Admin Username</label>
+        <input type="text" id="reg-admin-user" placeholder="e.g. admin">
+      </div>
+      <div class="form-field">
+        <label>Admin Password</label>
+        <input type="password" id="reg-admin-pass" placeholder="Minimum 6 characters">
+      </div>
+      <div style="background:var(--blue-bg);color:var(--blue);padding:12px;border-radius:var(--r-sm);font-size:12px;line-height:1.5">
+        ℹ️ Registration will create a unique <strong>Client ID</strong> for your store. This ID ensures your data is private and only accessible to your users.
       </div>
     </div>
     <div class="modal-foot">
-      <button class="btn btn-outline" id="reg-back-btn" onclick="closeModal('modal-register')">Cancel</button>
-      <button class="btn btn-primary" id="reg-btn" onclick="handleRegistrationStep()">Continue →</button>
+      <button class="btn btn-outline" onclick="closeModal('modal-register')">Cancel</button>
+      <button class="btn btn-primary" id="reg-btn" onclick="registerStore()">Register Store</button>
     </div>
   </div>
 </div>
@@ -1374,8 +1351,6 @@ let cloudStatus = 'offline';
 let clientID = null; // Shared business/client data ID used by all users in the same store
 let sessionID = null; // Unique browser-session ID used for presence/online detection
 let currentActivePage = 'dashboard';
-let registrationVerificationCode = null;
-let registrationPendingData = null;
 let clientUnsubscribe = null;
 let transactionUnsubscribe = null;
 let presenceUnsubscribe = null;
@@ -1768,24 +1743,12 @@ window.addEventListener('beforeunload', () => { updatePresence(false); });
 // ══════════════════════════════════════════
 
 
-window.handleRegistrationStep = function() {
-  const step1 = document.getElementById('reg-step-1');
-  const isStep1 = step1.style.display !== 'none';
-  
-  if (isStep1) {
-    sendVerification();
-  } else {
-    verifyAndRegister();
-  }
-}
-
-window.sendVerification = async function() {
+window.registerStore = async function() {
   const storeName = document.getElementById('reg-store-name').value.trim();
   const adminUser = document.getElementById('reg-admin-user').value.trim();
   const adminPass = document.getElementById('reg-admin-pass').value;
-  const contact = document.getElementById('reg-contact').value.trim();
 
-  if (!storeName || !adminUser || !adminPass || !contact) {
+  if (!storeName || !adminUser || !adminPass) {
     toast('Please fill in all fields', 'error');
     return;
   }
@@ -1794,14 +1757,28 @@ window.sendVerification = async function() {
     return;
   }
 
+  if (!navigator.onLine) {
+    toast('You are offline. Registration requires an internet connection.', 'error');
+    return;
+  }
+
   const regBtn = document.getElementById('reg-btn');
   const originalText = regBtn.textContent;
   regBtn.disabled = true;
-  regBtn.textContent = 'Checking...';
+  regBtn.textContent = 'Connecting...';
+
+  const withTimeout = (promise, ms, errorMsg) => {
+    return Promise.race([
+      promise,
+      new Promise((_, reject) => setTimeout(() => reject(new Error(errorMsg)), ms))
+    ]);
+  };
 
   try {
-    // Check username uniqueness first
-    const existing = await fetchRegisteredClientId(adminUser);
+    const newClientID = 'client_' + storeName.toLowerCase().replace(/[^a-z0-9]/g, '_') + '_' + Math.random().toString(36).slice(2, 7);
+    
+    regBtn.textContent = 'Checking Username...';
+    const existing = await withTimeout(fetchRegisteredClientId(adminUser), 10000, 'Username check timed out. Please try again.');
     if (existing) {
       toast('Username already taken', 'error');
       regBtn.disabled = false;
@@ -1809,73 +1786,10 @@ window.sendVerification = async function() {
       return;
     }
 
-    // Generate a 6-digit code
-    registrationVerificationCode = Math.floor(100000 + Math.random() * 900000).toString();
-    
-    // Store pending data
-    registrationPendingData = { storeName, adminUser, adminPass, contact };
-
-    // Simulate sending (In a real app, this would call an API to send SMS/Email)
-    console.log("DEBUG: Verification code for " + contact + " is: " + registrationVerificationCode);
-    
-    // Transition UI
-    document.getElementById('reg-step-1').style.display = 'none';
-    document.getElementById('reg-step-2').style.display = 'block';
-    document.getElementById('reg-contact-display').textContent = contact;
-    document.getElementById('reg-back-btn').textContent = '← Back';
-    document.getElementById('reg-back-btn').onclick = () => {
-      document.getElementById('reg-step-1').style.display = 'block';
-      document.getElementById('reg-step-2').style.display = 'none';
-      document.getElementById('reg-back-btn').textContent = 'Cancel';
-      document.getElementById('reg-back-btn').onclick = () => closeModal('modal-register');
-      document.getElementById('reg-btn').textContent = 'Continue →';
-    };
-    
-    regBtn.disabled = false;
-    regBtn.textContent = 'Complete Registration';
-    toast('Verification code sent to ' + contact, 'success');
-    
-    // Alert the code for demo purposes since we don't have a real SMS gateway
-    setTimeout(() => {
-      alert("SECURITY VERIFICATION\n\nYour ManribsTech verification code is: " + registrationVerificationCode + "\n\n(This is shown for demonstration as we are in a sandbox environment)");
-    }, 500);
-
-  } catch (e) {
-    console.error("Verification error:", e);
-    toast('Failed to initiate verification. Check connection.', 'error');
-    regBtn.disabled = false;
-    regBtn.textContent = originalText;
-  }
-}
-
-window.resendVerification = function() {
-  const contact = registrationPendingData?.contact || 'your contact';
-  registrationVerificationCode = Math.floor(100000 + Math.random() * 900000).toString();
-  console.log("DEBUG: Resent verification code: " + registrationVerificationCode);
-  toast('New code sent to ' + contact, 'info');
-  alert("NEW VERIFICATION CODE: " + registrationVerificationCode);
-}
-
-window.verifyAndRegister = async function() {
-  const enteredCode = document.getElementById('reg-verify-code').value.trim();
-  
-  if (enteredCode !== registrationVerificationCode) {
-    toast('Invalid verification code. Please try again.', 'error');
-    return;
-  }
-
-  const regBtn = document.getElementById('reg-btn');
-  regBtn.disabled = true;
-  regBtn.textContent = 'Registering...';
-
-  try {
-    const { storeName, adminUser, adminPass, contact } = registrationPendingData;
-    const newClientID = 'client_' + storeName.toLowerCase().replace(/[^a-z0-9]/g, '_') + '_' + Math.random().toString(36).slice(2, 7);
-    
+    regBtn.textContent = 'Creating Store...';
     const initialData = {
       clientID: newClientID,
       storeName: storeName,
-      contact: contact,
       users: [
         { id: 1, username: adminUser, password: adminPass, role: 'admin', created: new Date().toLocaleDateString('en-KE'), lastLogin: null, active: true, clientId: newClientID, online: false, lastSeen: null }
       ],
@@ -1885,7 +1799,7 @@ window.verifyAndRegister = async function() {
       lastUpdated: new Date().toISOString()
     };
 
-    await Promise.all([
+    await withTimeout(Promise.all([
       setDoc(doc(db, "clients", newClientID), initialData),
       setDoc(doc(db, 'client_user_registry', safeUsernameKey(adminUser)), {
         username: adminUser,
@@ -1894,31 +1808,23 @@ window.verifyAndRegister = async function() {
         active: true,
         lastUpdated: new Date().toISOString()
       })
-    ]);
+    ]), 15000, 'Store creation timed out. Please check your connection.');
 
     toast('Store Registered Successfully!', 'success');
     closeModal('modal-register');
-    
-    // Reset modal for next time
-    document.getElementById('reg-step-1').style.display = 'block';
-    document.getElementById('reg-step-2').style.display = 'none';
-    
     document.getElementById('l-user').value = adminUser;
     document.getElementById('l-pass').value = adminPass;
     document.getElementById('l-pass').focus();
   } catch (e) {
-    console.error("Final registration error:", e);
-    toast('Registration failed. Please try again.', 'error');
+    console.error("Registration error:", e);
+    const msg = e.message || 'Registration failed. Check your connection and try again.';
+    toast(msg, 'error');
   } finally {
     regBtn.disabled = false;
-    regBtn.textContent = 'Complete Registration';
+    regBtn.textContent = originalText;
   }
 }
 
-window.registerStore = function() {
-  // Redirect old calls to new handler
-  handleRegistrationStep();
-}
 
 
 window.doLogin = async function() {
