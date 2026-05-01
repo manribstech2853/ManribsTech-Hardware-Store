@@ -2061,14 +2061,9 @@ window.doLogout = async function() {
   if (transactionUnsubscribe) { transactionUnsubscribe(); transactionUnsubscribe=null; }
   currentUser=null; clientID=null; sessionID=null; cart=[];
   localStorage.removeItem('manribs_session');
-  document.getElementById('app').style.display='none';
-  document.getElementById('login-screen').style.display='flex';
-  document.getElementById('l-user').value='';
-  document.getElementById('l-pass').value='';
-  document.getElementById('login-error').style.display='none';
-  setCloudStatus('offline');
-  switchLoginTab('signin');
-  toast('You have been signed out.','success');
+  
+  // Reload the page to ensure a clean state and prevent auto-login
+  window.location.reload();
 }
 
 // ══════════════════════════════════════════
@@ -2168,52 +2163,75 @@ window.confirmSwitchAccount = async function() {
 
   errEl.style.display = 'none';
 
-  if (!enteredPass) { errEl.textContent = 'Please enter the account password.'; errEl.style.display='block'; return; }
+  if (!enteredPass) { 
+    errEl.textContent = 'Please enter the account password.'; 
+    errEl.style.display='block'; 
+    return; 
+  }
+  
+  // Verify password against the pending user's password
   if (enteredPass !== pendingSwitchUser.password) {
-    errEl.textContent = 'Incorrect password. Please try again.'; errEl.style.display='block';
-    document.getElementById('switch-pass-input').value = '';
-    document.getElementById('switch-pass-input').focus();
+    errEl.textContent = 'Incorrect password. Please try again.'; 
+    errEl.style.display='block';
+    const input = document.getElementById('switch-pass-input');
+    if (input) {
+      input.value = '';
+      input.focus();
+    }
     return;
   }
 
-  btn.textContent = 'Switching…'; btn.disabled = true;
+  btn.textContent = 'Switching…'; 
+  btn.disabled = true;
 
   try {
     // End old presence
     await updatePresence(false);
     stopPresence();
 
-    // Switch
-    const targetUser = DB.users.find(u=>u.id===pendingSwitchUser.id)||pendingSwitchUser;
+    // Perform the switch
+    const targetUser = DB.users.find(u => u.id === pendingSwitchUser.id) || pendingSwitchUser;
     targetUser.lastLogin = new Date().toISOString();
     currentUser = targetUser;
     sessionID = genSession();
 
-    // Update sidebar
+    // Update UI Elements
     document.getElementById('user-av').textContent = currentUser.username[0].toUpperCase();
     document.getElementById('user-name-display').textContent = currentUser.username;
-    document.getElementById('user-role-display').textContent = currentUser.role==='admin' ? 'Administrator' : 'Cashier';
-    document.getElementById('admin-nav').style.display = currentUser.role==='admin' ? 'block' : 'none';
+    document.getElementById('user-role-display').textContent = currentUser.role === 'admin' ? 'Administrator' : 'Cashier';
+    
+    const adminNav = document.getElementById('admin-nav');
+    if (adminNav) {
+      adminNav.style.display = currentUser.role === 'admin' ? 'block' : 'none';
+    }
 
-    // Determine page
-    const adminOnly = ['reports','users'];
-    const target = (currentUser.role!=='admin' && adminOnly.includes(currentActivePage)) ? 'dashboard' : currentActivePage;
+    // Determine target page (redirect cashiers from admin pages)
+    const adminOnly = ['reports', 'users'];
+    const target = (currentUser.role !== 'admin' && adminOnly.includes(currentActivePage)) ? 'dashboard' : currentActivePage;
 
-    // Save session
-    localStorage.setItem('manribs_session', JSON.stringify({ username:currentUser.username, password:currentUser.password, clientID, page:target }));
+    // Persist new session
+    localStorage.setItem('manribs_session', JSON.stringify({ 
+      username: currentUser.username, 
+      password: currentUser.password, 
+      clientID, 
+      page: target 
+    }));
 
     pendingSwitchUser = null;
     closeModal('modal-switch');
 
     startPresence();
     goPage(target);
-    toast('Switched to account: '+currentUser.username, 'success');
+    toast('Successfully switched to ' + currentUser.username, 'success');
 
   } catch(e) {
     console.error("Switch error:", e);
-    btn.textContent='Switch Account →'; btn.disabled=false;
-    const errEl = document.getElementById('switch-pass-error');
-    if (errEl) { errEl.textContent='Failed to switch account. Please try again.'; errEl.style.display='block'; }
+    btn.textContent = 'Switch Account →'; 
+    btn.disabled = false;
+    if (errEl) { 
+      errEl.textContent = 'An error occurred during account switch.'; 
+      errEl.style.display = 'block';
+    }
   }
 }
 
