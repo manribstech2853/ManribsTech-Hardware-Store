@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ManribsTech Store </title>
+<title>ManribsTech Store</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
 <style>
@@ -48,12 +48,11 @@ body {
   line-height: 1.5;
 }
 
-/* ── SCROLLBAR ── */
 ::-webkit-scrollbar { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
 
-/* ══════════════════════ LOGIN ══════════════════════ */
+/* ══ LOGIN ══ */
 #login-screen {
   min-height: 100vh;
   display: flex;
@@ -70,6 +69,7 @@ body {
   background: radial-gradient(circle, rgba(232,118,26,0.15) 0%, transparent 70%);
   top: -100px; right: -100px;
   border-radius: 50%;
+  pointer-events: none;
 }
 #login-screen::after {
   content: '';
@@ -78,15 +78,20 @@ body {
   background: radial-gradient(circle, rgba(26,51,82,0.6) 0%, transparent 70%);
   bottom: -50px; left: -50px;
   border-radius: 50%;
+  pointer-events: none;
 }
+
+.login-wrapper {
+  position: relative;
+  z-index: 1;
+  width: 420px;
+}
+
 .login-box {
   background: var(--surface);
   border-radius: 16px;
   padding: 44px 48px;
-  width: 420px;
   box-shadow: var(--shadow-lg);
-  position: relative;
-  z-index: 1;
   border: 1px solid rgba(255,255,255,0.05);
 }
 .login-brand {
@@ -164,6 +169,22 @@ body {
 }
 .btn-login:hover { opacity: 0.92; transform: translateY(-1px); }
 .btn-login:active { transform: translateY(0); }
+.btn-login:disabled { opacity: 0.65; cursor: not-allowed; transform: none; }
+
+.login-footer {
+  text-align: center;
+  margin-top: 18px;
+  font-size: 13px;
+  color: var(--text-3);
+}
+.login-footer a {
+  color: var(--accent);
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}
+.login-footer a:hover { text-decoration: underline; }
+
 .login-hint {
   margin-top: 18px;
   padding: 12px 14px;
@@ -186,11 +207,50 @@ body {
   display: none;
   border: 1px solid #F5C2BE;
 }
+.success-box {
+  background: var(--green-bg);
+  color: var(--green);
+  padding: 10px 14px;
+  border-radius: var(--r-sm);
+  font-size: 13px;
+  margin-bottom: 16px;
+  display: none;
+  border: 1px solid var(--green-border);
+}
 
-/* ── APP SHELL ── */
+/* ══ LOGIN TABS ══ */
+.login-tabs {
+  display: flex;
+  gap: 0;
+  background: var(--surface-2);
+  border: 1.5px solid var(--border);
+  border-radius: var(--r-sm);
+  padding: 3px;
+  margin-bottom: 26px;
+}
+.login-tab-btn {
+  flex: 1;
+  padding: 9px;
+  border: none;
+  background: transparent;
+  border-radius: 5px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-3);
+  cursor: pointer;
+  transition: all .15s;
+}
+.login-tab-btn.active {
+  background: var(--surface);
+  color: var(--navy);
+  box-shadow: 0 2px 8px rgba(11,25,41,0.08);
+}
+
+/* ══ APP SHELL ══ */
 #app { display: none; height: 100vh; flex-direction: row; }
 
-/* ── SIDEBAR ── */
+/* ══ SIDEBAR ══ */
 .sidebar {
   width: 230px;
   background: var(--navy);
@@ -251,7 +311,6 @@ body {
   font-size: 13px;
   font-weight: 500;
   margin-bottom: 2px;
-  position: relative;
 }
 .nav-item:hover {
   background: rgba(255,255,255,0.06);
@@ -298,8 +357,7 @@ body {
   border: 1px solid rgba(255,255,255,0.1);
   color: rgba(255,255,255,0.7);
   cursor: pointer;
-  width: 32px;
-  height: 32px;
+  width: 32px; height: 32px;
   border-radius: 8px;
   display: flex;
   align-items: center;
@@ -319,8 +377,7 @@ body {
   border-color: rgba(239, 68, 68, 0.3);
 }
 
-
-/* ── CLOUD STATUS PILL ── */
+/* ══ CLOUD PILL ══ */
 .cloud-pill {
   display: inline-flex;
   align-items: center;
@@ -333,15 +390,11 @@ body {
 .cloud-pill.synced { background: var(--green-bg); color: var(--green); }
 .cloud-pill.syncing { background: var(--amber-bg); color: var(--amber); }
 .cloud-pill.offline { background: var(--red-bg); color: var(--red); }
-.cloud-dot {
-  width: 6px; height: 6px;
-  border-radius: 50%;
-  background: currentColor;
-}
+.cloud-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
 .cloud-pill.syncing .cloud-dot { animation: pulse 1s infinite; }
 @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.3; } }
 
-/* ── MAIN ── */
+/* ══ MAIN ══ */
 .main { flex: 1; overflow-y: auto; display: flex; flex-direction: column; min-width: 0; }
 .topbar {
   background: var(--surface);
@@ -360,12 +413,12 @@ body {
 .topbar-right { display: flex; gap: 10px; align-items: center; }
 .content { padding: 26px 28px; flex: 1; }
 
-/* ── PAGES ── */
+/* ══ PAGES ══ */
 .page { display: none; }
 .page.active { display: block; animation: pageIn .18s ease; }
 @keyframes pageIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:none; } }
 
-/* ══════════════════════ BUTTONS ══════════════════════ */
+/* ══ BUTTONS ══ */
 .btn {
   padding: 9px 18px;
   border-radius: var(--r-sm);
@@ -387,18 +440,19 @@ body {
   box-shadow: 0 3px 10px rgba(232,118,26,0.2);
 }
 .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+.btn-primary:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
 .btn-outline {
   background: var(--surface);
   border: 1.5px solid var(--border);
   color: var(--text-2);
 }
 .btn-outline:hover { border-color: var(--accent); color: var(--accent); }
-.btn-danger { background: var(--red-bg); color: var(--red); }
+.btn-danger { background: var(--red-bg); color: var(--red); border: 1.5px solid transparent; }
 .btn-danger:hover { background: var(--red); color: #fff; }
-.btn-success { background: var(--green-bg); color: var(--green); }
+.btn-success { background: var(--green-bg); color: var(--green); border: 1.5px solid transparent; }
 .btn-success:hover { background: var(--green); color: #fff; }
 
-/* ══════════════════════ CARDS & TABLES ══════════════════════ */
+/* ══ CARDS & TABLES ══ */
 .card {
   background: var(--surface);
   border-radius: var(--r);
@@ -445,7 +499,7 @@ tr:hover td { background: rgba(238,241,245,0.4); }
 .badge-red { background: var(--red-bg); color: var(--red); }
 .badge-orange { background: rgba(232,118,26,0.1); color: var(--accent); }
 
-/* ── DASHBOARD ── */
+/* ══ DASHBOARD ══ */
 .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; margin-bottom: 24px; }
 .stat-card {
   background: var(--surface);
@@ -467,7 +521,7 @@ tr:hover td { background: rgba(238,241,245,0.4); }
 
 .dash-row { display: grid; grid-template-columns: 1fr 340px; gap: 20px; }
 
-/* ── COMPONENTS ── */
+/* ══ COMPONENTS ══ */
 .search-box { position: relative; width: 280px; }
 .search-box input {
   width: 100%;
@@ -481,8 +535,7 @@ tr:hover td { background: rgba(238,241,245,0.4); }
 .search-box input:focus { outline: none; border-color: var(--accent); }
 .search-icon {
   position: absolute;
-  left: 12px;
-  top: 50%;
+  left: 12px; top: 50%;
   transform: translateY(-50%);
   font-size: 14px;
   pointer-events: none;
@@ -519,7 +572,7 @@ tr:hover td { background: rgba(238,241,245,0.4); }
   box-shadow: 0 2px 8px rgba(232,118,26,0.25);
 }
 
-/* ── POS ── */
+/* ══ POS ══ */
 .pos-layout { display: grid; grid-template-columns: 1fr 370px; gap: 20px; height: calc(100vh - 118px); }
 .pos-products { overflow-y: auto; }
 .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(155px, 1fr)); gap: 10px; }
@@ -534,23 +587,14 @@ tr:hover td { background: rgba(238,241,245,0.4); }
   position: relative;
   overflow: hidden;
 }
-.prod-card::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, rgba(232,118,26,0.04), transparent);
-  opacity: 0;
-  transition: opacity .15s;
-}
 .prod-card:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 6px 20px rgba(232,118,26,0.12); }
-.prod-card:hover::before { opacity: 1; }
 .prod-card.out { opacity: 0.4; cursor: not-allowed; pointer-events: none; }
 .prod-cat { font-size: 10px; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 7px; font-weight: 600; }
 .prod-name { font-size: 13px; font-weight: 600; color: var(--navy); margin-bottom: 8px; line-height: 1.35; }
 .prod-price { font-size: 16px; font-weight: 700; color: var(--accent); font-family: 'DM Mono', monospace; }
 .prod-stock { font-size: 11px; color: var(--text-3); margin-top: 5px; }
 
-/* ── CART ── */
+/* ══ CART ══ */
 .cart-panel {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -585,7 +629,7 @@ tr:hover td { background: rgba(238,241,245,0.4); }
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 10px 10px;
+  padding: 10px;
   border-radius: var(--r-sm);
   border: 1px solid transparent;
   margin-bottom: 4px;
@@ -636,7 +680,7 @@ tr:hover td { background: rgba(238,241,245,0.4); }
 }
 .cart-row-grand span:last-child { color: var(--accent); font-family: 'DM Mono', monospace; }
 
-/* ── MODALS ── */
+/* ══ MODALS ══ */
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -698,7 +742,7 @@ tr:hover td { background: rgba(238,241,245,0.4); }
   border-radius: 0 0 14px 14px;
 }
 
-/* ── PAYMENT ── */
+/* ══ PAYMENT ══ */
 .pay-total-bar {
   background: var(--navy);
   border-radius: var(--r);
@@ -741,7 +785,7 @@ tr:hover td { background: rgba(238,241,245,0.4); }
   display: none;
 }
 
-/* ── FORM ── */
+/* ══ FORM ══ */
 .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 .form-field { margin-bottom: 14px; }
 .form-field label {
@@ -767,8 +811,9 @@ tr:hover td { background: rgba(238,241,245,0.4); }
   transition: all .2s;
 }
 .form-field input:focus, .form-field select:focus { outline: none; border-color: var(--accent); background: var(--surface); }
+.form-field input.error { border-color: var(--red); }
 
-/* ── REPORTS ── */
+/* ══ REPORTS ══ */
 .report-tabs { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
 .report-tab { padding: 8px 16px; cursor: pointer; font-size: 13px; font-weight: 600; color: var(--text-3); border-radius: var(--r-sm); transition: all .15s; }
 .report-tab:hover { color: var(--accent); background: var(--surface-2); }
@@ -779,7 +824,7 @@ tr:hover td { background: rgba(238,241,245,0.4); }
 .prog-bg { height: 8px; background: var(--bg); border-radius: 99px; overflow: hidden; }
 .prog-fill { height: 100%; border-radius: 99px; }
 
-/* ── TOAST ── */
+/* ══ TOAST ══ */
 #toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; }
 .toast {
   background: var(--navy);
@@ -793,12 +838,14 @@ tr:hover td { background: rgba(238,241,245,0.4); }
   align-items: center;
   gap: 10px;
   animation: toastIn .3s ease;
+  max-width: 340px;
 }
 @keyframes toastIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 .toast.success { border-left: 4px solid var(--green); }
 .toast.error { border-left: 4px solid var(--red); }
+.toast.info { border-left: 4px solid var(--blue); }
 
-/* ── RECEIPT ── */
+/* ══ RECEIPT ══ */
 .receipt-wrap {
   background: #fff;
   padding: 24px;
@@ -816,8 +863,143 @@ tr:hover td { background: rgba(238,241,245,0.4); }
 .r-row.item-name { font-weight: 600; margin-top: 8px; }
 .receipt-footer { text-align: center; margin-top: 20px; font-size: 10px; color: var(--text-3); line-height: 1.5; }
 
-#print-area { display: none; }
+/* ══ SWITCH ACCOUNT ══ */
+.switch-user-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 16px;
+  background: var(--surface-2);
+  border: 1.5px solid var(--border);
+  border-radius: var(--r);
+  cursor: pointer;
+  transition: all .15s;
+  position: relative;
+}
+.switch-user-card:hover {
+  border-color: var(--accent);
+  background: rgba(232,118,26,0.03);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(232,118,26,0.1);
+}
+.switch-user-card.is-current {
+  border-color: var(--accent);
+  background: rgba(232,118,26,0.05);
+  cursor: default;
+}
+.switch-user-card.is-current:hover {
+  transform: none;
+  box-shadow: none;
+}
+.switch-av {
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 14px;
+  color: #fff;
+  flex-shrink: 0;
+}
+.switch-av.admin-av { background: linear-gradient(135deg, var(--accent), var(--accent-2)); }
+.switch-av.cashier-av { background: linear-gradient(135deg, var(--blue), #4A90E2); }
+.switch-user-info { flex: 1; }
+.switch-user-name { font-size: 14px; font-weight: 600; color: var(--navy); }
+.switch-user-role { font-size: 11px; color: var(--text-2); margin-top: 1px; text-transform: uppercase; letter-spacing: 0.5px; }
+.switch-arrow { color: var(--text-3); font-size: 14px; }
+.switch-current-badge {
+  position: absolute;
+  top: -6px; right: 12px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 99px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
 
+/* ══ SWITCH PASSWORD STEP ══ */
+.switch-confirm-area {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 16px;
+  margin-top: 14px;
+}
+.switch-confirm-area .sc-heading {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--navy);
+  margin-bottom: 4px;
+}
+.switch-confirm-area .sc-sub {
+  font-size: 12px;
+  color: var(--text-3);
+  margin-bottom: 12px;
+}
+.switch-confirm-actions { display: flex; gap: 8px; margin-top: 10px; }
+
+/* ══ REGISTER STEPS ══ */
+.reg-step { display: none; }
+.reg-step.active { display: block; animation: pageIn .2s ease; }
+.step-indicators {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 22px;
+}
+.step-dot {
+  flex: 1;
+  height: 3px;
+  border-radius: 99px;
+  background: var(--border);
+  transition: background .3s;
+}
+.step-dot.done { background: var(--accent); }
+.reg-success-banner {
+  text-align: center;
+  padding: 10px 0 18px;
+}
+.reg-success-icon {
+  font-size: 52px;
+  margin-bottom: 12px;
+}
+.reg-success-banner h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 20px;
+  color: var(--navy);
+  margin-bottom: 6px;
+}
+.reg-success-banner p {
+  font-size: 13px;
+  color: var(--text-2);
+  line-height: 1.6;
+}
+.client-id-display {
+  background: var(--navy);
+  color: var(--accent-2);
+  font-family: 'DM Mono', monospace;
+  font-size: 13px;
+  padding: 10px 16px;
+  border-radius: var(--r-sm);
+  margin: 12px 0;
+  text-align: center;
+  word-break: break-all;
+}
+
+.alert-bar {
+  background: var(--amber-bg);
+  border: 1px solid #F0C060;
+  color: var(--amber);
+  padding: 11px 16px;
+  border-radius: var(--r-sm);
+  font-size: 13px;
+  margin-bottom: 14px;
+}
+
+#print-area { display: none; }
 @media print {
   body * { visibility: hidden; }
   #print-area, #print-area * { visibility: visible; }
@@ -830,34 +1012,106 @@ tr:hover td { background: rgba(238,241,245,0.4); }
 <div id="toast-container"></div>
 <div id="print-area"></div>
 
-<!-- ══════════════ LOGIN SCREEN ══════════════ -->
+<!-- ══════════════════ LOGIN SCREEN ══════════════════ -->
 <div id="login-screen">
-  <div class="login-box">
-    <div class="login-brand">
-      <div class="login-icon">🔧</div>
-      <h1>ManribsTech Store</h1>
-      <p>Business Management System</p>
-    </div>
-    <div class="login-divider"></div>
-    <div class="error-box" id="login-error">Invalid username or password.</div>
-    <div class="field-group">
-      <label>Username</label>
-      <input type="text" id="l-user" placeholder="Enter username" autofocus>
-    </div>
-    <div class="field-group">
-      <label>Password</label>
-      <input type="password" id="l-pass" placeholder="••••••••">
-    </div>
-    <button class="btn-login" onclick="doLogin()">Sign In to Dashboard</button>
-    <div style="text-align:center;margin-top:15px;font-size:13px;color:var(--text-2)">Don't have a store? <a href="#" onclick="openModal('modal-register')" style="color:var(--accent);font-weight:600;text-decoration:none">Register Store</a></div>
-    <div class="login-hint">
-      Default Admin: <strong>admin</strong> / <strong>admin123</strong><br>
-      Default Cashier: <strong>cashier1</strong> / <strong>cash123</strong>
+  <div class="login-wrapper">
+    <div class="login-box">
+      <div class="login-brand">
+        <div class="login-icon">🔧</div>
+        <h1>ManribsTech Store</h1>
+        <p>Business Management System</p>
+      </div>
+      <div class="login-divider"></div>
+
+      <!-- Login / Register Tabs -->
+      <div class="login-tabs">
+        <button class="login-tab-btn active" id="tab-signin" onclick="switchLoginTab('signin')">Sign In</button>
+        <button class="login-tab-btn" id="tab-register" onclick="switchLoginTab('register')">Register Store</button>
+      </div>
+
+      <!-- ─ SIGN IN PANEL ─ -->
+      <div id="panel-signin">
+        <div class="error-box" id="login-error">Invalid username or password.</div>
+        <div class="field-group">
+          <label>Username</label>
+          <input type="text" id="l-user" placeholder="Enter username" autofocus>
+        </div>
+        <div class="field-group">
+          <label>Password</label>
+          <input type="password" id="l-pass" placeholder="••••••••">
+        </div>
+        <button class="btn-login" id="btn-signin" onclick="doLogin()">Sign In to Dashboard</button>
+        <div class="login-hint" style="margin-top:14px">
+          Default Admin: <strong>admin</strong> / <strong>admin123</strong><br>
+          Default Cashier: <strong>cashier1</strong> / <strong>cash123</strong>
+        </div>
+      </div>
+
+      <!-- ─ REGISTER PANEL ─ -->
+      <div id="panel-register" style="display:none">
+        <div class="error-box" id="reg-error"></div>
+        <div class="success-box" id="reg-success-inline"></div>
+
+        <!-- Step indicators -->
+        <div class="step-indicators">
+          <div class="step-dot done" id="sdot-1"></div>
+          <div class="step-dot" id="sdot-2"></div>
+          <div class="step-dot" id="sdot-3"></div>
+        </div>
+
+        <!-- Step 1: Store Details -->
+        <div class="reg-step active" id="reg-step-1">
+          <p style="font-size:12px;color:var(--text-2);margin-bottom:18px;line-height:1.6">Set up your store. You'll get a unique Client ID that keeps your data private.</p>
+          <div class="field-group">
+            <label>Store Name</label>
+            <input type="text" id="reg-store-name" placeholder="e.g. Manribs Hardware & Supplies">
+          </div>
+          <div class="field-group">
+            <label>Admin Username</label>
+            <input type="text" id="reg-admin-user" placeholder="e.g. admin">
+          </div>
+          <div class="field-group">
+            <label>Admin Password</label>
+            <input type="password" id="reg-admin-pass" placeholder="Minimum 6 characters">
+          </div>
+          <div class="field-group">
+            <label>Confirm Password</label>
+            <input type="password" id="reg-admin-pass2" placeholder="Re-enter password">
+          </div>
+          <button class="btn-login" id="btn-reg-next" onclick="regStep1Next()">Continue →</button>
+        </div>
+
+        <!-- Step 2: Creating -->
+        <div class="reg-step" id="reg-step-2">
+          <div style="text-align:center;padding:20px 0 26px">
+            <div style="font-size:44px;margin-bottom:14px">⚙️</div>
+            <div style="font-size:15px;font-weight:600;color:var(--navy);margin-bottom:6px">Setting Up Your Store…</div>
+            <div style="font-size:12px;color:var(--text-2)">Please wait while we configure your workspace.</div>
+            <div style="margin-top:18px;height:4px;background:var(--border);border-radius:99px;overflow:hidden">
+              <div id="reg-progress-bar" style="height:100%;background:linear-gradient(135deg,var(--accent),var(--accent-2));border-radius:99px;width:0;transition:width 0.4s"></div>
+            </div>
+            <div id="reg-progress-label" style="font-size:11px;color:var(--text-3);margin-top:8px">Initializing…</div>
+          </div>
+        </div>
+
+        <!-- Step 3: Success -->
+        <div class="reg-step" id="reg-step-3">
+          <div class="reg-success-banner">
+            <div class="reg-success-icon">🎉</div>
+            <h3>Store Registered!</h3>
+            <p>Your workspace is ready. Your unique Client ID has been assigned — keep it safe.</p>
+            <div class="client-id-display" id="reg-client-id-display">—</div>
+            <p style="font-size:12px;color:var(--text-3)">Sign in below to start using your store dashboard.</p>
+          </div>
+          <button class="btn-login" onclick="switchLoginTab('signin'); prefillLoginAfterReg()">Sign In to Your Store →</button>
+        </div>
+      </div>
+
     </div>
   </div>
 </div>
 
-<!-- ══════════════ MAIN APP ══════════════ -->
+<!-- ══════════════════ MAIN APP ══════════════════ -->
 <div id="app">
   <!-- Sidebar -->
   <div class="sidebar">
@@ -865,40 +1119,25 @@ tr:hover td { background: rgba(238,241,245,0.4); }
       <div class="sb-brand-row">
         <div class="sb-icon">🔧</div>
         <div class="sb-brand-text">
-          <h2>ManribsTech</h2>
-          <p>Hardware BMS v2.4</p>
+          <h2 id="sb-store-name">ManribsTech</h2>
+          <p>Hardware BMS v2.5</p>
         </div>
       </div>
     </div>
-    
     <div class="sb-nav">
       <div class="nav-group">
         <div class="nav-group-label">Main Menu</div>
-        <div class="nav-item active" onclick="goPage('dashboard', this)">
-          <span class="nav-icon">📊</span> Dashboard
-        </div>
-        <div class="nav-item" onclick="goPage('pos', this)">
-          <span class="nav-icon">🛒</span> Point of Sale
-        </div>
-        <div class="nav-item" onclick="goPage('transactions', this)">
-          <span class="nav-icon">🧾</span> Transactions
-        </div>
-        <div class="nav-item" onclick="goPage('inventory', this)">
-          <span class="nav-icon">📦</span> Inventory
-        </div>
+        <div class="nav-item active" onclick="goPage('dashboard', this)"><span class="nav-icon">📊</span> Dashboard</div>
+        <div class="nav-item" onclick="goPage('pos', this)"><span class="nav-icon">🛒</span> Point of Sale</div>
+        <div class="nav-item" onclick="goPage('transactions', this)"><span class="nav-icon">🧾</span> Transactions</div>
+        <div class="nav-item" onclick="goPage('inventory', this)"><span class="nav-icon">📦</span> Inventory</div>
       </div>
-      
       <div class="nav-group" id="admin-nav" style="display:none">
         <div class="nav-group-label">Administration</div>
-        <div class="nav-item" onclick="goPage('reports', this)">
-          <span class="nav-icon">📈</span> Reports
-        </div>
-        <div class="nav-item" onclick="goPage('users', this)">
-          <span class="nav-icon">👥</span> Users
-        </div>
+        <div class="nav-item" onclick="goPage('reports', this)"><span class="nav-icon">📈</span> Reports</div>
+        <div class="nav-item" onclick="goPage('users', this)"><span class="nav-icon">👥</span> Users</div>
       </div>
     </div>
-
     <div class="sb-footer">
       <div class="user-card">
         <div class="user-av" id="user-av">A</div>
@@ -906,9 +1145,9 @@ tr:hover td { background: rgba(238,241,245,0.4); }
           <div class="uname" id="user-name-display">Admin User</div>
           <div class="urole" id="user-role-display">Administrator</div>
         </div>
-        <div style="display:flex; gap:8px;">
+        <div style="display:flex;gap:6px">
           <button class="user-action-btn" onclick="openSwitchAccount()" title="Switch Account">🔄</button>
-          <button class="user-action-btn logout" onclick="doLogout()" title="Logout">🚪</button>
+          <button class="user-action-btn logout" onclick="confirmLogout()" title="Logout">🚪</button>
         </div>
       </div>
     </div>
@@ -930,7 +1169,7 @@ tr:hover td { background: rgba(238,241,245,0.4); }
     </div>
 
     <div class="content">
-      <!-- Dashboard Page -->
+      <!-- Dashboard -->
       <div class="page active" id="page-dashboard">
         <div class="stat-grid">
           <div class="stat-card">
@@ -958,7 +1197,6 @@ tr:hover td { background: rgba(238,241,245,0.4); }
             <div class="stat-sub" id="low-stock-count">0 items low</div>
           </div>
         </div>
-
         <div class="dash-row">
           <div class="card">
             <div class="card-header">
@@ -967,12 +1205,8 @@ tr:hover td { background: rgba(238,241,245,0.4); }
             </div>
             <div class="table-wrap">
               <table>
-                <thead>
-                  <tr><th>Receipt</th><th>Time</th><th>Amount</th><th>Method</th></tr>
-                </thead>
-                <tbody id="dash-tx-table">
-                  <tr><td colspan="4" style="text-align:center;color:var(--text-3);padding:28px 0">No transactions yet today</td></tr>
-                </tbody>
+                <thead><tr><th>Receipt</th><th>Time</th><th>Amount</th><th>Method</th></tr></thead>
+                <tbody id="dash-tx-table"><tr><td colspan="4" style="text-align:center;color:var(--text-3);padding:28px 0">No transactions yet today</td></tr></tbody>
               </table>
             </div>
           </div>
@@ -988,7 +1222,7 @@ tr:hover td { background: rgba(238,241,245,0.4); }
         </div>
       </div>
 
-      <!-- POS Page -->
+      <!-- POS -->
       <div class="page" id="page-pos">
         <div class="pos-layout">
           <div class="pos-products">
@@ -1005,7 +1239,6 @@ tr:hover td { background: rgba(238,241,245,0.4); }
             </div>
             <div class="products-grid" id="products-grid"></div>
           </div>
-          
           <div class="cart-panel">
             <div class="cart-head">
               <h3>🛒 Current Cart</h3>
@@ -1027,7 +1260,7 @@ tr:hover td { background: rgba(238,241,245,0.4); }
         </div>
       </div>
 
-      <!-- Transactions Page -->
+      <!-- Transactions -->
       <div class="page" id="page-transactions">
         <div class="toolbar">
           <div class="search-box">
@@ -1045,16 +1278,14 @@ tr:hover td { background: rgba(238,241,245,0.4); }
         <div class="card">
           <div class="table-wrap">
             <table>
-              <thead>
-                <tr><th>Receipt #</th><th>Date & Time</th><th>Cashier</th><th>Items</th><th>Total</th><th>Method</th><th>Actions</th></tr>
-              </thead>
+              <thead><tr><th>Receipt #</th><th>Date & Time</th><th>Cashier</th><th>Items</th><th>Total</th><th>Method</th><th>Actions</th></tr></thead>
               <tbody id="tx-tbody"></tbody>
             </table>
           </div>
         </div>
       </div>
 
-      <!-- Inventory Page -->
+      <!-- Inventory -->
       <div class="page" id="page-inventory">
         <div class="toolbar">
           <div class="search-box">
@@ -1076,16 +1307,14 @@ tr:hover td { background: rgba(238,241,245,0.4); }
         <div class="card">
           <div class="table-wrap">
             <table>
-              <thead>
-                <tr><th>#</th><th>Product Name</th><th>Category</th><th>Price</th><th>Stock</th><th>Min</th><th>Status</th><th id="inv-act-hdr"></th></tr>
-              </thead>
+              <thead><tr><th>#</th><th>Product Name</th><th>Category</th><th>Price</th><th>Stock</th><th>Min</th><th>Status</th><th id="inv-act-hdr"></th></tr></thead>
               <tbody id="inv-tbody"></tbody>
             </table>
           </div>
         </div>
       </div>
 
-      <!-- Reports Page -->
+      <!-- Reports -->
       <div class="page" id="page-reports">
         <div class="report-tabs">
           <div class="report-tab active" onclick="setReportTab('summary', this)">Summary</div>
@@ -1095,7 +1324,7 @@ tr:hover td { background: rgba(238,241,245,0.4); }
         <div id="report-content"></div>
       </div>
 
-      <!-- Users Page -->
+      <!-- Users -->
       <div class="page" id="page-users">
         <div class="toolbar">
           <div class="card-title">System Accounts</div>
@@ -1105,20 +1334,17 @@ tr:hover td { background: rgba(238,241,245,0.4); }
         <div class="card">
           <div class="table-wrap">
             <table>
-              <thead>
-                <tr><th>Username</th><th>Role</th><th>Client ID</th><th>Created</th><th>Last Login</th><th>Online</th><th>Status</th><th>Actions</th></tr>
-              </thead>
+              <thead><tr><th>Username</th><th>Role</th><th>Client ID</th><th>Created</th><th>Last Login</th><th>Online</th><th>Status</th><th>Actions</th></tr></thead>
               <tbody id="users-tbody"></tbody>
             </table>
           </div>
         </div>
       </div>
+    </div>
+  </div>
+</div>
 
-    </div><!-- /content -->
-  </div><!-- /main -->
-</div><!-- /app -->
-
-<!-- ══════════════ MODALS ══════════════ -->
+<!-- ══════════════════ MODALS ══════════════════ -->
 
 <!-- Product Modal -->
 <div class="modal-overlay" id="modal-product">
@@ -1129,7 +1355,7 @@ tr:hover td { background: rgba(238,241,245,0.4); }
     </div>
     <div class="modal-body">
       <input type="hidden" id="pm-id">
-      <div class="form-field" style="grid-column:1/-1">
+      <div class="form-field">
         <label>Product Name</label>
         <input type="text" id="pm-name" placeholder="e.g. Portland Cement 50kg">
       </div>
@@ -1179,30 +1405,16 @@ tr:hover td { background: rgba(238,241,245,0.4); }
       </div>
       <div style="font-size:11px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:10px">Payment Method</div>
       <div class="pay-methods">
-        <div class="pay-opt selected" onclick="selectPay('cash',this)">
-          <div class="pay-opt-icon">💵</div>
-          <div class="pay-opt-name">Cash</div>
-        </div>
-        <div class="pay-opt" onclick="selectPay('mpesa',this)">
-          <div class="pay-opt-icon">📱</div>
-          <div class="pay-opt-name">M-Pesa</div>
-        </div>
-        <div class="pay-opt" onclick="selectPay('mobile',this)">
-          <div class="pay-opt-icon">🏦</div>
-          <div class="pay-opt-name">Mobile Banking</div>
-        </div>
-        <div class="pay-opt" onclick="selectPay('split',this)">
-          <div class="pay-opt-icon">✂️</div>
-          <div class="pay-opt-name">Split Payment</div>
-        </div>
+        <div class="pay-opt selected" onclick="selectPay('cash',this)"><div class="pay-opt-icon">💵</div><div class="pay-opt-name">Cash</div></div>
+        <div class="pay-opt" onclick="selectPay('mpesa',this)"><div class="pay-opt-icon">📱</div><div class="pay-opt-name">M-Pesa</div></div>
+        <div class="pay-opt" onclick="selectPay('mobile',this)"><div class="pay-opt-icon">🏦</div><div class="pay-opt-name">Mobile Banking</div></div>
+        <div class="pay-opt" onclick="selectPay('split',this)"><div class="pay-opt-icon">✂️</div><div class="pay-opt-name">Split Payment</div></div>
       </div>
       <div class="pay-detail-area" id="pay-detail"></div>
     </div>
     <div class="modal-foot">
       <button class="btn btn-outline" onclick="closeModal('modal-payment')">Cancel</button>
-      <button class="btn btn-primary" onclick="completeSale()" id="complete-btn" style="min-width:160px">
-        ✓ Complete Sale
-      </button>
+      <button class="btn btn-primary" onclick="completeSale()" id="complete-btn" style="min-width:160px">✓ Complete Sale</button>
     </div>
   </div>
 </div>
@@ -1224,52 +1436,42 @@ tr:hover td { background: rgba(238,241,245,0.4); }
   </div>
 </div>
 
-
-<!-- Register Store Modal -->
-<div class="modal-overlay" id="modal-register">
-  <div class="modal" style="max-width:450px">
+<!-- Switch Account Modal -->
+<div class="modal-overlay" id="modal-switch">
+  <div class="modal" style="max-width:420px">
     <div class="modal-head">
-      <h2>🏢 Register New Store</h2>
-      <button class="modal-close" onclick="closeModal('modal-register')">✕</button>
+      <h2>🔄 Switch Account</h2>
+      <button class="modal-close" onclick="closeSwitchModal()">✕</button>
     </div>
-    <div class="modal-body">
-      <div class="form-field">
-        <label>Store Name</label>
-        <input type="text" id="reg-store-name" placeholder="e.g. Manribs Hardware">
-      </div>
-      <div class="form-field">
-        <label>Admin Username</label>
-        <input type="text" id="reg-admin-user" placeholder="e.g. admin">
-      </div>
-      <div class="form-field">
-        <label>Admin Password</label>
-        <input type="password" id="reg-admin-pass" placeholder="Minimum 6 characters">
-      </div>
-      <div style="background:var(--blue-bg);color:var(--blue);padding:12px;border-radius:var(--r-sm);font-size:12px;line-height:1.5">
-        ℹ️ Registration will create a unique <strong>Client ID</strong> for your store. This ID ensures your data is private and only accessible to your users.
-      </div>
+    <div class="modal-body" id="switch-modal-body">
+      <!-- Dynamically populated -->
     </div>
-    <div class="modal-foot">
-      <button class="btn btn-outline" onclick="closeModal('modal-register')">Cancel</button>
-      <button class="btn btn-primary" id="reg-btn" onclick="registerStore()">Register Store</button>
+    <div class="modal-foot" id="switch-modal-foot">
+      <button class="btn btn-outline" onclick="closeSwitchModal()">Cancel</button>
     </div>
   </div>
 </div>
 
-
-<!-- Switch Account Modal -->
-<div class="modal-overlay" id="modal-switch">
-  <div class="modal" style="max-width:380px">
+<!-- Logout Confirm Modal -->
+<div class="modal-overlay" id="modal-logout">
+  <div class="modal" style="max-width:360px">
     <div class="modal-head">
-      <h2>🔄 Switch Account</h2>
-      <button class="modal-close" onclick="closeModal('modal-switch')">✕</button>
+      <h2>🚪 Sign Out</h2>
+      <button class="modal-close" onclick="closeModal('modal-logout')">✕</button>
     </div>
-    <div class="modal-body" style="padding:10px 20px">
-      <p style="font-size:13px;color:var(--text-2);margin-bottom:15px">Select a user from your store to switch to:</p>
-      <div id="switch-user-list" style="display:flex;flex-direction:column;gap:8px"></div>
+    <div class="modal-body">
+      <p style="font-size:14px;color:var(--text-2);line-height:1.6">Are you sure you want to sign out? Any unsynced changes are saved locally and will sync on next login.</p>
+      <div style="display:flex;align-items:center;gap:10px;margin-top:16px;padding:12px;background:var(--surface-2);border-radius:var(--r-sm);border:1px solid var(--border)">
+        <div style="width:36px;height:36px;background:linear-gradient(135deg,var(--accent),var(--accent-2));border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;font-size:14px" id="logout-av">A</div>
+        <div>
+          <div style="font-weight:600;font-size:14px" id="logout-name">Admin</div>
+          <div style="font-size:11px;color:var(--text-3);text-transform:uppercase" id="logout-role">Administrator</div>
+        </div>
+      </div>
     </div>
     <div class="modal-foot">
-      <button class="btn btn-outline" onclick="closeModal('modal-switch')">Cancel</button>
+      <button class="btn btn-outline" onclick="closeModal('modal-logout')">Stay Signed In</button>
+      <button class="btn btn-danger" onclick="doLogout()" style="min-width:120px">Sign Out</button>
     </div>
   </div>
 </div>
@@ -1325,7 +1527,7 @@ tr:hover td { background: rgba(238,241,245,0.4); }
 
 <script type="module">
 // ══════════════════════════════════════════
-// FIREBASE INTEGRATION (SDK v12.12.1)
+// FIREBASE SDK
 // ══════════════════════════════════════════
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getFirestore, doc, setDoc, getDoc, getDocs, onSnapshot, collection, addDoc, query, orderBy, limit, enableIndexedDbPersistence } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
@@ -1336,24 +1538,16 @@ const firebaseConfig = {
   projectId: "manribstech-store",
   storageBucket: "manribstech-store.firebasestorage.app",
   messagingSenderId: "992096289165",
-  appId: "1:992096289165:web:073b6ed44e38b441967dc4",
-  measurementId: "G-YFMXJH33GE"
+  appId: "1:992096289165:web:073b6ed44e38b441967dc4"
 };
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// Enable Offline Persistence
-enableIndexedDbPersistence(db).catch((err) => {
-    if (err.code == 'failed-precondition') {
-        console.warn("Persistence failed: Multiple tabs open");
-    } else if (err.code == 'unimplemented') {
-        console.warn("Persistence failed: Browser doesn't support it");
-    }
-});
+enableIndexedDbPersistence(db).catch(e => console.warn("Persistence:", e.code));
 
 // ══════════════════════════════════════════
-// CORE DATA STORE (Local)
+// LOCAL DATA STORE
 // ══════════════════════════════════════════
 const DB = {
   users: [
@@ -1385,95 +1579,62 @@ let invCatFilter = '';
 let reportTab = 'summary';
 let currentReceiptTx = null;
 let cloudStatus = 'offline';
-let clientID = null; // Shared business/client data ID used by all users in the same store
-let sessionID = null; // Unique browser-session ID used for presence/online detection
+let clientID = null;
+let sessionID = null;
 let currentActivePage = 'dashboard';
 let clientUnsubscribe = null;
 let transactionUnsubscribe = null;
 let presenceUnsubscribe = null;
 let presenceTimer = null;
 let browserOnline = navigator.onLine;
+let pendingSwitchUser = null; // stores user object to switch to
+let registeredStoreName = '';
+let registeredAdminUser = '';
+let registeredAdminPass = '';
+let registeredClientId = '';
+
 const DEFAULT_CLIENT_ID = 'client_manribstech_store';
 const USER_CLIENT_MAP_KEY = 'manribs_user_client_map';
 const ONLINE_TIMEOUT_MS = 90 * 1000;
 const DEFAULT_DB_SNAPSHOT = JSON.parse(JSON.stringify(DB));
 
-
 // ══════════════════════════════════════════
-// MULTI-USER CLIENT ID + PRESENCE HELPERS
+// HELPERS
 // ══════════════════════════════════════════
-function cloneDefaultDB() {
-  return JSON.parse(JSON.stringify(DEFAULT_DB_SNAPSHOT));
-}
+function cloneDefaultDB() { return JSON.parse(JSON.stringify(DEFAULT_DB_SNAPSHOT)); }
+function resetDBToDefaults() { const f = cloneDefaultDB(); DB.users=f.users; DB.products=f.products; DB.transactions=f.transactions; DB.nextId=f.nextId; }
+function safeKey(u) { return String(u||'').trim().toLowerCase().replace(/[^a-z0-9_-]/g,'_'); }
+function normId(id) { const c=String(id||'').trim().toLowerCase().replace(/[^a-z0-9_-]/g,'_'); return c ? (c.startsWith('client_')?c:'client_'+c) : DEFAULT_CLIENT_ID; }
+function legacyId(u) { return 'client_'+String(u||'').toLowerCase().replace(/[^a-z0-9]/g,''); }
+function genSession() { return crypto?.randomUUID ? crypto.randomUUID() : 'sess_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,10); }
+function getUserClientMap() { try { return JSON.parse(localStorage.getItem(USER_CLIENT_MAP_KEY)||'{}'); } catch { return {}; } }
 
-function resetDBToDefaults() {
-  const fresh = cloneDefaultDB();
-  DB.users = fresh.users;
-  DB.products = fresh.products;
-  DB.transactions = fresh.transactions;
-  DB.nextId = fresh.nextId;
-}
-
-function safeUsernameKey(username) {
-  return String(username || '').trim().toLowerCase().replace(/[^a-z0-9_-]/g, '_');
-}
-
-function legacyClientIdForUsername(username) {
-  return 'client_' + String(username || '').toLowerCase().replace(/[^a-z0-9]/g, '');
-}
-
-function normalizeClientId(id) {
-  const cleaned = String(id || '').trim().toLowerCase().replace(/[^a-z0-9_-]/g, '_');
-  return cleaned ? (cleaned.startsWith('client_') ? cleaned : 'client_' + cleaned) : DEFAULT_CLIENT_ID;
-}
-
-function generateSessionId() {
-  if (crypto?.randomUUID) return crypto.randomUUID();
-  return 'session_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 10);
-}
-
-function getUserClientMap() {
-  try { return JSON.parse(localStorage.getItem(USER_CLIENT_MAP_KEY) || '{}'); }
-  catch { return {}; }
-}
-
-function saveUserClientMapping(username, id = clientID) {
-  if (!username || !id) return;
+function saveUserClientMapping(username, id=clientID) {
+  if (!username||!id) return;
   const map = getUserClientMap();
-  map[safeUsernameKey(username)] = id;
+  map[safeKey(username)] = id;
   localStorage.setItem(USER_CLIENT_MAP_KEY, JSON.stringify(map));
   localStorage.setItem('manribs_last_client', id);
 }
 
 function getLocalClientCandidates(username) {
-  const mapped = getUserClientMap()[safeUsernameKey(username)];
-  const lastClient = localStorage.getItem('manribs_last_client');
-  return [...new Set([mapped, lastClient, DEFAULT_CLIENT_ID, legacyClientIdForUsername(username)].filter(Boolean).map(normalizeClientId))];
+  const mapped = getUserClientMap()[safeKey(username)];
+  const last = localStorage.getItem('manribs_last_client');
+  return [...new Set([mapped, last, DEFAULT_CLIENT_ID, legacyId(username)].filter(Boolean).map(normId))];
 }
 
-function normalizeDBForClient(id = clientID) {
-  const normalizedClientId = normalizeClientId(id || DEFAULT_CLIENT_ID);
-  const seenUserIds = new Set();
-  DB.users = (DB.users || []).map((u, index) => {
-    const numericId = Number(u.id) || index + 1;
-    seenUserIds.add(numericId);
-    return {
-      ...u,
-      id: numericId,
-      username: String(u.username || '').trim(),
-      role: u.role || 'cashier',
-      created: u.created || new Date().toLocaleDateString('en-KE'),
-      lastLogin: u.lastLogin || null,
-      active: u.active !== false,
-      clientId: normalizeClientId(u.clientId || normalizedClientId),
-      online: Boolean(u.online),
-      lastSeen: u.lastSeen || null
-    };
+function normalizeDBForClient(id=clientID) {
+  const cid = normId(id||DEFAULT_CLIENT_ID);
+  const seenIds = new Set();
+  DB.users = (DB.users||[]).map((u,i) => {
+    const nid = Number(u.id)||i+1;
+    seenIds.add(nid);
+    return { ...u, id:nid, username:String(u.username||'').trim(), role:u.role||'cashier', created:u.created||new Date().toLocaleDateString('en-KE'), lastLogin:u.lastLogin||null, active:u.active!==false, clientId:normId(u.clientId||cid), online:Boolean(u.online), lastSeen:u.lastSeen||null };
   });
-  DB.nextId = DB.nextId || { product: 1, user: 1, transaction: 1 };
-  DB.nextId.user = Math.max(DB.nextId.user || 1, ...seenUserIds, 0) + 1;
-  DB.nextId.product = Math.max(DB.nextId.product || 1, ...(DB.products || []).map(p => Number(p.id) || 0), 0) + 1;
-  DB.nextId.transaction = Math.max(DB.nextId.transaction || 1, ...(DB.transactions || []).map(t => Number(t.id) || 0), 0) + 1;
+  DB.nextId = DB.nextId||{ product:1, user:1, transaction:1 };
+  DB.nextId.user = Math.max(DB.nextId.user||1, ...seenIds, 0)+1;
+  DB.nextId.product = Math.max(DB.nextId.product||1, ...(DB.products||[]).map(p=>Number(p.id)||0), 0)+1;
+  DB.nextId.transaction = Math.max(DB.nextId.transaction||1, ...(DB.transactions||[]).map(t=>Number(t.id)||0), 0)+1;
 }
 
 function applyClientData(data) {
@@ -1488,149 +1649,81 @@ function applyClientData(data) {
 async function fetchRegisteredClientId(username) {
   if (!navigator.onLine) return null;
   try {
-    const snap = await getDoc(doc(db, 'client_user_registry', safeUsernameKey(username)));
-    if (snap.exists() && snap.data()?.clientID) return normalizeClientId(snap.data().clientID);
-  } catch (e) {
-    console.warn('Client registry lookup failed:', e);
-  }
+    const snap = await getDoc(doc(db, 'client_user_registry', safeKey(username)));
+    if (snap.exists() && snap.data()?.clientID) return normId(snap.data().clientID);
+  } catch {}
   return null;
 }
 
 async function registerClientUsers() {
-  if (!clientID || !navigator.onLine) return;
-  const writes = (DB.users || []).filter(u => u.username).map(u => {
+  if (!clientID||!navigator.onLine) return;
+  const writes = (DB.users||[]).filter(u=>u.username).map(u => {
     saveUserClientMapping(u.username, clientID);
-    return setDoc(doc(db, 'client_user_registry', safeUsernameKey(u.username)), {
-      username: u.username,
-      clientID,
-      role: u.role || 'cashier',
-      active: u.active !== false,
-      lastUpdated: new Date().toISOString()
-    }, { merge: true });
+    return setDoc(doc(db,'client_user_registry',safeKey(u.username)), { username:u.username, clientID, role:u.role||'cashier', active:u.active!==false, lastUpdated:new Date().toISOString() }, {merge:true});
   });
   await Promise.allSettled(writes);
 }
 
-function getClientDisplayId(id = clientID) {
-  return id || DEFAULT_CLIENT_ID;
-}
-
 // ══════════════════════════════════════════
-// PROFESSIONAL INDEXEDDB PERSISTENCE
+// INDEXEDDB PERSISTENCE
 // ══════════════════════════════════════════
-const IDB_NAME = 'ManribsTechBMS';
-const IDB_VERSION = 1;
-const IDB_STORE = 'clientData';
-
 function openIDB() {
   return new Promise((resolve, reject) => {
-    const request = indexedDB.open(IDB_NAME, IDB_VERSION);
-    request.onupgradeneeded = (e) => {
-      const db = e.target.result;
-      if (!db.objectStoreNames.contains(IDB_STORE)) {
-        db.createObjectStore(IDB_STORE);
-      }
-    };
-    request.onsuccess = (e) => resolve(e.target.result);
-    request.onerror = (e) => reject(e.target.error);
+    const request = indexedDB.open('ManribsTechBMS', 1);
+    request.onupgradeneeded = e => { const d=e.target.result; if (!d.objectStoreNames.contains('clientData')) d.createObjectStore('clientData'); };
+    request.onsuccess = e => resolve(e.target.result);
+    request.onerror = e => reject(e.target.error);
   });
 }
 
 async function saveToLocal() {
   if (!clientID) return;
   try {
-    const db = await openIDB();
-    const tx = db.transaction(IDB_STORE, 'readwrite');
-    const store = tx.objectStore(IDB_STORE);
-    const localData = {
-      products: DB.products,
-      users: DB.users,
-      nextId: DB.nextId,
-      transactions: DB.transactions,
-      lastSaved: new Date().toISOString()
-    };
-    store.put(localData, clientID);
-    // Fallback to LocalStorage for ultra-fast initial boot
+    const idb = await openIDB();
+    const tx = idb.transaction('clientData','readwrite');
+    const localData = { products:DB.products, users:DB.users, nextId:DB.nextId, transactions:DB.transactions, lastSaved:new Date().toISOString() };
+    tx.objectStore('clientData').put(localData, clientID);
     localStorage.setItem('manribs_last_client', clientID);
-    localStorage.setItem('manribs_data_' + clientID, JSON.stringify(localData));
-  } catch (e) {
-    console.error("IndexedDB save error:", e);
-  }
+    localStorage.setItem('manribs_data_'+clientID, JSON.stringify(localData));
+  } catch(e) { console.error("Local save:", e); }
 }
 
 async function loadFromLocal() {
   if (!clientID) return false;
   try {
-    // Try IndexedDB first (Professional storage)
-    const db = await openIDB();
-    const tx = db.transaction(IDB_STORE, 'readonly');
-    const store = tx.objectStore(IDB_STORE);
-    const data = await new Promise((resolve) => {
-      const req = store.get(clientID);
-      req.onsuccess = () => resolve(req.result);
-      req.onerror = () => resolve(null);
-    });
-
-    if (data) {
-      if (data.products) DB.products = data.products;
-      if (data.users) DB.users = data.users;
-      if (data.nextId) DB.nextId = data.nextId;
-      if (data.transactions) DB.transactions = data.transactions;
-      return true;
-    }
-
-    // Fallback to LocalStorage
-    const saved = localStorage.getItem('manribs_data_' + clientID);
-    if (saved) {
-      const lsData = JSON.parse(saved);
-      if (lsData.products) DB.products = lsData.products;
-      if (lsData.users) DB.users = lsData.users;
-      if (lsData.nextId) DB.nextId = lsData.nextId;
-      if (lsData.transactions) DB.transactions = lsData.transactions;
-      return true;
-    }
-  } catch (e) {
-    console.error("Local load error:", e);
-  }
+    const idb = await openIDB();
+    const tx = idb.transaction('clientData','readonly');
+    const data = await new Promise(r => { const req = tx.objectStore('clientData').get(clientID); req.onsuccess=()=>r(req.result); req.onerror=()=>r(null); });
+    if (data) { if(data.products) DB.products=data.products; if(data.users) DB.users=data.users; if(data.nextId) DB.nextId=data.nextId; if(data.transactions) DB.transactions=data.transactions; return true; }
+    const saved = localStorage.getItem('manribs_data_'+clientID);
+    if (saved) { const d=JSON.parse(saved); if(d.products) DB.products=d.products; if(d.users) DB.users=d.users; if(d.nextId) DB.nextId=d.nextId; if(d.transactions) DB.transactions=d.transactions; return true; }
+  } catch(e) { console.error("Local load:", e); }
   return false;
 }
 
 // ══════════════════════════════════════════
-// CLOUD SYNC LOGIC
+// CLOUD SYNC
 // ══════════════════════════════════════════
 function setCloudStatus(status) {
-  cloudStatus = status;
-  browserOnline = navigator.onLine;
-  const pill = document.getElementById('cloud-status-pill');
-  if (!pill) return;
-  const effectiveStatus = browserOnline ? status : 'offline';
+  cloudStatus = status; browserOnline = navigator.onLine;
+  const pill = document.getElementById('cloud-status-pill'); if (!pill) return;
+  const eff = browserOnline ? status : 'offline';
   const icons = { synced:'☁️', syncing:'🔄', offline:'⚡' };
   const labels = { synced:'Online • Cloud Synced', syncing:'Online • Syncing…', offline: browserOnline ? 'Local Only' : 'Offline' };
-  const clientLabel = clientID ? ` title="Client ID: ${getClientDisplayId()}"` : '';
-  pill.innerHTML = `<span class="cloud-pill ${effectiveStatus}"${clientLabel}><span class="cloud-dot"></span>${icons[effectiveStatus]} ${labels[effectiveStatus]}</span>`;
+  pill.innerHTML = `<span class="cloud-pill ${eff}"><span class="cloud-dot"></span>${icons[eff]} ${labels[eff]}</span>`;
 }
 
 async function syncToCloud() {
   if (!clientID) return;
   normalizeDBForClient(clientID);
-  await saveToLocal(); // Always save locally first
+  await saveToLocal();
   if (!navigator.onLine) { setCloudStatus('offline'); return; }
   setCloudStatus('syncing');
   try {
-    await setDoc(doc(db, "clients", clientID), {
-      clientID,
-      products: DB.products,
-      users: DB.users,
-      nextId: DB.nextId,
-      transactions: DB.transactions,
-      lastUpdated: new Date().toISOString()
-    }, { merge: true });
+    await setDoc(doc(db,"clients",clientID), { clientID, products:DB.products, users:DB.users, nextId:DB.nextId, transactions:DB.transactions, lastUpdated:new Date().toISOString() }, {merge:true});
     await registerClientUsers();
     setCloudStatus('synced');
-  } catch (e) {
-    console.error("Cloud sync error:", e);
-    setCloudStatus('offline');
-  }
+  } catch(e) { console.error("Cloud sync:", e); setCloudStatus('offline'); }
 }
 
 function initCloudListeners() {
@@ -1639,365 +1732,237 @@ function initCloudListeners() {
   if (transactionUnsubscribe) transactionUnsubscribe();
   if (presenceUnsubscribe) presenceUnsubscribe();
 
-  // Listen for product/user/client changes for this shared client ID
-  clientUnsubscribe = onSnapshot(doc(db, "clients", clientID), (docSnap) => {
-    if (docSnap.exists()) {
-      applyClientData(docSnap.data());
+  clientUnsubscribe = onSnapshot(doc(db,"clients",clientID), (snap) => {
+    if (snap.exists()) {
+      applyClientData(snap.data());
       if (currentUser) {
-        const refreshedUser = DB.users.find(u => u.id === currentUser.id) || DB.users.find(u => u.username === currentUser.username);
-        if (refreshedUser) currentUser = refreshedUser;
-        renderProducts();
-        updateDashboard();
-        renderInventory();
-        renderUsers();
+        const r = DB.users.find(u=>u.id===currentUser.id)||DB.users.find(u=>u.username===currentUser.username);
+        if (r) currentUser=r;
+        renderProducts(); updateDashboard(); renderInventory(); renderUsers();
         setCloudStatus('synced');
       }
     }
-  }, (error) => {
-    console.warn('Client listener offline/unavailable:', error);
-    setCloudStatus('offline');
-  });
+  }, () => setCloudStatus('offline'));
 
-  // Listen for transactions; older data is also preserved in the client document as a fallback.
-  const txQuery = query(collection(db, "clients", clientID, "transactions"), orderBy("date", "desc"), limit(500));
-  transactionUnsubscribe = onSnapshot(txQuery, (querySnapshot) => {
-    const txs = [];
-    querySnapshot.forEach((doc) => txs.push(doc.data()));
-    if (txs.length > 0) DB.transactions = txs;
-    if (currentUser) {
-      renderTransactions();
-      updateDashboard();
-    }
-  }, (error) => console.warn('Transaction listener offline/unavailable:', error));
+  const txQ = query(collection(db,"clients",clientID,"transactions"), orderBy("date","desc"), limit(500));
+  transactionUnsubscribe = onSnapshot(txQ, (snap) => {
+    const txs=[]; snap.forEach(d=>txs.push(d.data()));
+    if (txs.length>0) DB.transactions=txs;
+    if (currentUser) { renderTransactions(); updateDashboard(); }
+  }, () => {});
 
   listenForPresence();
 }
 
-
 // ══════════════════════════════════════════
-// ONLINE / OFFLINE PRESENCE
+// PRESENCE
 // ══════════════════════════════════════════
-async function updatePresence(isOnline = true) {
-  if (!clientID || !currentUser || !sessionID) return;
+async function updatePresence(isOnline=true) {
+  if (!clientID||!currentUser||!sessionID) return;
   const now = new Date().toISOString();
-  currentUser.online = Boolean(isOnline && navigator.onLine);
+  currentUser.online = Boolean(isOnline&&navigator.onLine);
   currentUser.lastSeen = now;
-  const target = DB.users.find(u => u.id === currentUser.id) || DB.users.find(u => u.username === currentUser.username);
-  if (target) {
-    target.online = currentUser.online;
-    target.lastSeen = now;
-  }
+  const t = DB.users.find(u=>u.id===currentUser.id)||DB.users.find(u=>u.username===currentUser.username);
+  if (t) { t.online=currentUser.online; t.lastSeen=now; }
   await saveToLocal();
   if (!navigator.onLine) { setCloudStatus('offline'); return; }
   try {
-    await setDoc(doc(db, 'clients', clientID, 'presence', sessionID), {
-      sessionID,
-      clientID,
-      userId: currentUser.id,
-      username: currentUser.username,
-      role: currentUser.role,
-      online: Boolean(isOnline),
-      lastSeen: now,
-      userAgent: navigator.userAgent.slice(0, 160)
-    }, { merge: true });
-  } catch (e) {
-    console.warn('Presence update failed:', e);
-    setCloudStatus('offline');
-  }
+    await setDoc(doc(db,'clients',clientID,'presence',sessionID), { sessionID, clientID, userId:currentUser.id, username:currentUser.username, role:currentUser.role, online:Boolean(isOnline), lastSeen:now, userAgent:navigator.userAgent.slice(0,160) }, {merge:true});
+  } catch {}
 }
 
 function listenForPresence() {
-  if (!clientID || !currentUser) return;
+  if (!clientID||!currentUser) return;
   if (presenceUnsubscribe) presenceUnsubscribe();
-  presenceUnsubscribe = onSnapshot(collection(db, 'clients', clientID, 'presence'), (snap) => {
-    const latestByUser = {};
-    const cutoff = Date.now() - ONLINE_TIMEOUT_MS;
+  presenceUnsubscribe = onSnapshot(collection(db,'clients',clientID,'presence'), (snap) => {
+    const byUser={}, cutoff=Date.now()-ONLINE_TIMEOUT_MS;
     snap.forEach(d => {
-      const p = d.data();
-      if (!p.username) return;
-      const seenTime = p.lastSeen ? new Date(p.lastSeen).getTime() : 0;
-      const isOnline = p.online === true && seenTime >= cutoff;
-      const key = safeUsernameKey(p.username);
-      if (!latestByUser[key] || seenTime > latestByUser[key].seenTime) {
-        latestByUser[key] = { isOnline, seenTime, lastSeen: p.lastSeen };
-      } else if (isOnline) {
-        latestByUser[key].isOnline = true;
-      }
+      const p=d.data(); if (!p.username) return;
+      const t=p.lastSeen?new Date(p.lastSeen).getTime():0;
+      const on=p.online===true&&t>=cutoff;
+      const k=safeKey(p.username);
+      if (!byUser[k]||t>byUser[k].t) byUser[k]={on,t,lastSeen:p.lastSeen};
+      else if (on) byUser[k].on=true;
     });
-    DB.users.forEach(u => {
-      const status = latestByUser[safeUsernameKey(u.username)];
-      u.online = Boolean(status?.isOnline);
-      if (status?.lastSeen) u.lastSeen = status.lastSeen;
-    });
-    if (currentUser) {
-      const me = DB.users.find(u => u.id === currentUser.id) || DB.users.find(u => u.username === currentUser.username);
-      if (me) currentUser = me;
-      renderUsers();
-    }
-  }, (error) => console.warn('Presence listener offline/unavailable:', error));
+    DB.users.forEach(u => { const s=byUser[safeKey(u.username)]; u.online=Boolean(s?.on); if(s?.lastSeen) u.lastSeen=s.lastSeen; });
+    if (currentUser) { const me=DB.users.find(u=>u.id===currentUser.id)||DB.users.find(u=>u.username===currentUser.username); if(me) currentUser=me; renderUsers(); }
+  }, ()=>{});
 }
 
-function startPresence() {
-  if (!currentUser || !clientID) return;
-  sessionID = sessionID || generateSessionId();
-  clearInterval(presenceTimer);
-  updatePresence(true);
-  presenceTimer = setInterval(() => updatePresence(true), 30000);
-}
+function startPresence() { if(!currentUser||!clientID) return; sessionID=sessionID||genSession(); clearInterval(presenceTimer); updatePresence(true); presenceTimer=setInterval(()=>updatePresence(true),30000); }
+function stopPresence() { clearInterval(presenceTimer); presenceTimer=null; if(presenceUnsubscribe){presenceUnsubscribe();presenceUnsubscribe=null;} }
 
-function stopPresence() {
-  clearInterval(presenceTimer);
-  presenceTimer = null;
-  if (presenceUnsubscribe) { presenceUnsubscribe(); presenceUnsubscribe = null; }
-}
-
-function handleConnectivityChange() {
-  browserOnline = navigator.onLine;
-  if (!browserOnline) {
-    setCloudStatus('offline');
-    if (currentUser) toast('You are offline. Changes will stay local until the connection returns.', 'info');
-    return;
-  }
-  if (currentUser) {
-    setCloudStatus('syncing');
-    updatePresence(true);
-    syncToCloud().then(() => toast('Back online. Data synced.', 'success')).catch(() => setCloudStatus('offline'));
-  } else {
-    setCloudStatus('offline');
-  }
-}
-
-window.addEventListener('online', handleConnectivityChange);
-window.addEventListener('offline', handleConnectivityChange);
-document.addEventListener('visibilitychange', () => {
-  if (!currentUser) return;
-  updatePresence(!document.hidden);
-});
+window.addEventListener('online', () => { browserOnline=true; if(currentUser){setCloudStatus('syncing');updatePresence(true);syncToCloud().then(()=>toast('Back online. Data synced.','success')).catch(()=>setCloudStatus('offline'));} else setCloudStatus('offline'); });
+window.addEventListener('offline', () => { browserOnline=false; setCloudStatus('offline'); if(currentUser) toast('You are offline. Changes saved locally.','info'); });
+document.addEventListener('visibilitychange', () => { if(currentUser) updatePresence(!document.hidden); });
 window.addEventListener('beforeunload', () => { updatePresence(false); });
 
 // ══════════════════════════════════════════
-// AUTH
+// LOGIN TAB SWITCHING
 // ══════════════════════════════════════════
-
-
-
-window.openSwitchAccount = function() {
-  const list = document.getElementById('switch-user-list');
-  if (!list) return;
-  list.innerHTML = DB.users.filter(u => u.active).map(u => `
-    <div onclick="switchUser('${u.username}')" style="display:flex;align-items:center;gap:12px;padding:12px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r-sm);cursor:pointer;transition:all 0.2s">
-      <div style="width:32px;height:32px;background:var(--accent);color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700">${u.username[0].toUpperCase()}</div>
-      <div style="flex:1">
-        <div style="font-weight:600;font-size:14px">${u.username} ${u.id === currentUser.id ? '<span style="font-size:10px;color:var(--text-3)">(Current)</span>' : ''}</div>
-        <div style="font-size:11px;color:var(--text-2);text-transform:uppercase">${u.role}</div>
-      </div>
-      <div style="font-size:18px;color:var(--text-3)">→</div>
-    </div>
-  `).join('');
-  openModal('modal-switch');
+window.switchLoginTab = function(tab) {
+  const isSign = tab === 'signin';
+  document.getElementById('panel-signin').style.display = isSign ? 'block' : 'none';
+  document.getElementById('panel-register').style.display = isSign ? 'none' : 'block';
+  document.getElementById('tab-signin').classList.toggle('active', isSign);
+  document.getElementById('tab-register').classList.toggle('active', !isSign);
+  if (!isSign) { resetRegForm(); }
 }
 
-window.switchUser = async function(username) {
-  // Use a more robust way to find the user that doesn't depend on the current DB state alone
-  const user = DB.users.find(u => u.username === username);
-  if (!user) {
-    toast(`User "${username}" not found in current store.`, 'error');
-    return;
-  }
-  
-  if (currentUser && user.id === currentUser.id) { 
-    closeModal('modal-switch'); 
-    return; 
-  }
-
-  // Ask for the target user's password before switching
-  const enteredPass = window.prompt(`Enter password for "${username}":`);
-  if (enteredPass === null) return; // user cancelled
-  if (enteredPass !== user.password) {
-    toast('Incorrect password. Switch cancelled.', 'error');
-    return;
-  }
-
-  try {
-    // Clear old session
-    if (currentUser) {
-      await updatePresence(false);
-      stopPresence();
-    }
-
-    // Switch to new user
-    currentUser = user;
-    currentUser.lastLogin = new Date().toISOString();
-    sessionID = generateSessionId();
-
-    // Update UI
-    document.getElementById('user-av').textContent = currentUser.username[0].toUpperCase();
-    document.getElementById('user-name-display').textContent = currentUser.username;
-    document.getElementById('user-role-display').textContent = currentUser.role === 'admin' ? 'Administrator' : 'Cashier';
-    
-    // Toggle admin navigation visibility
-    const adminNav = document.getElementById('admin-nav');
-    if (adminNav) adminNav.style.display = currentUser.role === 'admin' ? 'block' : 'none';
-
-    // Determine target page (redirect from admin pages if new user is cashier)
-    const adminOnlyPages = ['reports', 'users'];
-    const targetPage = (currentUser.role !== 'admin' && adminOnlyPages.includes(currentActivePage))
-      ? 'dashboard'
-      : currentActivePage;
-
-    // Persist new session
-    localStorage.setItem('manribs_session', JSON.stringify({
-      username: currentUser.username,
-      password: currentUser.password,
-      clientID,
-      page: targetPage
-    }));
-
-    // Start new session
-    startPresence();
-    closeModal('modal-switch');
-    goPage(targetPage);
-    toast(`Successfully switched to ${username}`, 'success');
-  } catch (e) {
-    console.error('Switch error:', e);
-    toast('Failed to switch account', 'error');
-  }
+function resetRegForm() {
+  document.getElementById('reg-error').style.display = 'none';
+  document.getElementById('reg-success-inline').style.display = 'none';
+  document.getElementById('reg-store-name').value = '';
+  document.getElementById('reg-admin-user').value = '';
+  document.getElementById('reg-admin-pass').value = '';
+  document.getElementById('reg-admin-pass2').value = '';
+  showRegStep(1);
 }
 
-window.registerStore = async function() {
+function showRegStep(n) {
+  ['reg-step-1','reg-step-2','reg-step-3'].forEach((id,i) => {
+    document.getElementById(id).classList.toggle('active', i+1===n);
+    const dot = document.getElementById('sdot-'+(i+1));
+    if (dot) dot.classList.toggle('done', i+1<=n);
+  });
+}
+
+window.regStep1Next = async function() {
   const storeName = document.getElementById('reg-store-name').value.trim();
   const adminUser = document.getElementById('reg-admin-user').value.trim();
   const adminPass = document.getElementById('reg-admin-pass').value;
+  const adminPass2 = document.getElementById('reg-admin-pass2').value;
+  const errEl = document.getElementById('reg-error');
 
-  if (!storeName || !adminUser || !adminPass) {
-    toast('Please fill in all fields', 'error');
-    return;
-  }
-  if (adminPass.length < 6) {
-    toast('Password must be at least 6 characters', 'error');
-    return;
-  }
+  const showErr = (msg) => { errEl.textContent = msg; errEl.style.display = 'block'; };
+  errEl.style.display = 'none';
 
-  const regBtn = document.getElementById('reg-btn');
-  const originalText = regBtn.textContent;
-  regBtn.disabled = true;
-  regBtn.textContent = 'Preparing...';
+  if (!storeName) { showErr('Please enter a store name.'); return; }
+  if (!adminUser) { showErr('Please enter an admin username.'); return; }
+  if (adminUser.length < 3) { showErr('Username must be at least 3 characters.'); return; }
+  if (!adminPass || adminPass.length < 6) { showErr('Password must be at least 6 characters.'); return; }
+  if (adminPass !== adminPass2) { showErr('Passwords do not match.'); return; }
 
-  const withTimeout = (promise, ms, errorMsg) => {
-    return Promise.race([
-      promise,
-      new Promise((_, reject) => setTimeout(() => reject(new Error(errorMsg)), ms))
-    ]);
-  };
+  const btn = document.getElementById('btn-reg-next');
+  btn.disabled = true;
+  btn.textContent = 'Checking…';
 
-  const retryOperation = async (operation, maxRetries = 2) => {
-    for (let i = 0; i <= maxRetries; i++) {
-      try {
-        return await operation();
-      } catch (err) {
-        if (i === maxRetries) throw err;
-        console.warn(`Operation failed, retrying... (${i + 1}/${maxRetries})`, err);
-        await new Promise(r => setTimeout(r, 1000));
-      }
+  // Check username uniqueness if online
+  if (navigator.onLine) {
+    const existingId = await fetchRegisteredClientId(adminUser).catch(()=>null);
+    if (existingId) {
+      showErr('Username "'+adminUser+'" is already taken. Please choose another.');
+      btn.disabled = false;
+      btn.textContent = 'Continue →';
+      return;
     }
+  }
+
+  btn.disabled = false;
+  btn.textContent = 'Continue →';
+
+  // Store for use in step 2
+  registeredStoreName = storeName;
+  registeredAdminUser = adminUser;
+  registeredAdminPass = adminPass;
+
+  performRegistration();
+}
+
+async function performRegistration() {
+  showRegStep(2);
+  const progressBar = document.getElementById('reg-progress-bar');
+  const progressLabel = document.getElementById('reg-progress-label');
+
+  const setProgress = (pct, label) => {
+    progressBar.style.width = pct + '%';
+    progressLabel.textContent = label;
   };
 
   try {
-    const newClientID = 'client_' + storeName.toLowerCase().replace(/[^a-z0-9]/g, '_') + '_' + Math.random().toString(36).slice(2, 7);
-    
-    // Check username uniqueness (Cloud only, if offline we skip this and hope for the best)
-    if (navigator.onLine) {
-      regBtn.textContent = 'Checking Username...';
-      const existing = await withTimeout(fetchRegisteredClientId(adminUser), 10000, 'Username check timed out.').catch(() => null);
-      if (existing) {
-        toast('Username already taken', 'error');
-        regBtn.disabled = false;
-        regBtn.textContent = originalText;
-        return;
-      }
-    }
+    setProgress(15, 'Generating store identity…');
+    await sleep(400);
 
-    regBtn.textContent = 'Saving Locally...';
+    const newClientID = 'client_' + registeredStoreName.toLowerCase().replace(/[^a-z0-9]/g,'_') + '_' + Math.random().toString(36).slice(2,7);
+    registeredClientId = newClientID;
+
+    setProgress(35, 'Creating admin account…');
+    await sleep(350);
+
     const initialData = {
       clientID: newClientID,
-      storeName: storeName,
-      users: [
-        { id: 1, username: adminUser, password: adminPass, role: 'admin', created: new Date().toLocaleDateString('en-KE'), active: true, clientId: newClientID }
-      ],
+      storeName: registeredStoreName,
+      users: [{ id:1, username:registeredAdminUser, password:registeredAdminPass, role:'admin', created:new Date().toLocaleDateString('en-KE'), active:true, clientId:newClientID, online:false, lastSeen:null }],
       products: [],
-      nextId: { product: 1, user: 2, transaction: 1 },
+      nextId: { product:1, user:2, transaction:1 },
       transactions: [],
       lastUpdated: new Date().toISOString()
     };
 
-    // CRITICAL: Save to Local DB first so it works even if cloud fails
+    setProgress(55, 'Saving store data locally…');
+    const prevClientID = clientID;
     clientID = newClientID;
     applyClientData(initialData);
     await saveToLocal();
-    saveUserClientMapping(adminUser, newClientID);
+    saveUserClientMapping(registeredAdminUser, newClientID);
+    clientID = prevClientID; // restore until actual login
 
-    // Now try Cloud in background/timeout
-    regBtn.textContent = 'Syncing to Cloud...';
-    const cloudWrite = async () => {
-      await Promise.all([
-        setDoc(doc(db, "clients", newClientID), initialData),
-        setDoc(doc(db, 'client_user_registry', safeUsernameKey(adminUser)), {
-          username: adminUser,
-          clientID: newClientID,
-          role: 'admin',
-          active: true,
-          lastUpdated: new Date().toISOString()
-        })
-      ]);
-    };
+    setProgress(75, 'Syncing to cloud…');
+    await sleep(200);
 
     if (navigator.onLine) {
-      await withTimeout(retryOperation(cloudWrite), 15000, 'Cloud sync delayed.').catch(e => {
-        console.warn("Cloud sync delayed during registration:", e);
-        toast("Registration saved locally. It will sync when connection improves.", "info");
-      });
-    } else {
-      toast("Registered offline. Data will sync when you go online.", "info");
+      try {
+        await Promise.all([
+          setDoc(doc(db,"clients",newClientID), initialData),
+          setDoc(doc(db,'client_user_registry',safeKey(registeredAdminUser)), { username:registeredAdminUser, clientID:newClientID, role:'admin', active:true, lastUpdated:new Date().toISOString() })
+        ]);
+      } catch(e) {
+        console.warn("Cloud write during registration:", e);
+        // Data is saved locally, proceed
+      }
     }
 
-    toast('Store Registered Successfully!', 'success');
-    closeModal('modal-register');
-    document.getElementById('l-user').value = adminUser;
-    document.getElementById('l-pass').value = adminPass;
-    document.getElementById('l-pass').focus();
-  } catch (e) {
+    setProgress(100, 'Complete!');
+    await sleep(500);
+
+    document.getElementById('reg-client-id-display').textContent = newClientID;
+    showRegStep(3);
+
+  } catch(e) {
     console.error("Registration error:", e);
-    const msg = e.message || 'Registration failed. Check your connection and try again.';
-    toast(msg, 'error');
-  } finally {
-    regBtn.disabled = false;
-    regBtn.textContent = originalText;
+    showRegStep(1);
+    const errEl = document.getElementById('reg-error');
+    errEl.textContent = 'Registration failed: ' + (e.message||'Unknown error. Please try again.');
+    errEl.style.display = 'block';
   }
 }
 
+window.prefillLoginAfterReg = function() {
+  document.getElementById('l-user').value = registeredAdminUser;
+  document.getElementById('l-pass').value = registeredAdminPass;
+}
 
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
+// ══════════════════════════════════════════
+// AUTH — LOGIN
+// ══════════════════════════════════════════
 window.doLogin = async function() {
   const u = document.getElementById('l-user').value.trim();
   const p = document.getElementById('l-pass').value;
-  
-  if (!u || !p) {
-    document.getElementById('login-error').textContent = "Please enter both username and password.";
-    document.getElementById('login-error').style.display = 'block';
-    return;
-  }
+  const errEl = document.getElementById('login-error');
+  const btn = document.getElementById('btn-signin');
 
-  const loginBtn = document.querySelector('.btn-login');
-  const originalBtnText = loginBtn.textContent;
-  loginBtn.textContent = "Authenticating...";
-  loginBtn.disabled = true;
+  errEl.style.display = 'none';
+
+  if (!u || !p) { errEl.textContent = "Please enter both username and password."; errEl.style.display='block'; return; }
+
+  btn.textContent = "Authenticating…"; btn.disabled = true;
 
   try {
-    let isOffline = !navigator.onLine;
-    const registeredClientId = await fetchRegisteredClientId(u);
-    const candidates = [...new Set([registeredClientId, ...getLocalClientCandidates(u)].filter(Boolean).map(normalizeClientId))];
-    let matchedUser = null;
-    let matchedClient = null;
+    const regId = await fetchRegisteredClientId(u);
+    const candidates = [...new Set([regId, ...getLocalClientCandidates(u)].filter(Boolean).map(normId))];
+    let matchedUser = null, matchedClient = null;
 
     for (const candidate of candidates) {
       clientID = candidate;
@@ -2006,131 +1971,251 @@ window.doLogin = async function() {
       normalizeDBForClient(clientID);
 
       try {
-        const clientDoc = await getDoc(doc(db, "clients", clientID));
-        if (clientDoc.exists()) applyClientData(clientDoc.data());
+        const cDoc = await getDoc(doc(db,"clients",clientID));
+        if (cDoc.exists()) applyClientData(cDoc.data());
+        const txQ = query(collection(db,"clients",clientID,"transactions"), orderBy("date","desc"), limit(500));
+        const txSnap = await getDocs(txQ).catch(()=>null);
+        if (txSnap) { const txs=[]; txSnap.forEach(d=>txs.push(d.data())); if(txs.length>0) DB.transactions=txs; }
+      } catch {}
 
-        const txQuery = query(collection(db, "clients", clientID, "transactions"), orderBy("date", "desc"), limit(500));
-        const txSnap = await getDocs(txQuery).catch(() => null);
-        if (txSnap) {
-          const cloudTxs = [];
-          txSnap.forEach(doc => cloudTxs.push(doc.data()));
-          if (cloudTxs.length > 0) DB.transactions = cloudTxs;
-        }
-      } catch (e) {
-        console.warn("Cloud fetch failed for client", clientID, e);
-        isOffline = true;
-      }
-
-      matchedUser = DB.users.find(x => x.username === u && x.password === p && x.active);
-      if (matchedUser) {
-        matchedClient = clientID;
-        break;
-      }
+      matchedUser = DB.users.find(x => x.username===u && x.password===p && x.active);
+      if (matchedUser) { matchedClient=candidate; break; }
     }
 
     if (!matchedUser) {
-      document.getElementById('login-error').textContent = "Invalid username or password.";
-      document.getElementById('login-error').style.display = 'block';
-      loginBtn.textContent = originalBtnText;
-      loginBtn.disabled = false;
+      errEl.textContent = "Invalid username or password."; errEl.style.display='block';
+      btn.textContent="Sign In to Dashboard"; btn.disabled=false;
       return;
     }
 
-    clientID = matchedClient || DEFAULT_CLIENT_ID;
+    clientID = matchedClient||DEFAULT_CLIENT_ID;
     normalizeDBForClient(clientID);
-    matchedUser = DB.users.find(x => x.username === u && x.password === p && x.active) || matchedUser;
-    matchedUser.clientId = normalizeClientId(matchedUser.clientId || clientID);
+    matchedUser = DB.users.find(x=>x.username===u&&x.password===p&&x.active)||matchedUser;
     matchedUser.lastLogin = new Date().toISOString();
     matchedUser.online = navigator.onLine;
     matchedUser.lastSeen = new Date().toISOString();
     currentUser = matchedUser;
-    sessionID = generateSessionId();
+    sessionID = genSession();
     saveUserClientMapping(currentUser.username, clientID);
     await saveToLocal();
 
+    // Persist session for refresh-restore
+    localStorage.setItem('manribs_session', JSON.stringify({ username:currentUser.username, password:currentUser.password, clientID, page:'dashboard' }));
+
+    // Boot the app
+    launchApp();
     initCloudListeners();
     startPresence();
-    
-    document.getElementById('login-error').style.display = 'none';
-    document.getElementById('login-screen').style.display = 'none';
-    document.getElementById('app').style.display = 'flex';
-    document.getElementById('user-av').textContent = currentUser.username[0].toUpperCase();
-    document.getElementById('user-name-display').textContent = currentUser.username;
-    document.getElementById('user-role-display').textContent = currentUser.role === 'admin' ? 'Administrator' : 'Cashier';
-    document.getElementById('admin-nav').style.display = currentUser.role === 'admin' ? 'block' : 'none';
-    
-    goPage('dashboard', document.querySelector('.nav-item.active'));
-    renderProducts();
-    renderUsers();
+    if (navigator.onLine) syncToCloud().catch(()=>{});
 
-    if (!isOffline && navigator.onLine) {
-      syncToCloud().catch(e => console.error("Background sync failed", e));
-    } else {
-      setCloudStatus('offline');
-      toast("Logged in offline mode. Data will sync when online.", "info");
-    }
-
-  } catch (error) {
-    console.error("Login error:", error);
-    resetDBToDefaults();
-    clientID = DEFAULT_CLIENT_ID;
-    normalizeDBForClient(clientID);
-    const user = DB.users.find(x => x.username === u && x.password === p && x.active);
+  } catch(e) {
+    console.error("Login error:", e);
+    // Emergency fallback
+    resetDBToDefaults(); clientID=DEFAULT_CLIENT_ID; normalizeDBForClient(clientID);
+    const user = DB.users.find(x=>x.username===u&&x.password===p&&x.active);
     if (user) {
-      currentUser = user;
-      sessionID = generateSessionId();
-      document.getElementById('login-screen').style.display = 'none';
-      document.getElementById('app').style.display = 'flex';
-      goPage('dashboard', document.querySelector('.nav-item.active'));
-      startPresence();
-      setCloudStatus('offline');
+      currentUser=user; sessionID=genSession();
+      localStorage.setItem('manribs_session', JSON.stringify({ username:currentUser.username, password:currentUser.password, clientID, page:'dashboard' }));
+      launchApp(); startPresence(); setCloudStatus('offline');
       toast("Emergency offline access granted.", "info");
     } else {
-      document.getElementById('login-error').textContent = "System error. Please check your connection.";
-      document.getElementById('login-error').style.display = 'block';
+      errEl.textContent = "System error. Please check your connection."; errEl.style.display='block';
     }
   } finally {
-    loginBtn.textContent = originalBtnText;
-    loginBtn.disabled = false;
+    btn.textContent="Sign In to Dashboard"; btn.disabled=false;
   }
 }
 
-window.doLogout = async function() {
-  // Clear online presence first
-  try { await updatePresence(false); } catch(e){}
-  stopPresence();
-  
-  // Unsubscribe from real-time listeners
-  if (clientUnsubscribe) { clientUnsubscribe(); clientUnsubscribe = null; }
-  if (transactionUnsubscribe) { transactionUnsubscribe(); transactionUnsubscribe = null; }
-  
-  // Clear session data
-  currentUser = null;
-  clientID = null;
-  sessionID = null;
-  cart = [];
-  
-  // CRITICAL: Remove session from storage to prevent auto-login
-  localStorage.removeItem('manribs_session');
-  
-  // Reset UI state
-  document.getElementById('app').style.display = 'none';
-  document.getElementById('login-screen').style.display = 'flex';
-  
-  // Clear login inputs for the next user
-  document.getElementById('l-user').value = '';
-  document.getElementById('l-pass').value = '';
-  document.getElementById('login-error').style.display = 'none';
-  
-  // Reset cloud status display
-  setCloudStatus('offline');
-  
-  // Reload the page to ensure a completely fresh state
-  window.location.reload();
+function launchApp() {
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('app').style.display='flex';
+  document.getElementById('user-av').textContent = currentUser.username[0].toUpperCase();
+  document.getElementById('user-name-display').textContent = currentUser.username;
+  document.getElementById('user-role-display').textContent = currentUser.role==='admin' ? 'Administrator' : 'Cashier';
+  document.getElementById('admin-nav').style.display = currentUser.role==='admin' ? 'block' : 'none';
+
+  // Show store name if available
+  const sn = localStorage.getItem('manribs_storename_'+clientID);
+  if (sn) document.getElementById('sb-store-name').textContent = sn;
+
+  renderCart(); renderProducts();
+  goPage('dashboard', document.querySelector('.nav-item'));
 }
 
-document.getElementById('l-pass').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
-document.getElementById('l-user').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('l-pass').focus(); });
+// ══════════════════════════════════════════
+// AUTH — LOGOUT
+// ══════════════════════════════════════════
+window.confirmLogout = function() {
+  if (!currentUser) return;
+  document.getElementById('logout-av').textContent = currentUser.username[0].toUpperCase();
+  document.getElementById('logout-name').textContent = currentUser.username;
+  document.getElementById('logout-role').textContent = currentUser.role==='admin' ? 'Administrator' : 'Cashier';
+  openModal('modal-logout');
+}
+
+window.doLogout = async function() {
+  closeModal('modal-logout');
+  try { await updatePresence(false); } catch{}
+  stopPresence();
+  if (clientUnsubscribe) { clientUnsubscribe(); clientUnsubscribe=null; }
+  if (transactionUnsubscribe) { transactionUnsubscribe(); transactionUnsubscribe=null; }
+  currentUser=null; clientID=null; sessionID=null; cart=[];
+  localStorage.removeItem('manribs_session');
+  document.getElementById('app').style.display='none';
+  document.getElementById('login-screen').style.display='flex';
+  document.getElementById('l-user').value='';
+  document.getElementById('l-pass').value='';
+  document.getElementById('login-error').style.display='none';
+  setCloudStatus('offline');
+  switchLoginTab('signin');
+  toast('You have been signed out.','success');
+}
+
+// ══════════════════════════════════════════
+// SWITCH ACCOUNT — PROFESSIONAL FLOW
+// ══════════════════════════════════════════
+window.openSwitchAccount = function() {
+  pendingSwitchUser = null;
+  renderSwitchUserList();
+  openModal('modal-switch');
+}
+
+window.closeSwitchModal = function() {
+  pendingSwitchUser = null;
+  closeModal('modal-switch');
+}
+
+function renderSwitchUserList() {
+  const body = document.getElementById('switch-modal-body');
+  const foot = document.getElementById('switch-modal-foot');
+
+  const activeUsers = DB.users.filter(u => u.active);
+
+  body.innerHTML = `
+    <p style="font-size:12px;color:var(--text-2);margin-bottom:14px;line-height:1.5">
+      Select an account to switch to. You will be asked to verify the account password before switching.
+    </p>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      ${activeUsers.map(u => {
+        const isCurrent = u.id === currentUser.id;
+        return `
+          <div class="switch-user-card ${isCurrent ? 'is-current' : ''}" onclick="${isCurrent ? '' : `initiateSwitchTo(${u.id})`}">
+            ${isCurrent ? '<span class="switch-current-badge">Current</span>' : ''}
+            <div class="switch-av ${u.role==='admin'?'admin-av':'cashier-av'}">${u.username[0].toUpperCase()}</div>
+            <div class="switch-user-info">
+              <div class="switch-user-name">${u.username}</div>
+              <div class="switch-user-role">${u.role==='admin' ? '👑 Administrator' : '💼 Cashier'}</div>
+            </div>
+            ${isCurrent ? '<span style="color:var(--green);font-size:11px;font-weight:600">Active ✓</span>' : '<span class="switch-arrow">›</span>'}
+          </div>
+        `;
+      }).join('')}
+    </div>
+  `;
+
+  foot.innerHTML = `<button class="btn btn-outline" onclick="closeSwitchModal()">Cancel</button>`;
+}
+
+window.initiateSwitchTo = function(userId) {
+  const targetUser = DB.users.find(u => u.id === userId);
+  if (!targetUser) return;
+  pendingSwitchUser = targetUser;
+  renderSwitchPasswordStep(targetUser);
+}
+
+function renderSwitchPasswordStep(targetUser) {
+  const body = document.getElementById('switch-modal-body');
+  const foot = document.getElementById('switch-modal-foot');
+
+  body.innerHTML = `
+    <!-- Back arrow + selected user preview -->
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:18px;cursor:pointer;color:var(--text-2);font-size:13px;font-weight:500" onclick="renderSwitchUserList()">
+      <span style="font-size:18px;line-height:1">‹</span> Back to account list
+    </div>
+
+    <div style="display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--surface-2);border:1.5px solid var(--accent);border-radius:var(--r);margin-bottom:20px">
+      <div class="switch-av ${targetUser.role==='admin'?'admin-av':'cashier-av'}" style="width:44px;height:44px;font-size:16px">${targetUser.username[0].toUpperCase()}</div>
+      <div>
+        <div style="font-size:15px;font-weight:700;color:var(--navy)">${targetUser.username}</div>
+        <div style="font-size:11px;color:var(--text-2);text-transform:uppercase;margin-top:2px">${targetUser.role==='admin' ? '👑 Administrator' : '💼 Cashier'}</div>
+      </div>
+    </div>
+
+    <div class="form-field">
+      <label>Enter Password for <strong>${targetUser.username}</strong></label>
+      <input type="password" id="switch-pass-input" placeholder="Account password" autofocus
+             onkeydown="if(event.key==='Enter') confirmSwitchAccount()">
+    </div>
+    <div class="error-box" id="switch-pass-error" style="margin-top:4px">Incorrect password. Please try again.</div>
+  `;
+
+  foot.innerHTML = `
+    <button class="btn btn-outline" onclick="renderSwitchUserList()">‹ Back</button>
+    <button class="btn btn-primary" onclick="confirmSwitchAccount()" id="btn-confirm-switch" style="min-width:140px">
+      Switch Account →
+    </button>
+  `;
+
+  // Focus the password field
+  setTimeout(() => document.getElementById('switch-pass-input')?.focus(), 100);
+}
+
+window.confirmSwitchAccount = async function() {
+  if (!pendingSwitchUser) return;
+  const enteredPass = document.getElementById('switch-pass-input')?.value;
+  const errEl = document.getElementById('switch-pass-error');
+  const btn = document.getElementById('btn-confirm-switch');
+
+  errEl.style.display = 'none';
+
+  if (!enteredPass) { errEl.textContent = 'Please enter the account password.'; errEl.style.display='block'; return; }
+  if (enteredPass !== pendingSwitchUser.password) {
+    errEl.textContent = 'Incorrect password. Please try again.'; errEl.style.display='block';
+    document.getElementById('switch-pass-input').value = '';
+    document.getElementById('switch-pass-input').focus();
+    return;
+  }
+
+  btn.textContent = 'Switching…'; btn.disabled = true;
+
+  try {
+    // End old presence
+    await updatePresence(false);
+    stopPresence();
+
+    // Switch
+    const targetUser = DB.users.find(u=>u.id===pendingSwitchUser.id)||pendingSwitchUser;
+    targetUser.lastLogin = new Date().toISOString();
+    currentUser = targetUser;
+    sessionID = genSession();
+
+    // Update sidebar
+    document.getElementById('user-av').textContent = currentUser.username[0].toUpperCase();
+    document.getElementById('user-name-display').textContent = currentUser.username;
+    document.getElementById('user-role-display').textContent = currentUser.role==='admin' ? 'Administrator' : 'Cashier';
+    document.getElementById('admin-nav').style.display = currentUser.role==='admin' ? 'block' : 'none';
+
+    // Determine page
+    const adminOnly = ['reports','users'];
+    const target = (currentUser.role!=='admin' && adminOnly.includes(currentActivePage)) ? 'dashboard' : currentActivePage;
+
+    // Save session
+    localStorage.setItem('manribs_session', JSON.stringify({ username:currentUser.username, password:currentUser.password, clientID, page:target }));
+
+    pendingSwitchUser = null;
+    closeModal('modal-switch');
+
+    startPresence();
+    goPage(target);
+    toast('Switched to account: '+currentUser.username, 'success');
+
+  } catch(e) {
+    console.error("Switch error:", e);
+    btn.textContent='Switch Account →'; btn.disabled=false;
+    const errEl = document.getElementById('switch-pass-error');
+    if (errEl) { errEl.textContent='Failed to switch account. Please try again.'; errEl.style.display='block'; }
+  }
+}
 
 // ══════════════════════════════════════════
 // NAVIGATION
@@ -2146,46 +2231,23 @@ const PAGE_META = {
 
 window.goPage = function(name, el) {
   currentActivePage = name;
-  if (currentUser) {
-    if (currentUser) {
-      localStorage.setItem('manribs_session', JSON.stringify({
-        username: currentUser.username,
-        password: currentUser.password,
-        clientID,
-        page: name
-      }));
-    }
-  }
-
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  
-  const pageEl = document.getElementById('page-' + name);
+  if (currentUser) localStorage.setItem('manribs_session', JSON.stringify({ username:currentUser.username, password:currentUser.password, clientID, page:name }));
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  const pageEl = document.getElementById('page-'+name);
   if (pageEl) pageEl.classList.add('active');
-  
-  if (el) {
-    el.classList.add('active');
-  } else {
-    // If no element provided (e.g. on auto-restore), find the nav item
-    const navItems = document.querySelectorAll('.nav-item');
-    navItems.forEach(item => {
-      if (item.textContent.toLowerCase().includes(name.toLowerCase())) {
-        item.classList.add('active');
-      }
-    });
-  }
-
-  const [title, sub] = PAGE_META[name] || [name, ''];
+  if (el) { el.classList.add('active'); }
+  else { document.querySelectorAll('.nav-item').forEach(item => { if(item.textContent.toLowerCase().includes(name.toLowerCase())) item.classList.add('active'); }); }
+  const [title, sub] = PAGE_META[name]||[name,''];
   document.getElementById('page-title').textContent = title;
   document.getElementById('page-sub').textContent = sub;
   document.getElementById('topbar-actions').innerHTML = '';
-  
-  if (name === 'pos') renderProducts();
-  if (name === 'inventory') setupInventory();
-  if (name === 'dashboard') updateDashboard();
-  if (name === 'transactions') renderTransactions();
-  if (name === 'reports') renderReport();
-  if (name === 'users') renderUsers();
+  if (name==='pos') renderProducts();
+  if (name==='inventory') setupInventory();
+  if (name==='dashboard') updateDashboard();
+  if (name==='transactions') renderTransactions();
+  if (name==='reports') renderReport();
+  if (name==='users') renderUsers();
 }
 
 // ══════════════════════════════════════════
@@ -2193,135 +2255,69 @@ window.goPage = function(name, el) {
 // ══════════════════════════════════════════
 window.updateDashboard = function() {
   const today = new Date().toDateString();
-  const todayTx = DB.transactions.filter(t => new Date(t.date).toDateString() === today);
-  const total = todayTx.reduce((s, t) => s + t.total, 0);
-
-  const cashTotal = todayTx.reduce((s,t) => {
-    if (t.method === 'cash') return s + t.total;
-    if (t.method === 'split') return s + (t.cashAmount || 0);
-    return s;
-  }, 0);
-  const mpesaTotal = todayTx.reduce((s,t) => {
-    if (t.method === 'mpesa') return s + t.total;
-    if (t.method === 'mobile') return s + t.total;
-    if (t.method === 'split') return s + (t.mpesaAmount || 0);
-    return s;
-  }, 0);
-
-  const lowStock = DB.products.filter(p => p.stock <= p.minStock);
-
+  const todayTx = DB.transactions.filter(t=>new Date(t.date).toDateString()===today);
+  const total = todayTx.reduce((s,t)=>s+t.total,0);
+  const cashTotal = todayTx.reduce((s,t)=>t.method==='cash'?s+t.total:t.method==='split'?s+(t.cashAmount||0):s,0);
+  const mpesaTotal = todayTx.reduce((s,t)=>t.method==='mpesa'?s+t.total:t.method==='mobile'?s+t.total:t.method==='split'?s+(t.mpesaAmount||0):s,0);
+  const lowStock = DB.products.filter(p=>p.stock<=p.minStock);
   document.getElementById('stat-revenue').textContent = fKES(total);
-  document.getElementById('stat-rev-sub').textContent = todayTx.length + ' transaction' + (todayTx.length !== 1 ? 's' : '');
+  document.getElementById('stat-rev-sub').textContent = todayTx.length+' transaction'+(todayTx.length!==1?'s':'');
   document.getElementById('stat-cash').textContent = fKES(cashTotal);
   document.getElementById('stat-mpesa').textContent = fKES(mpesaTotal);
   document.getElementById('stat-lowstock').textContent = lowStock.length;
-  document.getElementById('low-stock-count').textContent = lowStock.length + ' low';
-
-  // Recent TX
+  document.getElementById('low-stock-count').textContent = lowStock.length+' low';
   const tbl = document.getElementById('dash-tx-table');
-  if (todayTx.length === 0) {
-    tbl.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--text-3);padding:28px 0">No transactions yet today</td></tr>';
-  } else {
-    tbl.innerHTML = [...todayTx].reverse().slice(0, 7).map(t => `<tr>
-      <td><span style="font-family:DM Mono,monospace;font-size:11px;font-weight:600">${t.receipt}</span></td>
-      <td style="font-size:12px">${fTime(t.date)}</td>
-      <td style="font-weight:700;color:var(--accent);font-family:DM Mono,monospace">${fKES(t.total)}</td>
-      <td>${methodBadge(t.method)}</td>
-    </tr>`).join('');
-  }
-
-  // Low stock
+  tbl.innerHTML = todayTx.length===0 ? '<tr><td colspan="4" style="text-align:center;color:var(--text-3);padding:28px 0">No transactions yet today</td></tr>' : [...todayTx].reverse().slice(0,7).map(t=>`<tr><td><span style="font-family:DM Mono,monospace;font-size:11px;font-weight:600">${t.receipt}</span></td><td style="font-size:12px">${fTime(t.date)}</td><td style="font-weight:700;color:var(--accent);font-family:DM Mono,monospace">${fKES(t.total)}</td><td>${methodBadge(t.method)}</td></tr>`).join('');
   const lsl = document.getElementById('low-stock-list');
-  if (lowStock.length === 0) {
-    lsl.innerHTML = '<p style="color:var(--text-3);font-size:13px;padding:10px 0">✅ All items are well stocked.</p>';
-  } else {
-    lsl.innerHTML = lowStock.slice(0, 8).map(p => `
-      <div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border);font-size:13px">
-        <span style="font-weight:500">${p.name}</span>
-        <span class="badge ${p.stock === 0 ? 'badge-red' : 'badge-amber'}">${p.stock === 0 ? 'Out' : p.stock + ' left'}</span>
-      </div>`).join('');
-  }
+  lsl.innerHTML = lowStock.length===0 ? '<p style="color:var(--text-3);font-size:13px;padding:10px 0">✅ All items are well stocked.</p>' : lowStock.slice(0,8).map(p=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border);font-size:13px"><span style="font-weight:500">${p.name}</span><span class="badge ${p.stock===0?'badge-red':'badge-amber'}">${p.stock===0?'Out':p.stock+' left'}</span></div>`).join('');
 }
 
 // ══════════════════════════════════════════
 // POS
 // ══════════════════════════════════════════
 window.renderProducts = function() {
-  const search = (document.getElementById('pos-search')?.value || '').toLowerCase();
-  const cat = document.getElementById('pos-cat')?.value || '';
+  const search = (document.getElementById('pos-search')?.value||'').toLowerCase();
+  const cat = document.getElementById('pos-cat')?.value||'';
   const grid = document.getElementById('products-grid');
   if (!grid) return;
-  const list = DB.products.filter(p =>
-    (!search || p.name.toLowerCase().includes(search) || p.category.toLowerCase().includes(search)) &&
-    (!cat || p.category === cat)
-  );
-  if (list.length === 0) {
-    grid.innerHTML = '<p style="color:var(--text-3);padding:20px;grid-column:1/-1;font-size:13px">No products found.</p>';
-    return;
-  }
-  grid.innerHTML = list.map(p => `
-    <div class="prod-card ${p.stock === 0 ? 'out' : ''}" onclick="addToCart(${p.id})">
-      <div class="prod-cat">${p.category}</div>
-      <div class="prod-name">${p.name}</div>
-      <div class="prod-price">${fKES(p.price)}</div>
-      <div class="prod-stock">${p.stock === 0 ? '⚠ Out of stock' : p.stock + ' in stock'}</div>
-    </div>`).join('');
+  const list = DB.products.filter(p => (!search||p.name.toLowerCase().includes(search)||p.category.toLowerCase().includes(search))&&(!cat||p.category===cat));
+  if (list.length===0) { grid.innerHTML='<p style="color:var(--text-3);padding:20px;grid-column:1/-1;font-size:13px">No products found.</p>'; return; }
+  grid.innerHTML = list.map(p=>`<div class="prod-card ${p.stock===0?'out':''}" onclick="addToCart(${p.id})"><div class="prod-cat">${p.category}</div><div class="prod-name">${p.name}</div><div class="prod-price">${fKES(p.price)}</div><div class="prod-stock">${p.stock===0?'⚠ Out of stock':p.stock+' in stock'}</div></div>`).join('');
 }
 
 window.addToCart = function(pid) {
-  const product = DB.products.find(p => p.id === pid);
-  if (!product || product.stock === 0) return;
-  const existing = cart.find(c => c.id === pid);
-  if (existing) {
-    if (existing.qty >= product.stock) { toast('Max stock reached for this item', 'error'); return; }
-    existing.qty++;
-  } else {
-    cart.push({ id: pid, name: product.name, price: product.price, qty: 1 });
-  }
+  const product = DB.products.find(p=>p.id===pid);
+  if (!product||product.stock===0) return;
+  const existing = cart.find(c=>c.id===pid);
+  if (existing) { if(existing.qty>=product.stock){toast('Max stock reached','error');return;} existing.qty++; }
+  else cart.push({ id:pid, name:product.name, price:product.price, qty:1 });
   renderCart();
 }
-
-window.removeFromCart = function(pid) { cart = cart.filter(c => c.id !== pid); renderCart(); }
-
+window.removeFromCart = function(pid) { cart=cart.filter(c=>c.id!==pid); renderCart(); }
 window.changeQty = function(pid, delta) {
-  const item = cart.find(c => c.id === pid);
-  const product = DB.products.find(p => p.id === pid);
+  const item=cart.find(c=>c.id===pid); const product=DB.products.find(p=>p.id===pid);
   if (!item) return;
-  item.qty += delta;
-  if (item.qty <= 0) removeFromCart(pid);
-  else { if (product && item.qty > product.stock) item.qty = product.stock; renderCart(); }
+  item.qty+=delta;
+  if (item.qty<=0) removeFromCart(pid);
+  else { if(product&&item.qty>product.stock) item.qty=product.stock; renderCart(); }
 }
-
-window.clearCart = function() { cart = []; renderCart(); }
+window.clearCart = function() { cart=[]; renderCart(); }
 
 window.renderCart = function() {
   const container = document.getElementById('cart-items');
   const badge = document.getElementById('cart-badge');
   const btn = document.getElementById('checkout-btn');
-  const totalQty = cart.reduce((s,c) => s + c.qty, 0);
+  if (!container||!badge) return;
+  const totalQty = cart.reduce((s,c)=>s+c.qty,0);
   badge.textContent = totalQty;
-
-  if (cart.length === 0) {
-    container.innerHTML = '<div class="cart-empty"><div class="cart-empty-icon">🛒</div><p style="font-weight:600;color:var(--text-2)">Cart is empty</p><p style="font-size:12px;margin-top:4px">Click a product to add it</p></div>';
-    btn.disabled = true;
+  if (cart.length===0) {
+    container.innerHTML='<div class="cart-empty"><div class="cart-empty-icon">🛒</div><p style="font-weight:600;color:var(--text-2)">Cart is empty</p><p style="font-size:12px;margin-top:4px">Click a product to add it</p></div>';
+    if(btn) btn.disabled=true;
   } else {
-    container.innerHTML = cart.map(c => `
-      <div class="cart-item">
-        <div class="cart-item-info">
-          <div class="cart-item-name">${c.name}</div>
-          <div class="cart-item-sub">${fKES(c.price)} × ${c.qty} = ${fKES(c.price * c.qty)}</div>
-        </div>
-        <div class="qty-ctrl">
-          <button class="qty-btn" onclick="changeQty(${c.id},-1)">−</button>
-          <span class="qty-num">${c.qty}</span>
-          <button class="qty-btn" onclick="changeQty(${c.id},1)">+</button>
-        </div>
-        <button class="remove-btn" onclick="removeFromCart(${c.id})">✕</button>
-      </div>`).join('');
-    btn.disabled = false;
+    container.innerHTML = cart.map(c=>`<div class="cart-item"><div class="cart-item-info"><div class="cart-item-name">${c.name}</div><div class="cart-item-sub">${fKES(c.price)} × ${c.qty} = ${fKES(c.price*c.qty)}</div></div><div class="qty-ctrl"><button class="qty-btn" onclick="changeQty(${c.id},-1)">−</button><span class="qty-num">${c.qty}</span><button class="qty-btn" onclick="changeQty(${c.id},1)">+</button></div><button class="remove-btn" onclick="removeFromCart(${c.id})">✕</button></div>`).join('');
+    if(btn) btn.disabled=false;
   }
-
-  const total = cart.reduce((s, c) => s + c.price * c.qty, 0);
+  const total = cart.reduce((s,c)=>s+c.price*c.qty,0);
   document.getElementById('cart-sub').textContent = fKES(total);
   document.getElementById('cart-total').textContent = fKES(total);
 }
@@ -2330,475 +2326,211 @@ window.renderCart = function() {
 // PAYMENT
 // ══════════════════════════════════════════
 window.openPayment = function() {
-  if (cart.length === 0) return;
-  const total = cart.reduce((s, c) => s + c.price * c.qty, 0);
+  if (cart.length===0) return;
+  const total = cart.reduce((s,c)=>s+c.price*c.qty,0);
   document.getElementById('pay-amount-display').textContent = fKES(total);
-  payMethod = 'cash';
-  document.querySelectorAll('.pay-opt').forEach((el, i) => el.classList.toggle('selected', i === 0));
+  payMethod='cash';
+  document.querySelectorAll('.pay-opt').forEach((el,i)=>el.classList.toggle('selected',i===0));
   renderPayDetail('cash');
   openModal('modal-payment');
 }
 
 window.selectPay = function(method, el) {
-  payMethod = method;
-  document.querySelectorAll('.pay-opt').forEach(e => e.classList.remove('selected'));
+  payMethod=method;
+  document.querySelectorAll('.pay-opt').forEach(e=>e.classList.remove('selected'));
   el.classList.add('selected');
   renderPayDetail(method);
 }
 
-function getCartTotal() { return cart.reduce((s, c) => s + c.price * c.qty, 0); }
+function getCartTotal() { return cart.reduce((s,c)=>s+c.price*c.qty,0); }
 
 window.renderPayDetail = function(method) {
   const total = getCartTotal();
   const d = document.getElementById('pay-detail');
-  if (method === 'cash') {
-    d.innerHTML = `
-      <div class="form-field">
-        <label>Amount Tendered (KES)</label>
-        <input type="number" id="pay-cash-in" placeholder="${total.toFixed(2)}" min="${total}" oninput="calcChange()" style="font-family:DM Mono,monospace;font-size:16px;font-weight:700">
-      </div>
-      <div class="change-box" id="change-box">
-        Change Due: <span id="change-val" style="font-family:DM Mono,monospace">KES 0.00</span>
-      </div>`;
-  } else if (method === 'mpesa') {
-    d.innerHTML = `
-      <div class="form-field">
-        <label>Customer Phone (M-Pesa)</label>
-        <input type="tel" id="mpesa-phone" placeholder="07XXXXXXXXX">
-      </div>
-      <div style="background:var(--amber-bg);border:1px solid #F0C060;color:var(--amber);padding:11px 13px;border-radius:var(--r-sm);font-size:12px;margin-bottom:14px;line-height:1.6">
-        📱 Request customer to pay <strong>${fKES(total)}</strong> via M-Pesa Paybill/Till, then enter confirmation code below.
-      </div>
-      <div class="form-field">
-        <label>M-Pesa Confirmation Code</label>
-        <input type="text" id="mpesa-code" placeholder="e.g. QHG12345AB" style="font-family:DM Mono,monospace;text-transform:uppercase">
-      </div>`;
-  } else if (method === 'mobile') {
-    d.innerHTML = `
-      <div class="form-field">
-        <label>Bank / Wallet</label>
-        <input type="text" id="mobile-bank" placeholder="e.g. Equity, KCB, Airtel Money">
-      </div>
-      <div class="form-field">
-        <label>Reference / Transaction Number</label>
-        <input type="text" id="mobile-ref" placeholder="Transaction reference" style="font-family:DM Mono,monospace">
-      </div>`;
-  } else if (method === 'split') {
-    d.innerHTML = `
-      <p style="font-size:12px;color:var(--text-2);margin-bottom:12px">Split <strong>${fKES(total)}</strong> between Cash and M-Pesa</p>
-      <div class="split-grid">
-        <div class="form-field">
-          <label>Cash Amount (KES)</label>
-          <input type="number" id="split-cash" placeholder="0.00" min="0" oninput="calcSplitRem()">
-        </div>
-        <div class="form-field">
-          <label>M-Pesa Amount (KES)</label>
-          <input type="number" id="split-mpesa" placeholder="0.00" min="0">
-        </div>
-      </div>
-      <div class="form-field">
-        <label>M-Pesa Code</label>
-        <input type="text" id="split-code" placeholder="e.g. QHG12345AB" style="font-family:DM Mono,monospace;text-transform:uppercase">
-      </div>`;
+  if (method==='cash') {
+    d.innerHTML=`<div class="form-field"><label>Amount Tendered (KES)</label><input type="number" id="pay-cash-in" placeholder="${total.toFixed(2)}" min="${total}" oninput="calcChange()" style="font-family:DM Mono,monospace;font-size:16px;font-weight:700"></div><div class="change-box" id="change-box">Change Due: <span id="change-val" style="font-family:DM Mono,monospace">KES 0.00</span></div>`;
+  } else if (method==='mpesa') {
+    d.innerHTML=`<div class="form-field"><label>Customer Phone (M-Pesa)</label><input type="tel" id="mpesa-phone" placeholder="07XXXXXXXXX"></div><div style="background:var(--amber-bg);border:1px solid #F0C060;color:var(--amber);padding:11px 13px;border-radius:var(--r-sm);font-size:12px;margin-bottom:14px;line-height:1.6">📱 Request customer to pay <strong>${fKES(total)}</strong> via M-Pesa, then enter the confirmation code below.</div><div class="form-field"><label>M-Pesa Confirmation Code</label><input type="text" id="mpesa-code" placeholder="e.g. QHG12345AB" style="font-family:DM Mono,monospace;text-transform:uppercase"></div>`;
+  } else if (method==='mobile') {
+    d.innerHTML=`<div class="form-field"><label>Bank / Wallet</label><input type="text" id="mobile-bank" placeholder="e.g. Equity, KCB, Airtel Money"></div><div class="form-field"><label>Reference / Transaction Number</label><input type="text" id="mobile-ref" placeholder="Transaction reference" style="font-family:DM Mono,monospace"></div>`;
+  } else if (method==='split') {
+    d.innerHTML=`<p style="font-size:12px;color:var(--text-2);margin-bottom:12px">Split <strong>${fKES(total)}</strong> between Cash and M-Pesa</p><div class="form-row"><div class="form-field"><label>Cash Amount (KES)</label><input type="number" id="split-cash" placeholder="0.00" min="0" oninput="calcSplitRem()"></div><div class="form-field"><label>M-Pesa Amount (KES)</label><input type="number" id="split-mpesa" placeholder="0.00" min="0"></div></div><div class="form-field"><label>M-Pesa Code</label><input type="text" id="split-code" placeholder="e.g. QHG12345AB" style="font-family:DM Mono,monospace;text-transform:uppercase"></div>`;
   }
 }
 
 window.calcChange = function() {
-  const total = getCartTotal();
-  const tendered = parseFloat(document.getElementById('pay-cash-in')?.value) || 0;
-  const box = document.getElementById('change-box');
-  if (box) {
-    if (tendered >= total) {
-      document.getElementById('change-val').textContent = fKES(tendered - total);
-      box.style.display = 'block';
-    } else {
-      box.style.display = 'none';
-    }
-  }
+  const total=getCartTotal(); const t=parseFloat(document.getElementById('pay-cash-in')?.value)||0;
+  const box=document.getElementById('change-box');
+  if (box) { if(t>=total){document.getElementById('change-val').textContent=fKES(t-total);box.style.display='block';} else box.style.display='none'; }
 }
 
 window.calcSplitRem = function() {
-  const total = getCartTotal();
-  const cash = parseFloat(document.getElementById('split-cash')?.value) || 0;
-  const rem = Math.max(0, total - cash);
-  const f = document.getElementById('split-mpesa');
-  if (f) f.value = rem.toFixed(2);
+  const total=getCartTotal(); const cash=parseFloat(document.getElementById('split-cash')?.value)||0;
+  const f=document.getElementById('split-mpesa'); if(f) f.value=Math.max(0,total-cash).toFixed(2);
 }
 
 window.completeSale = async function() {
   const total = getCartTotal();
   let payInfo = {};
-
-  // 1. Validation
-  if (payMethod === 'cash') {
-    const tendered = parseFloat(document.getElementById('pay-cash-in')?.value) || 0;
-    if (tendered < total) { toast('Amount tendered is less than total', 'error'); return; }
-    payInfo = { tendered, change: parseFloat((tendered - total).toFixed(2)) };
-  } else if (payMethod === 'mpesa') {
-    const code = document.getElementById('mpesa-code')?.value?.trim();
-    if (!code) { toast('Please enter the M-Pesa confirmation code', 'error'); return; }
-    payInfo = { phone: document.getElementById('mpesa-phone')?.value?.trim() || '', code };
-  } else if (payMethod === 'mobile') {
-    const ref = document.getElementById('mobile-ref')?.value?.trim();
-    if (!ref) { toast('Please enter the transaction reference', 'error'); return; }
-    payInfo = { bank: document.getElementById('mobile-bank')?.value?.trim() || '', ref };
-  } else if (payMethod === 'split') {
-    const cash = parseFloat(document.getElementById('split-cash')?.value) || 0;
-    const mpesa = parseFloat(document.getElementById('split-mpesa')?.value) || 0;
-    if (Math.abs((cash + mpesa) - total) > 0.5) { toast('Split amounts must add up to the total', 'error'); return; }
-    payInfo = { cashAmount: cash, mpesaAmount: mpesa, code: document.getElementById('split-code')?.value?.trim() || '' };
+  if (payMethod==='cash') {
+    const t=parseFloat(document.getElementById('pay-cash-in')?.value)||0;
+    if (t<total) { toast('Amount tendered is less than total','error'); return; }
+    payInfo={tendered:t,change:parseFloat((t-total).toFixed(2))};
+  } else if (payMethod==='mpesa') {
+    const code=document.getElementById('mpesa-code')?.value?.trim();
+    if (!code) { toast('Please enter the M-Pesa confirmation code','error'); return; }
+    payInfo={phone:document.getElementById('mpesa-phone')?.value?.trim()||'',code};
+  } else if (payMethod==='mobile') {
+    const ref=document.getElementById('mobile-ref')?.value?.trim();
+    if (!ref) { toast('Please enter the transaction reference','error'); return; }
+    payInfo={bank:document.getElementById('mobile-bank')?.value?.trim()||'',ref};
+  } else if (payMethod==='split') {
+    const cash=parseFloat(document.getElementById('split-cash')?.value)||0;
+    const mpesa=parseFloat(document.getElementById('split-mpesa')?.value)||0;
+    if (Math.abs((cash+mpesa)-total)>0.5) { toast('Split amounts must add up to the total','error'); return; }
+    payInfo={cashAmount:cash,mpesaAmount:mpesa,code:document.getElementById('split-code')?.value?.trim()||''};
   }
 
-  // 2. Visual Feedback
-  const btn = document.getElementById('complete-btn');
-  const originalText = btn.innerHTML;
-  btn.innerHTML = "⌛ Processing...";
-  btn.disabled = true;
+  const btn=document.getElementById('complete-btn'); const orig=btn.innerHTML;
+  btn.innerHTML='⌛ Processing…'; btn.disabled=true;
 
   try {
-    // 3. Update Local State
-    cart.forEach(c => {
-      const p = DB.products.find(pr => pr.id === c.id);
-      if (p) p.stock -= c.qty;
-    });
-
-    const tx = {
-      id: DB.nextId.transaction++,
-      receipt: 'RCP-' + String(DB.nextId.transaction - 1).padStart(4, '0'),
-      date: new Date().toISOString(),
-      cashier: currentUser.username,
-      cashierRole: currentUser.role, // Identifier for admin or cashier
-      items: cart.map(c => ({ ...c })),
-      total,
-      method: payMethod,
-      status: 'completed',
-      ...payInfo
-    };
-
+    cart.forEach(c=>{ const p=DB.products.find(pr=>pr.id===c.id); if(p) p.stock-=c.qty; });
+    const tx={id:DB.nextId.transaction++,receipt:'RCP-'+String(DB.nextId.transaction-1).padStart(4,'0'),date:new Date().toISOString(),cashier:currentUser.username,cashierRole:currentUser.role,items:cart.map(c=>({...c})),total,method:payMethod,status:'completed',...payInfo};
     DB.transactions.push(tx);
-    currentReceiptTx = tx;
-    
-    // 4. Immediate Local Persistence (Crucial for refresh resilience)
+    currentReceiptTx=tx;
     saveToLocal();
-
-    // 5. Cloud Persistence (Non-blocking for UI)
     if (clientID) {
       setCloudStatus('syncing');
-      // We don't 'await' these to prevent UI hang, but we handle their errors
-      addDoc(collection(db, "clients", clientID, "transactions"), tx)
-        .then(() => syncToCloud())
-        .then(() => setCloudStatus('synced'))
-        .catch(e => {
-          console.error("Background cloud sync failed:", e);
-          setCloudStatus('offline');
-          toast('Cloud sync pending...', 'info');
-        });
+      addDoc(collection(db,"clients",clientID,"transactions"),tx).then(()=>syncToCloud()).then(()=>setCloudStatus('synced')).catch(()=>{setCloudStatus('offline');toast('Cloud sync pending…','info');});
     }
-
-    // 6. Success UI
     closeModal('modal-payment');
     showReceipt(tx);
-    toast('Sale completed — ' + tx.receipt, 'success');
-
-  } catch (error) {
-    console.error("Critical sale error:", error);
-    toast('Error processing sale. Please try again.', 'error');
-  } finally {
-    btn.innerHTML = originalText;
-    btn.disabled = false;
-  }
+    toast('Sale completed — '+tx.receipt,'success');
+  } catch(e) { console.error("Sale error:",e); toast('Error processing sale.','error'); }
+  finally { btn.innerHTML=orig; btn.disabled=false; }
 }
 
 // ══════════════════════════════════════════
 // RECEIPT
 // ══════════════════════════════════════════
 window.showReceipt = function(tx) {
-  const html = buildReceiptHTML(tx);
-  document.getElementById('receipt-content').innerHTML = html;
+  document.getElementById('receipt-content').innerHTML = buildReceiptHTML(tx);
   openModal('modal-receipt');
 }
 
 function buildReceiptHTML(tx) {
-  return `
-    <div class="receipt-head">
-      <h3>🔧 ManribsTech Store</h3>
-      <p>Business Management System — Official Receipt</p>
-    </div>
-    <hr class="r-divider">
-    <div class="r-row"><span>Receipt No.</span><span>${tx.receipt}</span></div>
-    <div class="r-row"><span>Date</span><span>${fDate(tx.date)}</span></div>
-    <div class="r-row"><span>Time</span><span>${fTime(tx.date)}</span></div>
-    <div class="r-row"><span>Cashier</span><span>${tx.cashier} (${tx.cashierRole || "user"})</span></div>
-    <hr class="r-divider">
-    <div style="font-size:10px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:0.7px;margin-bottom:6px">Items Purchased</div>
-    ${tx.items.map(i => `
-    <div class="r-row item-name"><span>${i.name}</span></div>
-    <div class="r-row" style="padding-left:12px;color:var(--text-2)"><span>${i.qty} pcs × ${fKES(i.price)}</span><span>${fKES(i.price * i.qty)}</span></div>`).join('')}
-    <hr class="r-divider">
-    <div class="r-row total"><span>TOTAL</span><span>${fKES(tx.total)}</span></div>
-    <div class="r-row"><span>Payment</span><span style="text-transform:capitalize">${methodLabel(tx.method)}</span></div>
-    ${tx.method === 'cash' ? `
-    <div class="r-row"><span>Tendered</span><span>${fKES(tx.tendered)}</span></div>
-    <div class="r-row"><span>Change</span><span>${fKES(tx.change)}</span></div>` : ''}
-    ${tx.method === 'mpesa' ? `<div class="r-row"><span>M-Pesa Code</span><span>${tx.code || '—'}</span></div>` : ''}
-    ${tx.method === 'mobile' ? `<div class="r-row"><span>Bank/Wallet</span><span>${tx.bank || '—'}</span></div><div class="r-row"><span>Reference</span><span>${tx.ref || '—'}</span></div>` : ''}
-    ${tx.method === 'split' ? `
-    <div class="r-row"><span>Cash Paid</span><span>${fKES(tx.cashAmount)}</span></div>
-    <div class="r-row"><span>M-Pesa Paid</span><span>${fKES(tx.mpesaAmount)}</span></div>` : ''}
-    <hr class="r-divider">
-    <div class="receipt-footer">
-      Thank you for your business!<br>
-      ManribsTech Store — Your Trusted Building Partner
-    </div>`;
+  return `<div class="receipt-head"><h3>🔧 ManribsTech Store</h3><p>Business Management System — Official Receipt</p></div><hr class="r-divider"><div class="r-row"><span>Receipt No.</span><span>${tx.receipt}</span></div><div class="r-row"><span>Date</span><span>${fDate(tx.date)}</span></div><div class="r-row"><span>Time</span><span>${fTime(tx.date)}</span></div><div class="r-row"><span>Cashier</span><span>${tx.cashier} (${tx.cashierRole||'user'})</span></div><hr class="r-divider"><div style="font-size:10px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:0.7px;margin-bottom:6px">Items Purchased</div>${tx.items.map(i=>`<div class="r-row item-name"><span>${i.name}</span></div><div class="r-row" style="padding-left:12px;color:var(--text-2)"><span>${i.qty} pcs × ${fKES(i.price)}</span><span>${fKES(i.price*i.qty)}</span></div>`).join('')}<hr class="r-divider"><div class="r-row total"><span>TOTAL</span><span>${fKES(tx.total)}</span></div><div class="r-row"><span>Payment</span><span style="text-transform:capitalize">${methodLabel(tx.method)}</span></div>${tx.method==='cash'?`<div class="r-row"><span>Tendered</span><span>${fKES(tx.tendered)}</span></div><div class="r-row"><span>Change</span><span>${fKES(tx.change)}</span></div>`:''} ${tx.method==='mpesa'?`<div class="r-row"><span>M-Pesa Code</span><span>${tx.code||'—'}</span></div>`:''} ${tx.method==='mobile'?`<div class="r-row"><span>Bank/Wallet</span><span>${tx.bank||'—'}</span></div><div class="r-row"><span>Reference</span><span>${tx.ref||'—'}</span></div>`:''} ${tx.method==='split'?`<div class="r-row"><span>Cash Paid</span><span>${fKES(tx.cashAmount)}</span></div><div class="r-row"><span>M-Pesa Paid</span><span>${fKES(tx.mpesaAmount)}</span></div>`:''}<hr class="r-divider"><div class="receipt-footer">Thank you for your business!<br>ManribsTech Store — Your Trusted Building Partner</div>`;
 }
 
 window.printReceipt = function() {
   if (!currentReceiptTx) return;
-  const printArea = document.getElementById('print-area');
-  printArea.style.display = 'block';
-  printArea.innerHTML = `
-    <style>
-      @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Playfair+Display:wght@700&display=swap');
-      body { font-family: 'DM Mono', monospace; font-size: 12px; color: #000; background: #fff; }
-      .ph { text-align: center; margin-bottom: 12px; }
-      .ph h2 { font-family: 'Playfair Display', serif; font-size: 18px; margin-bottom: 3px; }
-      .ph p { font-size: 10px; color: #555; }
-      hr { border: none; border-top: 1px dashed #ccc; margin: 10px 0; }
-      .row { display: flex; justify-content: space-between; margin-bottom: 3px; }
-      .row.total { font-size: 14px; font-weight: 700; margin-top: 4px; }
-      .indent { padding-left: 10px; color: #444; }
-      .footer { text-align: center; font-size: 9px; color: #888; margin-top: 10px; }
-    </style>
-    <div class="ph"><h2>🔧 ManribsTech Store </h2><p>Official Receipt</p></div>
-    <hr>
-    <div class="row"><span>Receipt:</span><span>${currentReceiptTx.receipt}</span></div>
-    <div class="row"><span>Date:</span><span>${fDate(currentReceiptTx.date)}</span></div>
-    <div class="row"><span>Time:</span><span>${fTime(currentReceiptTx.date)}</span></div>
-    <div class="row"><span>Cashier:</span><span>${currentReceiptTx.cashier} (${currentReceiptTx.cashierRole || "user"})</span></div>
-    <hr>
-    ${currentReceiptTx.items.map(i => `
-    <div class="row"><span>${i.name}</span></div>
-    <div class="row indent"><span>${i.qty} × ${fKES(i.price)}</span><span>${fKES(i.price * i.qty)}</span></div>`).join('')}
-    <hr>
-    <div class="row total"><span>TOTAL</span><span>${fKES(currentReceiptTx.total)}</span></div>
-    <div class="row"><span>Method</span><span>${methodLabel(currentReceiptTx.method)}</span></div>
-    ${currentReceiptTx.method === 'cash' ? `<div class="row"><span>Tendered</span><span>${fKES(currentReceiptTx.tendered)}</span></div><div class="row"><span>Change</span><span>${fKES(currentReceiptTx.change)}</span></div>` : ''}
-    ${currentReceiptTx.method === 'mpesa' ? `<div class="row"><span>M-Pesa Code</span><span>${currentReceiptTx.code || '—'}</span></div>` : ''}
-    ${currentReceiptTx.method === 'split' ? `<div class="row"><span>Cash</span><span>${fKES(currentReceiptTx.cashAmount)}</span></div><div class="row"><span>M-Pesa</span><span>${fKES(currentReceiptTx.mpesaAmount)}</span></div>` : ''}
-    <div class="footer">Thank you for your business! ManribsTech Store.</div>`;
+  const pa=document.getElementById('print-area');
+  pa.style.display='block';
+  pa.innerHTML=`<style>@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Playfair+Display:wght@700&display=swap');body{font-family:'DM Mono',monospace;font-size:12px;color:#000;background:#fff;}.ph{text-align:center;margin-bottom:12px}.ph h2{font-family:'Playfair Display',serif;font-size:18px;margin-bottom:3px}.ph p{font-size:10px;color:#555}hr{border:none;border-top:1px dashed #ccc;margin:10px 0}.row{display:flex;justify-content:space-between;margin-bottom:3px}.row.total{font-size:14px;font-weight:700;margin-top:4px}.indent{padding-left:10px;color:#444}.footer{text-align:center;font-size:9px;color:#888;margin-top:10px}</style><div class="ph"><h2>🔧 ManribsTech Store</h2><p>Official Receipt</p></div><hr><div class="row"><span>Receipt:</span><span>${currentReceiptTx.receipt}</span></div><div class="row"><span>Date:</span><span>${fDate(currentReceiptTx.date)}</span></div><div class="row"><span>Time:</span><span>${fTime(currentReceiptTx.date)}</span></div><div class="row"><span>Cashier:</span><span>${currentReceiptTx.cashier} (${currentReceiptTx.cashierRole||'user'})</span></div><hr>${currentReceiptTx.items.map(i=>`<div class="row"><span>${i.name}</span></div><div class="row indent"><span>${i.qty} × ${fKES(i.price)}</span><span>${fKES(i.price*i.qty)}</span></div>`).join('')}<hr><div class="row total"><span>TOTAL</span><span>${fKES(currentReceiptTx.total)}</span></div><div class="row"><span>Method</span><span>${methodLabel(currentReceiptTx.method)}</span></div>${currentReceiptTx.method==='cash'?`<div class="row"><span>Tendered</span><span>${fKES(currentReceiptTx.tendered)}</span></div><div class="row"><span>Change</span><span>${fKES(currentReceiptTx.change)}</span></div>`:''}<div class="footer">Thank you for your business! ManribsTech Store.</div>`;
   window.print();
-  setTimeout(() => { printArea.style.display = 'none'; printArea.innerHTML = ''; }, 500);
+  setTimeout(()=>{pa.style.display='none';pa.innerHTML='';},500);
 }
 
-window.newSale = function() {
-  closeModal('modal-receipt');
-  cart = [];
-  currentReceiptTx = null;
-  renderCart();
-  renderProducts();
-  updateDashboard();
-}
+window.newSale = function() { closeModal('modal-receipt'); cart=[]; currentReceiptTx=null; renderCart(); renderProducts(); updateDashboard(); }
 
 // ══════════════════════════════════════════
 // INVENTORY
 // ══════════════════════════════════════════
 window.setupInventory = function() {
-  const isAdmin = currentUser.role === 'admin';
-  document.getElementById('admin-inv-btn').innerHTML = isAdmin
-    ? '<button class="btn btn-primary btn-sm" onclick="openAddProduct()">+ Add Product</button>'
-    : '';
+  const isAdmin = currentUser?.role==='admin';
+  document.getElementById('admin-inv-btn').innerHTML = isAdmin ? '<button class="btn btn-primary btn-sm" onclick="openAddProduct()">+ Add Product</button>' : '';
   document.getElementById('inv-act-hdr').textContent = isAdmin ? 'Actions' : '';
   renderInventory();
 }
 
 window.setCat = function(cat, btn) {
-  invCatFilter = cat;
-  document.querySelectorAll('.cat-pill').forEach(b => b.classList.remove('active'));
+  invCatFilter=cat;
+  document.querySelectorAll('.cat-pill').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
   renderInventory();
 }
 
 window.renderInventory = function() {
-  const search = (document.getElementById('inv-search')?.value || '').toLowerCase();
-  const list = DB.products.filter(p =>
-    (!search || p.name.toLowerCase().includes(search)) &&
-    (!invCatFilter || p.category === invCatFilter)
-  );
-  const lowStock = DB.products.filter(p => p.stock <= p.minStock);
-  const alertDiv = document.getElementById('inv-alert');
-  alertDiv.innerHTML = lowStock.length > 0
-    ? `<div class="alert-bar">⚠️ <strong>${lowStock.length} item(s)</strong> are at or below minimum stock and need restocking.</div>`
-    : '';
-  const isAdmin = currentUser?.role === 'admin';
-  const tbody = document.getElementById('inv-tbody');
-  if (list.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--text-3);padding:36px">No products found</td></tr>';
-    return;
-  }
-  tbody.innerHTML = list.map((p, i) => {
-    const isLow = p.stock <= p.minStock, isOut = p.stock === 0;
-    return `<tr>
-      <td style="color:var(--text-3);font-size:12px">${i+1}</td>
-      <td style="font-weight:600">${p.name}</td>
-      <td><span class="badge badge-navy">${p.category}</span></td>
-      <td style="font-family:DM Mono,monospace;font-weight:700;color:var(--accent)">${fKES(p.price)}</td>
-      <td style="font-weight:700;color:${isOut ? 'var(--red)' : isLow ? 'var(--amber)' : 'var(--green)'}">${p.stock}</td>
-      <td style="color:var(--text-3)">${p.minStock}</td>
-      <td>${isOut ? '<span class="badge badge-red">Out of Stock</span>' : isLow ? '<span class="badge badge-amber">Low Stock</span>' : '<span class="badge badge-green">In Stock</span>'}</td>
-      <td>${isAdmin ? `<div style="display:flex;gap:6px">
-        <button class="btn btn-outline btn-sm" onclick="editProduct(${p.id})">✏️ Edit</button>
-        <button class="btn btn-danger btn-sm" onclick="confirmDelete('product',${p.id})">🗑</button>
-      </div>` : ''}</td>
-    </tr>`;
+  const search=(document.getElementById('inv-search')?.value||'').toLowerCase();
+  const list=DB.products.filter(p=>(!search||p.name.toLowerCase().includes(search))&&(!invCatFilter||p.category===invCatFilter));
+  const lowStock=DB.products.filter(p=>p.stock<=p.minStock);
+  document.getElementById('inv-alert').innerHTML = lowStock.length>0 ? `<div class="alert-bar">⚠️ <strong>${lowStock.length} item(s)</strong> are at or below minimum stock and need restocking.</div>` : '';
+  const isAdmin=currentUser?.role==='admin';
+  const tbody=document.getElementById('inv-tbody');
+  if (list.length===0) { tbody.innerHTML='<tr><td colspan="8" style="text-align:center;color:var(--text-3);padding:36px">No products found</td></tr>'; return; }
+  tbody.innerHTML=list.map((p,i)=>{
+    const isLow=p.stock<=p.minStock,isOut=p.stock===0;
+    return `<tr><td style="color:var(--text-3);font-size:12px">${i+1}</td><td style="font-weight:600">${p.name}</td><td><span class="badge badge-navy">${p.category}</span></td><td style="font-family:DM Mono,monospace;font-weight:700;color:var(--accent)">${fKES(p.price)}</td><td style="font-weight:700;color:${isOut?'var(--red)':isLow?'var(--amber)':'var(--green)'}">${p.stock}</td><td style="color:var(--text-3)">${p.minStock}</td><td>${isOut?'<span class="badge badge-red">Out of Stock</span>':isLow?'<span class="badge badge-amber">Low Stock</span>':'<span class="badge badge-green">In Stock</span>'}</td><td>${isAdmin?`<div style="display:flex;gap:6px"><button class="btn btn-outline btn-sm" onclick="editProduct(${p.id})">✏️ Edit</button><button class="btn btn-danger btn-sm" onclick="confirmDelete('product',${p.id})">🗑</button></div>`:''}</td></tr>`;
   }).join('');
 }
 
 window.openAddProduct = function() {
-  ['pm-id','pm-name','pm-price','pm-stock'].forEach(id => document.getElementById(id).value = '');
-  document.getElementById('pm-cat').value = 'Building';
-  document.getElementById('pm-min').value = '10';
-  document.getElementById('pm-title').textContent = 'Add New Product';
-  openModal('modal-product');
+  ['pm-id','pm-name','pm-price','pm-stock'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('pm-cat').value='Building'; document.getElementById('pm-min').value='10';
+  document.getElementById('pm-title').textContent='Add New Product'; openModal('modal-product');
 }
 
 window.editProduct = function(id) {
-  const p = DB.products.find(x => x.id === id);
-  if (!p) return;
-  document.getElementById('pm-id').value = id;
-  document.getElementById('pm-name').value = p.name;
-  document.getElementById('pm-cat').value = p.category;
-  document.getElementById('pm-price').value = p.price;
-  document.getElementById('pm-stock').value = p.stock;
-  document.getElementById('pm-min').value = p.minStock;
-  document.getElementById('pm-title').textContent = 'Edit Product';
-  openModal('modal-product');
+  const p=DB.products.find(x=>x.id===id); if(!p) return;
+  document.getElementById('pm-id').value=id; document.getElementById('pm-name').value=p.name;
+  document.getElementById('pm-cat').value=p.category; document.getElementById('pm-price').value=p.price;
+  document.getElementById('pm-stock').value=p.stock; document.getElementById('pm-min').value=p.minStock;
+  document.getElementById('pm-title').textContent='Edit Product'; openModal('modal-product');
 }
 
 window.saveProduct = async function() {
-  const id = document.getElementById('pm-id').value;
-  const name = document.getElementById('pm-name').value.trim();
-  const cat = document.getElementById('pm-cat').value;
-  const price = parseFloat(document.getElementById('pm-price').value);
-  const stock = parseInt(document.getElementById('pm-stock').value);
-  const min = parseInt(document.getElementById('pm-min').value) || 5;
-  if (!name || isNaN(price) || isNaN(stock)) { toast('Please fill in all required fields', 'error'); return; }
-  if (id) {
-    const p = DB.products.find(x => x.id === parseInt(id));
-    if (p) Object.assign(p, { name, category: cat, price, stock, minStock: min });
-    toast('Product updated — ' + name, 'success');
-  } else {
-    DB.products.push({ id: DB.nextId.product++, name, category: cat, price, stock, minStock: min });
-    toast('Product added — ' + name, 'success');
-  }
-  closeModal('modal-product');
-  renderInventory();
-  renderProducts();
-  await syncToCloud();
+  const id=document.getElementById('pm-id').value; const name=document.getElementById('pm-name').value.trim();
+  const cat=document.getElementById('pm-cat').value; const price=parseFloat(document.getElementById('pm-price').value);
+  const stock=parseInt(document.getElementById('pm-stock').value); const min=parseInt(document.getElementById('pm-min').value)||5;
+  if (!name||isNaN(price)||isNaN(stock)) { toast('Please fill in all required fields','error'); return; }
+  if (id) { const p=DB.products.find(x=>x.id===parseInt(id)); if(p) Object.assign(p,{name,category:cat,price,stock,minStock:min}); toast('Product updated — '+name,'success'); }
+  else { DB.products.push({id:DB.nextId.product++,name,category:cat,price,stock,minStock:min}); toast('Product added — '+name,'success'); }
+  closeModal('modal-product'); renderInventory(); renderProducts(); await syncToCloud();
 }
 
 window.deleteProduct = async function(id) {
-  const idx = DB.products.findIndex(p => p.id === id);
-  if (idx !== -1) {
-    const name = DB.products[idx].name;
-    DB.products.splice(idx, 1);
-    toast('Product deleted — ' + name);
-    renderInventory();
-    renderProducts();
-    await syncToCloud();
-  }
+  const idx=DB.products.findIndex(p=>p.id===id);
+  if (idx!==-1) { const name=DB.products[idx].name; DB.products.splice(idx,1); toast('Product deleted — '+name); renderInventory(); renderProducts(); await syncToCloud(); }
 }
 
 // ══════════════════════════════════════════
 // TRANSACTIONS
 // ══════════════════════════════════════════
 window.renderTransactions = function() {
-  const search = (document.getElementById('tx-search')?.value || '').toLowerCase();
-  const method = document.getElementById('tx-method')?.value || '';
-  const list = DB.transactions.filter(t =>
-    (!search || t.receipt.toLowerCase().includes(search) || (t.cashier && t.cashier.toLowerCase().includes(search))) &&
-    (!method || t.method === method)
-  ).slice().reverse();
-  const badge = document.getElementById('tx-count-badge');
-  if (badge) badge.textContent = list.length + ' records';
-  const tbody = document.getElementById('tx-tbody');
-  if (list.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--text-3);padding:36px">No transactions found</td></tr>';
-    return;
-  }
-  tbody.innerHTML = list.map(t => `<tr>
-    <td><span style="font-family:DM Mono,monospace;font-weight:600">${t.receipt}</span></td>
-    <td style="font-size:12px">${fDate(t.date)} <span style="color:var(--text-3)">${fTime(t.date)}</span></td>
-    <td>${t.cashier} <span style="font-size:10px;color:var(--text-3);background:var(--surface-2);padding:2px 4px;border-radius:4px;text-transform:uppercase">${t.cashierRole || "user"}</span></td>
-    <td style="font-size:12px;color:var(--text-2)">${t.items.length} items</td>
-    <td style="font-weight:700;color:var(--accent);font-family:DM Mono,monospace">${fKES(t.total)}</td>
-    <td>${methodBadge(t.method)}</td>
-    <td><button class="btn btn-outline btn-sm" onclick="showReceipt(${JSON.stringify(t).replace(/"/g, '&quot;')})">👁 View</button></td>
-  </tr>`).join('');
+  const search=(document.getElementById('tx-search')?.value||'').toLowerCase();
+  const method=document.getElementById('tx-method')?.value||'';
+  const list=DB.transactions.filter(t=>(!search||t.receipt.toLowerCase().includes(search)||(t.cashier&&t.cashier.toLowerCase().includes(search)))&&(!method||t.method===method)).slice().reverse();
+  const badge=document.getElementById('tx-count-badge'); if(badge) badge.textContent=list.length+' records';
+  const tbody=document.getElementById('tx-tbody');
+  if (list.length===0) { tbody.innerHTML='<tr><td colspan="7" style="text-align:center;color:var(--text-3);padding:36px">No transactions found</td></tr>'; return; }
+  tbody.innerHTML=list.map(t=>`<tr><td><span style="font-family:DM Mono,monospace;font-weight:600">${t.receipt}</span></td><td style="font-size:12px">${fDate(t.date)} <span style="color:var(--text-3)">${fTime(t.date)}</span></td><td>${t.cashier} <span style="font-size:10px;color:var(--text-3);background:var(--surface-2);padding:2px 4px;border-radius:4px;text-transform:uppercase">${t.cashierRole||'user'}</span></td><td style="font-size:12px;color:var(--text-2)">${t.items.length} items</td><td style="font-weight:700;color:var(--accent);font-family:DM Mono,monospace">${fKES(t.total)}</td><td>${methodBadge(t.method)}</td><td><button class="btn btn-outline btn-sm" onclick="showReceipt(${JSON.stringify(t).replace(/"/g,'&quot;')})">👁 View</button></td></tr>`).join('');
 }
 
 // ══════════════════════════════════════════
 // REPORTS
 // ══════════════════════════════════════════
 window.setReportTab = function(tab, btn) {
-  reportTab = tab;
-  document.querySelectorAll('.report-tab').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  renderReport();
+  reportTab=tab; document.querySelectorAll('.report-tab').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); renderReport();
 }
 
 window.renderReport = function() {
-  const el = document.getElementById('report-content');
-  if (reportTab === 'summary') {
-    const total = DB.transactions.reduce((s,t) => s + t.total, 0);
-    const count = DB.transactions.length;
-    const avg = count ? total / count : 0;
-    el.innerHTML = `
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px">
-        <div class="stat-card"><div class="stat-stripe stat-stripe-blue"></div><div class="stat-label">Total Sales</div><div class="stat-value">${fKES(total)}</div><div class="stat-sub">All time revenue</div></div>
-        <div class="stat-card"><div class="stat-stripe stat-stripe-green"></div><div class="stat-label">Transaction Count</div><div class="stat-value">${count}</div><div class="stat-sub">Completed sales</div></div>
-        <div class="stat-card"><div class="stat-stripe stat-stripe-orange"></div><div class="stat-label">Average Ticket</div><div class="stat-value">${fKES(avg)}</div><div class="stat-sub">Per transaction</div></div>
-      </div>`;
-  } else if (reportTab === 'sales') {
-    const cash = DB.transactions.reduce((s,t) => t.method==='cash' ? s+t.total : t.method==='split' ? s+t.cashAmount : s, 0);
-    const mpesa = DB.transactions.reduce((s,t) => t.method==='mpesa' ? s+t.total : t.method==='split' ? s+t.mpesaAmount : s, 0);
-    const mobile = DB.transactions.reduce((s,t) => t.method==='mobile' ? s+t.total : s, 0);
-    const split = DB.transactions.reduce((s,t) => t.method==='split' ? s+t.total : s, 0);
-    const total = cash + mpesa + mobile;
-    const pct = (v) => total ? ((v/total)*100).toFixed(1) : 0;
-    const colors = { cash:'var(--green)', mpesa:'var(--blue)', mobile:'var(--accent)', split:'var(--navy)' };
-    el.innerHTML = `
-      <div class="card"><div class="card-header"><div class="card-title">Payment Distribution</div></div>
-        ${[['Cash',cash,'cash'],['M-Pesa',mpesa,'mpesa'],['Mobile Banking',mobile,'mobile'],['Split',split,'split']].map(([n,v,k]) => `
-        <div class="prog-bar-wrap">
-          <div class="prog-bar-row"><span>${n}</span><span style="font-weight:600;font-family:DM Mono,monospace">${fKES(v)} <span style="font-weight:400;color:var(--text-3)">(${pct(v)}%)</span></span></div>
-          <div class="prog-bg"><div class="prog-fill" style="width:${pct(v)}%;background:${colors[k]}"></div></div>
-        </div>`).join('')}
-      </div>`;
+  const el=document.getElementById('report-content');
+  if (reportTab==='summary') {
+    const total=DB.transactions.reduce((s,t)=>s+t.total,0),count=DB.transactions.length,avg=count?total/count:0;
+    el.innerHTML=`<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px"><div class="stat-card"><div class="stat-stripe stat-stripe-blue"></div><div class="stat-label">Total Sales</div><div class="stat-value">${fKES(total)}</div><div class="stat-sub">All time revenue</div></div><div class="stat-card"><div class="stat-stripe stat-stripe-green"></div><div class="stat-label">Transaction Count</div><div class="stat-value">${count}</div><div class="stat-sub">Completed sales</div></div><div class="stat-card"><div class="stat-stripe stat-stripe-orange"></div><div class="stat-label">Average Ticket</div><div class="stat-value">${fKES(avg)}</div><div class="stat-sub">Per transaction</div></div></div>`;
+  } else if (reportTab==='sales') {
+    const cash=DB.transactions.reduce((s,t)=>t.method==='cash'?s+t.total:t.method==='split'?s+t.cashAmount:s,0);
+    const mpesa=DB.transactions.reduce((s,t)=>t.method==='mpesa'?s+t.total:t.method==='split'?s+t.mpesaAmount:s,0);
+    const mobile=DB.transactions.reduce((s,t)=>t.method==='mobile'?s+t.total:s,0);
+    const split=DB.transactions.reduce((s,t)=>t.method==='split'?s+t.total:s,0);
+    const total=cash+mpesa+mobile;const pct=v=>total?((v/total)*100).toFixed(1):0;
+    const colors={cash:'var(--green)',mpesa:'var(--blue)',mobile:'var(--accent)',split:'var(--navy)'};
+    el.innerHTML=`<div class="card"><div class="card-header"><div class="card-title">Payment Distribution</div></div>${[['Cash',cash,'cash'],['M-Pesa',mpesa,'mpesa'],['Mobile Banking',mobile,'mobile'],['Split',split,'split']].map(([n,v,k])=>`<div class="prog-bar-wrap" style="padding:0 20px"><div class="prog-bar-row"><span>${n}</span><span style="font-weight:600;font-family:DM Mono,monospace">${fKES(v)} <span style="font-weight:400;color:var(--text-3)">(${pct(v)}%)</span></span></div><div class="prog-bg"><div class="prog-fill" style="width:${pct(v)}%;background:${colors[k]}"></div></div></div>`).join('')}</div>`;
   } else {
-    const lowStock = DB.products.filter(p => p.stock <= p.minStock);
-    const totalVal = DB.products.reduce((s,p) => s + p.price*p.stock, 0);
-    el.innerHTML = `
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px">
-        <div class="stat-card"><div class="stat-stripe stat-stripe-orange"></div><div class="stat-label">Total Products</div><div class="stat-value">${DB.products.length}</div><div class="stat-sub">In catalog</div></div>
-        <div class="stat-card"><div class="stat-stripe stat-stripe-green"></div><div class="stat-label">Inventory Value</div><div class="stat-value" style="font-size:18px">${fKES(totalVal)}</div><div class="stat-sub">At selling price</div></div>
-        <div class="stat-card"><div class="stat-stripe stat-stripe-red"></div><div class="stat-label">Low Stock</div><div class="stat-value">${lowStock.length}</div><div class="stat-sub">Need restocking</div></div>
-      </div>
-      <div class="card"><div class="card-header"><div class="card-title">Full Inventory</div></div>
-        <div class="table-wrap"><table>
-          <thead><tr><th>Product</th><th>Category</th><th>Price</th><th>Stock</th><th>Value</th><th>Status</th></tr></thead>
-          <tbody>${DB.products.map(p => {
-            const isLow = p.stock <= p.minStock;
-            return `<tr>
-              <td style="font-weight:600">${p.name}</td>
-              <td><span class="badge badge-navy">${p.category}</span></td>
-              <td style="font-family:DM Mono,monospace;color:var(--accent)">${fKES(p.price)}</td>
-              <td style="font-weight:700;color:${p.stock===0 ? 'var(--red)' : isLow ? 'var(--amber)' : 'var(--green)'}">${p.stock}</td>
-              <td style="font-family:DM Mono,monospace">${fKES(p.price*p.stock)}</td>
-              <td>${p.stock===0 ? '<span class="badge badge-red">Out</span>' : isLow ? '<span class="badge badge-amber">Low</span>' : '<span class="badge badge-green">OK</span>'}</td>
-            </tr>`;
-          }).join('')}</tbody>
-        </table></div>
-      </div>`;
+    const lowStock=DB.products.filter(p=>p.stock<=p.minStock);
+    const totalVal=DB.products.reduce((s,p)=>s+p.price*p.stock,0);
+    el.innerHTML=`<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px"><div class="stat-card"><div class="stat-stripe stat-stripe-orange"></div><div class="stat-label">Total Products</div><div class="stat-value">${DB.products.length}</div><div class="stat-sub">In catalog</div></div><div class="stat-card"><div class="stat-stripe stat-stripe-green"></div><div class="stat-label">Inventory Value</div><div class="stat-value" style="font-size:18px">${fKES(totalVal)}</div><div class="stat-sub">At selling price</div></div><div class="stat-card"><div class="stat-stripe stat-stripe-red"></div><div class="stat-label">Low Stock</div><div class="stat-value">${lowStock.length}</div><div class="stat-sub">Need restocking</div></div></div><div class="card"><div class="card-header"><div class="card-title">Full Inventory</div></div><div class="table-wrap"><table><thead><tr><th>Product</th><th>Category</th><th>Price</th><th>Stock</th><th>Value</th><th>Status</th></tr></thead><tbody>${DB.products.map(p=>{const isLow=p.stock<=p.minStock;return`<tr><td style="font-weight:600">${p.name}</td><td><span class="badge badge-navy">${p.category}</span></td><td style="font-family:DM Mono,monospace;color:var(--accent)">${fKES(p.price)}</td><td style="font-weight:700;color:${p.stock===0?'var(--red)':isLow?'var(--amber)':'var(--green)'}">${p.stock}</td><td style="font-family:DM Mono,monospace">${fKES(p.price*p.stock)}</td><td>${p.stock===0?'<span class="badge badge-red">Out</span>':isLow?'<span class="badge badge-amber">Low</span>':'<span class="badge badge-green">OK</span>'}</td></tr>`;}).join('')}</tbody></table></div></div>`;
   }
 }
 
@@ -2806,72 +2538,49 @@ window.renderReport = function() {
 // USERS
 // ══════════════════════════════════════════
 window.renderUsers = function() {
-  const tbody = document.getElementById('users-tbody');
-  tbody.innerHTML = DB.users.map(u => {
-    const recentlySeen = u.lastSeen ? (Date.now() - new Date(u.lastSeen).getTime()) < ONLINE_TIMEOUT_MS : false;
-    const isOnline = Boolean(u.online && recentlySeen);
-    return `<tr>
-    <td style="font-weight:700">${u.username}</td>
-    <td><span class="badge ${u.role==='admin' ? 'badge-amber' : 'badge-blue'}">${u.role==='admin' ? '👑 Admin' : '💼 Cashier'}</span></td>
-    <td style="font-size:11px;font-family:DM Mono,monospace;color:var(--text-2)">${u.clientId || getClientDisplayId()}</td>
-    <td style="font-size:12px">${u.created}</td>
-    <td style="font-size:12px">${u.lastLogin ? fDate(u.lastLogin) : 'Never'}</td>
-    <td><span class="badge ${isOnline ? 'badge-green' : 'badge-red'}">${isOnline ? 'Online' : 'Offline'}</span></td>
-    <td><span class="badge ${u.active ? 'badge-green' : 'badge-red'}">${u.active ? 'Active' : 'Inactive'}</span></td>
-    <td><div style="display:flex;gap:6px">
-      <button class="btn btn-outline btn-sm" onclick="editUser(${u.id})">✏️ Edit</button>
-      ${u.id !== currentUser.id ? `<button class="btn ${u.active ? 'btn-danger' : 'btn-success'} btn-sm" onclick="toggleUser(${u.id})">${u.active ? '🔒 Disable' : '🔓 Enable'}</button>` : ''}
-    </div></td>
-  </tr>`;
+  const tbody=document.getElementById('users-tbody');
+  if (!tbody) return;
+  tbody.innerHTML=DB.users.map(u=>{
+    const recentlySeen=u.lastSeen?(Date.now()-new Date(u.lastSeen).getTime())<ONLINE_TIMEOUT_MS:false;
+    const isOnline=Boolean(u.online&&recentlySeen);
+    return `<tr><td style="font-weight:700">${u.username}</td><td><span class="badge ${u.role==='admin'?'badge-amber':'badge-navy'}">${u.role==='admin'?'👑 Admin':'💼 Cashier'}</span></td><td style="font-size:11px;font-family:DM Mono,monospace;color:var(--text-2)">${u.clientId||clientID||DEFAULT_CLIENT_ID}</td><td style="font-size:12px">${u.created}</td><td style="font-size:12px">${u.lastLogin?fDate(u.lastLogin):'Never'}</td><td><span class="badge ${isOnline?'badge-green':'badge-red'}">${isOnline?'Online':'Offline'}</span></td><td><span class="badge ${u.active?'badge-green':'badge-red'}">${u.active?'Active':'Inactive'}</span></td><td><div style="display:flex;gap:6px"><button class="btn btn-outline btn-sm" onclick="editUser(${u.id})">✏️ Edit</button>${u.id!==currentUser.id?`<button class="btn ${u.active?'btn-danger':'btn-success'} btn-sm" onclick="toggleUser(${u.id})">${u.active?'🔒 Disable':'🔓 Enable'}</button>`:''}</div></td></tr>`;
   }).join('');
 }
 
-
 window.openAddUser = function() {
-  document.getElementById('um-id').value = '';
-  document.getElementById('um-username').value = '';
-  document.getElementById('um-password').value = '';
-  document.getElementById('um-role').value = 'cashier';
-  document.getElementById('um-title').textContent = 'Add User';
-  openModal('modal-user');
+  document.getElementById('um-id').value=''; document.getElementById('um-username').value='';
+  document.getElementById('um-password').value=''; document.getElementById('um-role').value='cashier';
+  document.getElementById('um-title').textContent='Add User'; openModal('modal-user');
 }
 
 window.editUser = function(id) {
-  const u = DB.users.find(x => x.id === id);
-  if (!u) return;
-  document.getElementById('um-id').value = id;
-  document.getElementById('um-username').value = u.username;
-  document.getElementById('um-password').value = '';
-  document.getElementById('um-role').value = u.role;
-  document.getElementById('um-title').textContent = 'Edit User';
-  openModal('modal-user');
+  const u=DB.users.find(x=>x.id===id); if(!u) return;
+  document.getElementById('um-id').value=id; document.getElementById('um-username').value=u.username;
+  document.getElementById('um-password').value=''; document.getElementById('um-role').value=u.role;
+  document.getElementById('um-title').textContent='Edit User'; openModal('modal-user');
 }
 
 window.saveUser = async function() {
-  const id = document.getElementById('um-id').value;
-  const username = document.getElementById('um-username').value.trim();
-  const password = document.getElementById('um-password').value;
-  const role = document.getElementById('um-role').value;
-  if (!username) { toast('Please enter a username', 'error'); return; }
+  const id=document.getElementById('um-id').value; const username=document.getElementById('um-username').value.trim();
+  const password=document.getElementById('um-password').value; const role=document.getElementById('um-role').value;
+  if (!username) { toast('Please enter a username','error'); return; }
   if (id) {
-    const u = DB.users.find(x => x.id === parseInt(id));
-    if (u) { u.username = username; u.role = role; if (password) u.password = password; }
-    toast('User updated', 'success');
+    const u=DB.users.find(x=>x.id===parseInt(id));
+    if (u) { u.username=username; u.role=role; if(password) u.password=password; }
+    toast('User updated','success');
   } else {
-    if (!password || password.length < 6) { toast('Password must be at least 6 characters', 'error'); return; }
-    if (DB.users.find(u => u.username === username)) { toast('Username already exists', 'error'); return; }
-    DB.users.push({ id: DB.nextId.user++, username, password, role, created: new Date().toLocaleDateString('en-KE'), lastLogin: null, active: true, clientId: getClientDisplayId(), online: false, lastSeen: null });
-    toast('User added — ' + username, 'success');
+    if (!password||password.length<6) { toast('Password must be at least 6 characters','error'); return; }
+    if (DB.users.find(u=>u.username===username)) { toast('Username already exists','error'); return; }
+    DB.users.push({id:DB.nextId.user++,username,password,role,created:new Date().toLocaleDateString('en-KE'),lastLogin:null,active:true,clientId:clientID||DEFAULT_CLIENT_ID,online:false,lastSeen:null});
+    toast('User added — '+username,'success');
   }
   saveUserClientMapping(username, clientID);
-  closeModal('modal-user');
-  renderUsers();
-  await syncToCloud();
+  closeModal('modal-user'); renderUsers(); await syncToCloud();
 }
 
 window.toggleUser = async function(id) {
-  const u = DB.users.find(x => x.id === id);
-  if (u) { u.active = !u.active; renderUsers(); toast(u.active ? 'User enabled' : 'User disabled'); await syncToCloud(); }
+  const u=DB.users.find(x=>x.id===id);
+  if (u) { u.active=!u.active; renderUsers(); toast(u.active?'User enabled':'User disabled'); await syncToCloud(); }
 }
 
 // ══════════════════════════════════════════
@@ -2879,15 +2588,9 @@ window.toggleUser = async function(id) {
 // ══════════════════════════════════════════
 window.confirmDelete = function(type, id) {
   let msg = 'Are you sure you want to delete this item? This action cannot be undone.';
-  if (type === 'product') {
-    const p = DB.products.find(x => x.id === id);
-    msg = `Delete "${p?.name}"? This action cannot be undone.`;
-  }
+  if (type==='product') { const p=DB.products.find(x=>x.id===id); msg=`Delete "${p?.name}"? This action cannot be undone.`; }
   document.getElementById('confirm-msg').textContent = msg;
-  document.getElementById('confirm-btn').onclick = () => {
-    if (type === 'product') deleteProduct(id);
-    closeModal('modal-confirm');
-  };
+  document.getElementById('confirm-btn').onclick = () => { if(type==='product') deleteProduct(id); closeModal('modal-confirm'); };
   openModal('modal-confirm');
 }
 
@@ -2898,65 +2601,63 @@ window.openModal = function(id) { document.getElementById(id).classList.add('ope
 window.closeModal = function(id) { document.getElementById(id).classList.remove('open'); }
 
 document.querySelectorAll('.modal-overlay').forEach(overlay => {
-  overlay.addEventListener('click', e => {
-    if (e.target === overlay) overlay.classList.remove('open');
-  });
+  overlay.addEventListener('click', e => { if (e.target===overlay) overlay.classList.remove('open'); });
 });
 
 // ══════════════════════════════════════════
 // FORMATTERS
 // ══════════════════════════════════════════
-function fKES(n) { return 'KES ' + (n || 0).toLocaleString('en-KE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
-function fDate(d) { return new Date(d).toLocaleDateString('en-KE', { day:'2-digit', month:'short', year:'numeric' }); }
-function fTime(d) { return new Date(d).toLocaleTimeString('en-KE', { hour:'2-digit', minute:'2-digit' }); }
-function methodLabel(m) { return { cash:'Cash', mpesa:'M-Pesa', mobile:'Mobile Banking', split:'Split Payment' }[m] || m; }
+function fKES(n) { return 'KES '+(n||0).toLocaleString('en-KE',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+function fDate(d) { return new Date(d).toLocaleDateString('en-KE',{day:'2-digit',month:'short',year:'numeric'}); }
+function fTime(d) { return new Date(d).toLocaleTimeString('en-KE',{hour:'2-digit',minute:'2-digit'}); }
+function methodLabel(m) { return {cash:'Cash',mpesa:'M-Pesa',mobile:'Mobile Banking',split:'Split Payment'}[m]||m; }
 function methodBadge(m) {
-  const map = { cash:'badge-green', mpesa:'badge-blue', mobile:'badge-orange', split:'badge-navy' };
-  const names = { cash:'💵 Cash', mpesa:'📱 M-Pesa', mobile:'🏦 Mobile', split:'✂️ Split' };
-  return `<span class="badge ${map[m] || 'badge-navy'}">${names[m] || m}</span>`;
+  const map={cash:'badge-green',mpesa:'badge-blue',mobile:'badge-orange',split:'badge-navy'};
+  const names={cash:'💵 Cash',mpesa:'📱 M-Pesa',mobile:'🏦 Mobile',split:'✂️ Split'};
+  return `<span class="badge ${map[m]||'badge-navy'}">${names[m]||m}</span>`;
 }
 
 // ══════════════════════════════════════════
 // TOAST
 // ══════════════════════════════════════════
-window.toast = function(msg, type = '') {
+window.toast = function(msg, type='') {
   const container = document.getElementById('toast-container');
   const el = document.createElement('div');
-  el.className = 'toast' + (type ? ' ' + type : '');
-  el.innerHTML = (type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️') + ' ' + msg;
+  el.className = 'toast'+(type?' '+type:'');
+  el.innerHTML = (type==='success'?'✅':type==='error'?'❌':'ℹ️')+' '+msg;
   container.appendChild(el);
-  setTimeout(() => { el.style.opacity = '0'; el.style.transition = 'opacity .3s'; setTimeout(() => el.remove(), 300); }, 3200);
+  setTimeout(()=>{el.style.opacity='0';el.style.transition='opacity .3s';setTimeout(()=>el.remove(),300);},3500);
 }
 
 // ══════════════════════════════════════════
-// INIT
+// KEYBOARD SHORTCUTS
+// ══════════════════════════════════════════
+document.getElementById('l-pass').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
+document.getElementById('l-user').addEventListener('keydown', e => { if(e.key==='Enter') document.getElementById('l-pass').focus(); });
+document.getElementById('reg-admin-pass2')?.addEventListener('keydown', e => { if(e.key==='Enter') regStep1Next(); });
+
+// ══════════════════════════════════════════
+// SESSION RESTORE
 // ══════════════════════════════════════════
 renderCart();
 
-// Auto-restore session on refresh
 async function restoreSession() {
-  const session = localStorage.getItem('manribs_session');
-  if (session) {
-    try {
-      const { username, password, page, clientID: savedClientID } = JSON.parse(session);
-      if (savedClientID) saveUserClientMapping(username, savedClientID);
-      document.getElementById('l-user').value = username;
-      document.getElementById('l-pass').value = password;
-      
-      // Perform login
-      await doLogin();
-      
-      // After login, navigate to the saved page
-      if (page && page !== 'dashboard') {
-        goPage(page);
-      }
-    } catch (e) {
-      console.error("Session restore failed", e);
-    }
+  const raw = localStorage.getItem('manribs_session');
+  if (!raw) return;
+  try {
+    const { username, password, clientID: savedClientID, page } = JSON.parse(raw);
+    if (savedClientID) saveUserClientMapping(username, savedClientID);
+    document.getElementById('l-user').value = username;
+    document.getElementById('l-pass').value = password;
+    await doLogin();
+    if (page && page!=='dashboard' && currentUser) { setTimeout(()=>goPage(page), 100); }
+  } catch(e) {
+    console.error("Session restore:", e);
+    localStorage.removeItem('manribs_session');
   }
 }
-// Delay slightly to ensure all DOM elements are ready
-setTimeout(restoreSession, 100);
+
+setTimeout(restoreSession, 120);
 </script>
 </body>
 </html>
