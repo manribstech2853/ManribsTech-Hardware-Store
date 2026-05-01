@@ -833,6 +833,7 @@ tr:hover td { background: rgba(238,241,245,0.4); }
       <input type="password" id="l-pass" placeholder="••••••••">
     </div>
     <button class="btn-login" onclick="doLogin()">Sign In to Dashboard</button>
+    <div style="text-align:center;margin-top:15px;font-size:13px;color:var(--text-2)">Don't have a store? <a href="#" onclick="openModal('modal-register')" style="color:var(--accent);font-weight:600;text-decoration:none">Register Store</a></div>
     <div class="login-hint">
       Default Admin: <strong>admin</strong> / <strong>admin123</strong><br>
       Default Cashier: <strong>cashier1</strong> / <strong>cash123</strong>
@@ -1086,7 +1087,7 @@ tr:hover td { background: rgba(238,241,245,0.4); }
           <div class="table-wrap">
             <table>
               <thead>
-                <tr><th>Username</th><th>Role</th><th>Created</th><th>Last Login</th><th>Status</th><th>Actions</th></tr>
+                <tr><th>Username</th><th>Role</th><th>Client ID</th><th>Created</th><th>Last Login</th><th>Online</th><th>Status</th><th>Actions</th></tr>
               </thead>
               <tbody id="users-tbody"></tbody>
             </table>
@@ -1204,6 +1205,38 @@ tr:hover td { background: rgba(238,241,245,0.4); }
   </div>
 </div>
 
+
+<!-- Register Store Modal -->
+<div class="modal-overlay" id="modal-register">
+  <div class="modal" style="max-width:450px">
+    <div class="modal-head">
+      <h2>🏢 Register New Store</h2>
+      <button class="modal-close" onclick="closeModal('modal-register')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-field">
+        <label>Store Name</label>
+        <input type="text" id="reg-store-name" placeholder="e.g. Manribs Hardware">
+      </div>
+      <div class="form-field">
+        <label>Admin Username</label>
+        <input type="text" id="reg-admin-user" placeholder="e.g. admin">
+      </div>
+      <div class="form-field">
+        <label>Admin Password</label>
+        <input type="password" id="reg-admin-pass" placeholder="Minimum 6 characters">
+      </div>
+      <div style="background:var(--blue-bg);color:var(--blue);padding:12px;border-radius:var(--r-sm);font-size:12px;line-height:1.5">
+        ℹ️ Registration will create a unique <strong>Client ID</strong> for your store. This ID ensures your data is private and only accessible to your users.
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="closeModal('modal-register')">Cancel</button>
+      <button class="btn btn-primary" id="reg-btn" onclick="registerStore()">Register Store</button>
+    </div>
+  </div>
+</div>
+
 <!-- User Modal -->
 <div class="modal-overlay" id="modal-user">
   <div class="modal" style="max-width:400px">
@@ -1287,8 +1320,8 @@ enableIndexedDbPersistence(db).catch((err) => {
 // ══════════════════════════════════════════
 const DB = {
   users: [
-    { id:1, username:'admin', password:'admin123', role:'admin', created:'2025-01-01', lastLogin:null, active:true },
-    { id:2, username:'cashier1', password:'cash123', role:'cashier', created:'2025-01-01', lastLogin:null, active:true }
+    { id:1, username:'admin', password:'admin123', role:'admin', created:'2025-01-01', lastLogin:null, active:true, clientId:'client_manribstech_store', online:false, lastSeen:null },
+    { id:2, username:'cashier1', password:'cash123', role:'cashier', created:'2025-01-01', lastLogin:null, active:true, clientId:'client_manribstech_store', online:false, lastSeen:null }
   ],
   products: [
     { id:1, name:'Portland Cement 50kg', category:'Building', price:650, stock:120, minStock:20 },
@@ -1315,8 +1348,135 @@ let invCatFilter = '';
 let reportTab = 'summary';
 let currentReceiptTx = null;
 let cloudStatus = 'offline';
-let clientID = null; // Multi-client isolation ID
+let clientID = null; // Shared business/client data ID used by all users in the same store
+let sessionID = null; // Unique browser-session ID used for presence/online detection
 let currentActivePage = 'dashboard';
+let clientUnsubscribe = null;
+let transactionUnsubscribe = null;
+let presenceUnsubscribe = null;
+let presenceTimer = null;
+let browserOnline = navigator.onLine;
+const DEFAULT_CLIENT_ID = 'client_manribstech_store';
+const USER_CLIENT_MAP_KEY = 'manribs_user_client_map';
+const ONLINE_TIMEOUT_MS = 90 * 1000;
+const DEFAULT_DB_SNAPSHOT = JSON.parse(JSON.stringify(DB));
+
+
+// ══════════════════════════════════════════
+// MULTI-USER CLIENT ID + PRESENCE HELPERS
+// ══════════════════════════════════════════
+function cloneDefaultDB() {
+  return JSON.parse(JSON.stringify(DEFAULT_DB_SNAPSHOT));
+}
+
+function resetDBToDefaults() {
+  const fresh = cloneDefaultDB();
+  DB.users = fresh.users;
+  DB.products = fresh.products;
+  DB.transactions = fresh.transactions;
+  DB.nextId = fresh.nextId;
+}
+
+function safeUsernameKey(username) {
+  return String(username || '').trim().toLowerCase().replace(/[^a-z0-9_-]/g, '_');
+}
+
+function legacyClientIdForUsername(username) {
+  return 'client_' + String(username || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+}
+
+function normalizeClientId(id) {
+  const cleaned = String(id || '').trim().toLowerCase().replace(/[^a-z0-9_-]/g, '_');
+  return cleaned ? (cleaned.startsWith('client_') ? cleaned : 'client_' + cleaned) : DEFAULT_CLIENT_ID;
+}
+
+function generateSessionId() {
+  if (crypto?.randomUUID) return crypto.randomUUID();
+  return 'session_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 10);
+}
+
+function getUserClientMap() {
+  try { return JSON.parse(localStorage.getItem(USER_CLIENT_MAP_KEY) || '{}'); }
+  catch { return {}; }
+}
+
+function saveUserClientMapping(username, id = clientID) {
+  if (!username || !id) return;
+  const map = getUserClientMap();
+  map[safeUsernameKey(username)] = id;
+  localStorage.setItem(USER_CLIENT_MAP_KEY, JSON.stringify(map));
+  localStorage.setItem('manribs_last_client', id);
+}
+
+function getLocalClientCandidates(username) {
+  const mapped = getUserClientMap()[safeUsernameKey(username)];
+  const lastClient = localStorage.getItem('manribs_last_client');
+  return [...new Set([mapped, lastClient, DEFAULT_CLIENT_ID, legacyClientIdForUsername(username)].filter(Boolean).map(normalizeClientId))];
+}
+
+function normalizeDBForClient(id = clientID) {
+  const normalizedClientId = normalizeClientId(id || DEFAULT_CLIENT_ID);
+  const seenUserIds = new Set();
+  DB.users = (DB.users || []).map((u, index) => {
+    const numericId = Number(u.id) || index + 1;
+    seenUserIds.add(numericId);
+    return {
+      ...u,
+      id: numericId,
+      username: String(u.username || '').trim(),
+      role: u.role || 'cashier',
+      created: u.created || new Date().toLocaleDateString('en-KE'),
+      lastLogin: u.lastLogin || null,
+      active: u.active !== false,
+      clientId: normalizeClientId(u.clientId || normalizedClientId),
+      online: Boolean(u.online),
+      lastSeen: u.lastSeen || null
+    };
+  });
+  DB.nextId = DB.nextId || { product: 1, user: 1, transaction: 1 };
+  DB.nextId.user = Math.max(DB.nextId.user || 1, ...seenUserIds, 0) + 1;
+  DB.nextId.product = Math.max(DB.nextId.product || 1, ...(DB.products || []).map(p => Number(p.id) || 0), 0) + 1;
+  DB.nextId.transaction = Math.max(DB.nextId.transaction || 1, ...(DB.transactions || []).map(t => Number(t.id) || 0), 0) + 1;
+}
+
+function applyClientData(data) {
+  if (!data) return;
+  if (data.products) DB.products = data.products;
+  if (data.users) DB.users = data.users;
+  if (data.nextId) DB.nextId = data.nextId;
+  if (data.transactions) DB.transactions = data.transactions;
+  normalizeDBForClient(clientID);
+}
+
+async function fetchRegisteredClientId(username) {
+  if (!navigator.onLine) return null;
+  try {
+    const snap = await getDoc(doc(db, 'client_user_registry', safeUsernameKey(username)));
+    if (snap.exists() && snap.data()?.clientID) return normalizeClientId(snap.data().clientID);
+  } catch (e) {
+    console.warn('Client registry lookup failed:', e);
+  }
+  return null;
+}
+
+async function registerClientUsers() {
+  if (!clientID || !navigator.onLine) return;
+  const writes = (DB.users || []).filter(u => u.username).map(u => {
+    saveUserClientMapping(u.username, clientID);
+    return setDoc(doc(db, 'client_user_registry', safeUsernameKey(u.username)), {
+      username: u.username,
+      clientID,
+      role: u.role || 'cashier',
+      active: u.active !== false,
+      lastUpdated: new Date().toISOString()
+    }, { merge: true });
+  });
+  await Promise.allSettled(writes);
+}
+
+function getClientDisplayId(id = clientID) {
+  return id || DEFAULT_CLIENT_ID;
+}
 
 // ══════════════════════════════════════════
 // PROFESSIONAL INDEXEDDB PERSISTENCE
@@ -1403,24 +1563,32 @@ async function loadFromLocal() {
 // ══════════════════════════════════════════
 function setCloudStatus(status) {
   cloudStatus = status;
+  browserOnline = navigator.onLine;
   const pill = document.getElementById('cloud-status-pill');
   if (!pill) return;
+  const effectiveStatus = browserOnline ? status : 'offline';
   const icons = { synced:'☁️', syncing:'🔄', offline:'⚡' };
-  const labels = { synced:'Cloud Synced', syncing:'Syncing…', offline:'Local Only' };
-  pill.innerHTML = `<span class="cloud-pill ${status}"><span class="cloud-dot"></span>${icons[status]} ${labels[status]}</span>`;
+  const labels = { synced:'Online • Cloud Synced', syncing:'Online • Syncing…', offline: browserOnline ? 'Local Only' : 'Offline' };
+  const clientLabel = clientID ? ` title="Client ID: ${getClientDisplayId()}"` : '';
+  pill.innerHTML = `<span class="cloud-pill ${effectiveStatus}"${clientLabel}><span class="cloud-dot"></span>${icons[effectiveStatus]} ${labels[effectiveStatus]}</span>`;
 }
 
 async function syncToCloud() {
   if (!clientID) return;
-  saveToLocal(); // Always save locally first
+  normalizeDBForClient(clientID);
+  await saveToLocal(); // Always save locally first
+  if (!navigator.onLine) { setCloudStatus('offline'); return; }
   setCloudStatus('syncing');
   try {
     await setDoc(doc(db, "clients", clientID), {
+      clientID,
       products: DB.products,
       users: DB.users,
       nextId: DB.nextId,
+      transactions: DB.transactions,
       lastUpdated: new Date().toISOString()
     }, { merge: true });
+    await registerClientUsers();
     setCloudStatus('synced');
   } catch (e) {
     console.error("Cloud sync error:", e);
@@ -1430,41 +1598,218 @@ async function syncToCloud() {
 
 function initCloudListeners() {
   if (!clientID) return;
-  
-  // Listen for product/user changes
-  onSnapshot(doc(db, "clients", clientID), (docSnap) => {
+  if (clientUnsubscribe) clientUnsubscribe();
+  if (transactionUnsubscribe) transactionUnsubscribe();
+  if (presenceUnsubscribe) presenceUnsubscribe();
+
+  // Listen for product/user/client changes for this shared client ID
+  clientUnsubscribe = onSnapshot(doc(db, "clients", clientID), (docSnap) => {
     if (docSnap.exists()) {
-      const data = docSnap.data();
-      if (data.products) DB.products = data.products;
-      if (data.users) DB.users = data.users;
-      if (data.nextId) DB.nextId = data.nextId;
-      
-      // Refresh UI if logged in
+      applyClientData(docSnap.data());
       if (currentUser) {
+        const refreshedUser = DB.users.find(u => u.id === currentUser.id) || DB.users.find(u => u.username === currentUser.username);
+        if (refreshedUser) currentUser = refreshedUser;
         renderProducts();
         updateDashboard();
         renderInventory();
         renderUsers();
+        setCloudStatus('synced');
       }
     }
+  }, (error) => {
+    console.warn('Client listener offline/unavailable:', error);
+    setCloudStatus('offline');
   });
 
-  // Listen for transactions
-  const txQuery = query(collection(db, "clients", clientID, "transactions"), orderBy("date", "desc"), limit(100));
-  onSnapshot(txQuery, (querySnapshot) => {
+  // Listen for transactions; older data is also preserved in the client document as a fallback.
+  const txQuery = query(collection(db, "clients", clientID, "transactions"), orderBy("date", "desc"), limit(500));
+  transactionUnsubscribe = onSnapshot(txQuery, (querySnapshot) => {
     const txs = [];
     querySnapshot.forEach((doc) => txs.push(doc.data()));
-    DB.transactions = txs;
+    if (txs.length > 0) DB.transactions = txs;
     if (currentUser) {
       renderTransactions();
       updateDashboard();
     }
-  });
+  }, (error) => console.warn('Transaction listener offline/unavailable:', error));
+
+  listenForPresence();
 }
+
+
+// ══════════════════════════════════════════
+// ONLINE / OFFLINE PRESENCE
+// ══════════════════════════════════════════
+async function updatePresence(isOnline = true) {
+  if (!clientID || !currentUser || !sessionID) return;
+  const now = new Date().toISOString();
+  currentUser.online = Boolean(isOnline && navigator.onLine);
+  currentUser.lastSeen = now;
+  const target = DB.users.find(u => u.id === currentUser.id) || DB.users.find(u => u.username === currentUser.username);
+  if (target) {
+    target.online = currentUser.online;
+    target.lastSeen = now;
+  }
+  await saveToLocal();
+  if (!navigator.onLine) { setCloudStatus('offline'); return; }
+  try {
+    await setDoc(doc(db, 'clients', clientID, 'presence', sessionID), {
+      sessionID,
+      clientID,
+      userId: currentUser.id,
+      username: currentUser.username,
+      role: currentUser.role,
+      online: Boolean(isOnline),
+      lastSeen: now,
+      userAgent: navigator.userAgent.slice(0, 160)
+    }, { merge: true });
+  } catch (e) {
+    console.warn('Presence update failed:', e);
+    setCloudStatus('offline');
+  }
+}
+
+function listenForPresence() {
+  if (!clientID || !currentUser) return;
+  if (presenceUnsubscribe) presenceUnsubscribe();
+  presenceUnsubscribe = onSnapshot(collection(db, 'clients', clientID, 'presence'), (snap) => {
+    const latestByUser = {};
+    const cutoff = Date.now() - ONLINE_TIMEOUT_MS;
+    snap.forEach(d => {
+      const p = d.data();
+      if (!p.username) return;
+      const seenTime = p.lastSeen ? new Date(p.lastSeen).getTime() : 0;
+      const isOnline = p.online === true && seenTime >= cutoff;
+      const key = safeUsernameKey(p.username);
+      if (!latestByUser[key] || seenTime > latestByUser[key].seenTime) {
+        latestByUser[key] = { isOnline, seenTime, lastSeen: p.lastSeen };
+      } else if (isOnline) {
+        latestByUser[key].isOnline = true;
+      }
+    });
+    DB.users.forEach(u => {
+      const status = latestByUser[safeUsernameKey(u.username)];
+      u.online = Boolean(status?.isOnline);
+      if (status?.lastSeen) u.lastSeen = status.lastSeen;
+    });
+    if (currentUser) {
+      const me = DB.users.find(u => u.id === currentUser.id) || DB.users.find(u => u.username === currentUser.username);
+      if (me) currentUser = me;
+      renderUsers();
+    }
+  }, (error) => console.warn('Presence listener offline/unavailable:', error));
+}
+
+function startPresence() {
+  if (!currentUser || !clientID) return;
+  sessionID = sessionID || generateSessionId();
+  clearInterval(presenceTimer);
+  updatePresence(true);
+  presenceTimer = setInterval(() => updatePresence(true), 30000);
+}
+
+function stopPresence() {
+  clearInterval(presenceTimer);
+  presenceTimer = null;
+  if (presenceUnsubscribe) { presenceUnsubscribe(); presenceUnsubscribe = null; }
+}
+
+function handleConnectivityChange() {
+  browserOnline = navigator.onLine;
+  if (!browserOnline) {
+    setCloudStatus('offline');
+    if (currentUser) toast('You are offline. Changes will stay local until the connection returns.', 'info');
+    return;
+  }
+  if (currentUser) {
+    setCloudStatus('syncing');
+    updatePresence(true);
+    syncToCloud().then(() => toast('Back online. Data synced.', 'success')).catch(() => setCloudStatus('offline'));
+  } else {
+    setCloudStatus('offline');
+  }
+}
+
+window.addEventListener('online', handleConnectivityChange);
+window.addEventListener('offline', handleConnectivityChange);
+document.addEventListener('visibilitychange', () => {
+  if (!currentUser) return;
+  updatePresence(!document.hidden);
+});
+window.addEventListener('beforeunload', () => { updatePresence(false); });
 
 // ══════════════════════════════════════════
 // AUTH
 // ══════════════════════════════════════════
+
+window.registerStore = async function() {
+  const storeName = document.getElementById('reg-store-name').value.trim();
+  const adminUser = document.getElementById('reg-admin-user').value.trim();
+  const adminPass = document.getElementById('reg-admin-pass').value;
+
+  if (!storeName || !adminUser || !adminPass) {
+    toast('Please fill in all fields', 'error');
+    return;
+  }
+  if (adminPass.length < 6) {
+    toast('Password must be at least 6 characters', 'error');
+    return;
+  }
+
+  const regBtn = document.getElementById('reg-btn');
+  regBtn.disabled = true;
+  regBtn.textContent = 'Registering...';
+
+  try {
+    const newClientID = 'client_' + storeName.toLowerCase().replace(/[^a-z0-9]/g, '_') + '_' + Math.random().toString(36).slice(2, 7);
+    
+    // Check if admin user already exists globally (in the registry)
+    const existing = await fetchRegisteredClientId(adminUser);
+    if (existing) {
+      toast('Username already taken', 'error');
+      regBtn.disabled = false;
+      regBtn.textContent = 'Register Store';
+      return;
+    }
+
+    // Prepare initial store data
+    const initialData = {
+      clientID: newClientID,
+      storeName: storeName,
+      users: [
+        { id: 1, username: adminUser, password: adminPass, role: 'admin', created: new Date().toLocaleDateString('en-KE'), lastLogin: null, active: true, clientId: newClientID, online: false, lastSeen: null }
+      ],
+      products: [],
+      nextId: { product: 1, user: 2, transaction: 1 },
+      transactions: [],
+      lastUpdated: new Date().toISOString()
+    };
+
+    // 1. Create the client document
+    await setDoc(doc(db, "clients", newClientID), initialData);
+
+    // 2. Register the admin user in the global registry
+    await setDoc(doc(db, 'client_user_registry', safeUsernameKey(adminUser)), {
+      username: adminUser,
+      clientID: newClientID,
+      role: 'admin',
+      active: true,
+      lastUpdated: new Date().toISOString()
+    });
+
+    toast('Store Registered! You can now log in.', 'success');
+    closeModal('modal-register');
+    document.getElementById('l-user').value = adminUser;
+    document.getElementById('l-pass').value = adminPass;
+  } catch (e) {
+    console.error("Registration error:", e);
+    toast('Registration failed. Check connection.', 'error');
+  } finally {
+    regBtn.disabled = false;
+    regBtn.textContent = 'Register Store';
+  }
+}
+
 window.doLogin = async function() {
   const u = document.getElementById('l-user').value.trim();
   const p = document.getElementById('l-pass').value;
@@ -1475,52 +1820,48 @@ window.doLogin = async function() {
     return;
   }
 
-  // Show loading state
   const loginBtn = document.querySelector('.btn-login');
   const originalBtnText = loginBtn.textContent;
   loginBtn.textContent = "Authenticating...";
   loginBtn.disabled = true;
 
   try {
-    // Client ID is derived from username for isolation
-    clientID = "client_" + u.toLowerCase().replace(/[^a-z0-9]/g, '');
-    
-    let clientDoc = null;
-    let isOffline = false;
+    let isOffline = !navigator.onLine;
+    const registeredClientId = await fetchRegisteredClientId(u);
+    const candidates = [...new Set([registeredClientId, ...getLocalClientCandidates(u)].filter(Boolean).map(normalizeClientId))];
+    let matchedUser = null;
+    let matchedClient = null;
 
-    // 1. Try loading from Professional Local Storage first (Instant refresh recovery)
-    const hasLocal = await loadFromLocal();
-    
-    try {
-      // 2. Attempt to get from cloud (or cache if offline)
-      clientDoc = await getDoc(doc(db, "clients", clientID));
-    } catch (e) {
-      console.warn("Cloud fetch failed, attempting offline login", e);
-      isOffline = true;
-    }
+    for (const candidate of candidates) {
+      clientID = candidate;
+      resetDBToDefaults();
+      await loadFromLocal();
+      normalizeDBForClient(clientID);
 
-    if (clientDoc && clientDoc.exists()) {
-      const data = clientDoc.data();
-      // Merge cloud data into local state
-      if (data.users) DB.users = data.users;
-      if (data.products) DB.products = data.products;
-      if (data.nextId) DB.nextId = data.nextId;
-      
-      // Also fetch transactions from cloud to ensure local is complete
-      const txQuery = query(collection(db, "clients", clientID, "transactions"), orderBy("date", "desc"), limit(500));
-      const txSnap = await getDocs(txQuery).catch(() => null);
-      if (txSnap) {
-        const cloudTxs = [];
-        txSnap.forEach(doc => cloudTxs.push(doc.data()));
-        if (cloudTxs.length > 0) DB.transactions = cloudTxs;
+      try {
+        const clientDoc = await getDoc(doc(db, "clients", clientID));
+        if (clientDoc.exists()) applyClientData(clientDoc.data());
+
+        const txQuery = query(collection(db, "clients", clientID, "transactions"), orderBy("date", "desc"), limit(500));
+        const txSnap = await getDocs(txQuery).catch(() => null);
+        if (txSnap) {
+          const cloudTxs = [];
+          txSnap.forEach(doc => cloudTxs.push(doc.data()));
+          if (cloudTxs.length > 0) DB.transactions = cloudTxs;
+        }
+      } catch (e) {
+        console.warn("Cloud fetch failed for client", clientID, e);
+        isOffline = true;
       }
-      
-      await saveToLocal(); // Update local cache with cloud data
+
+      matchedUser = DB.users.find(x => x.username === u && x.password === p && x.active);
+      if (matchedUser) {
+        matchedClient = clientID;
+        break;
+      }
     }
 
-    const user = DB.users.find(x => x.username === u && x.password === p && x.active);
-    
-    if (!user) {
+    if (!matchedUser) {
       document.getElementById('login-error').textContent = "Invalid username or password.";
       document.getElementById('login-error').style.display = 'block';
       loginBtn.textContent = originalBtnText;
@@ -1528,24 +1869,34 @@ window.doLogin = async function() {
       return;
     }
 
-    // Success - proceed to app
+    clientID = matchedClient || DEFAULT_CLIENT_ID;
+    normalizeDBForClient(clientID);
+    matchedUser = DB.users.find(x => x.username === u && x.password === p && x.active) || matchedUser;
+    matchedUser.clientId = normalizeClientId(matchedUser.clientId || clientID);
+    matchedUser.lastLogin = new Date().toISOString();
+    matchedUser.online = navigator.onLine;
+    matchedUser.lastSeen = new Date().toISOString();
+    currentUser = matchedUser;
+    sessionID = generateSessionId();
+    saveUserClientMapping(currentUser.username, clientID);
+    await saveToLocal();
+
     initCloudListeners();
+    startPresence();
     
-    user.lastLogin = new Date().toISOString();
-    currentUser = user;
     document.getElementById('login-error').style.display = 'none';
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('app').style.display = 'flex';
-    document.getElementById('user-av').textContent = user.username[0].toUpperCase();
-    document.getElementById('user-name-display').textContent = user.username;
-    document.getElementById('user-role-display').textContent = user.role === 'admin' ? 'Administrator' : 'Cashier';
-    document.getElementById('admin-nav').style.display = user.role === 'admin' ? 'block' : 'none';
+    document.getElementById('user-av').textContent = currentUser.username[0].toUpperCase();
+    document.getElementById('user-name-display').textContent = currentUser.username;
+    document.getElementById('user-role-display').textContent = currentUser.role === 'admin' ? 'Administrator' : 'Cashier';
+    document.getElementById('admin-nav').style.display = currentUser.role === 'admin' ? 'block' : 'none';
     
     goPage('dashboard', document.querySelector('.nav-item.active'));
     renderProducts();
+    renderUsers();
 
-    // Sync in background if possible
-    if (!isOffline) {
+    if (!isOffline && navigator.onLine) {
       syncToCloud().catch(e => console.error("Background sync failed", e));
     } else {
       setCloudStatus('offline');
@@ -1554,13 +1905,17 @@ window.doLogin = async function() {
 
   } catch (error) {
     console.error("Login error:", error);
-    // Fallback for total failure: Check local DB defaults
+    resetDBToDefaults();
+    clientID = DEFAULT_CLIENT_ID;
+    normalizeDBForClient(clientID);
     const user = DB.users.find(x => x.username === u && x.password === p && x.active);
     if (user) {
       currentUser = user;
+      sessionID = generateSessionId();
       document.getElementById('login-screen').style.display = 'none';
       document.getElementById('app').style.display = 'flex';
       goPage('dashboard', document.querySelector('.nav-item.active'));
+      startPresence();
       setCloudStatus('offline');
       toast("Emergency offline access granted.", "info");
     } else {
@@ -1573,9 +1928,14 @@ window.doLogin = async function() {
   }
 }
 
-window.doLogout = function() {
+window.doLogout = async function() {
+  await updatePresence(false);
+  stopPresence();
+  if (clientUnsubscribe) { clientUnsubscribe(); clientUnsubscribe = null; }
+  if (transactionUnsubscribe) { transactionUnsubscribe(); transactionUnsubscribe = null; }
   currentUser = null;
   clientID = null;
+  sessionID = null;
   cart = [];
   localStorage.removeItem('manribs_session');
   document.getElementById('app').style.display = 'none';
@@ -1606,6 +1966,7 @@ window.goPage = function(name, el) {
     localStorage.setItem('manribs_session', JSON.stringify({
       username: currentUser.username,
       password: currentUser.password,
+      clientID,
       page: name
     }));
   }
@@ -1920,6 +2281,7 @@ window.completeSale = async function() {
       receipt: 'RCP-' + String(DB.nextId.transaction - 1).padStart(4, '0'),
       date: new Date().toISOString(),
       cashier: currentUser.username,
+      cashierRole: currentUser.role, // Identifier for admin or cashier
       items: cart.map(c => ({ ...c })),
       total,
       method: payMethod,
@@ -1980,7 +2342,7 @@ function buildReceiptHTML(tx) {
     <div class="r-row"><span>Receipt No.</span><span>${tx.receipt}</span></div>
     <div class="r-row"><span>Date</span><span>${fDate(tx.date)}</span></div>
     <div class="r-row"><span>Time</span><span>${fTime(tx.date)}</span></div>
-    <div class="r-row"><span>Cashier</span><span>${tx.cashier}</span></div>
+    <div class="r-row"><span>Cashier</span><span>${tx.cashier} (${tx.cashierRole || "user"})</span></div>
     <hr class="r-divider">
     <div style="font-size:10px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:0.7px;margin-bottom:6px">Items Purchased</div>
     ${tx.items.map(i => `
@@ -2026,7 +2388,7 @@ window.printReceipt = function() {
     <div class="row"><span>Receipt:</span><span>${currentReceiptTx.receipt}</span></div>
     <div class="row"><span>Date:</span><span>${fDate(currentReceiptTx.date)}</span></div>
     <div class="row"><span>Time:</span><span>${fTime(currentReceiptTx.date)}</span></div>
-    <div class="row"><span>Cashier:</span><span>${currentReceiptTx.cashier}</span></div>
+    <div class="row"><span>Cashier:</span><span>${currentReceiptTx.cashier} (${currentReceiptTx.cashierRole || "user"})</span></div>
     <hr>
     ${currentReceiptTx.items.map(i => `
     <div class="row"><span>${i.name}</span></div>
@@ -2180,7 +2542,7 @@ window.renderTransactions = function() {
   tbody.innerHTML = list.map(t => `<tr>
     <td><span style="font-family:DM Mono,monospace;font-weight:600">${t.receipt}</span></td>
     <td style="font-size:12px">${fDate(t.date)} <span style="color:var(--text-3)">${fTime(t.date)}</span></td>
-    <td>${t.cashier}</td>
+    <td>${t.cashier} <span style="font-size:10px;color:var(--text-3);background:var(--surface-2);padding:2px 4px;border-radius:4px;text-transform:uppercase">${t.cashierRole || "user"}</span></td>
     <td style="font-size:12px;color:var(--text-2)">${t.items.length} items</td>
     <td style="font-weight:700;color:var(--accent);font-family:DM Mono,monospace">${fKES(t.total)}</td>
     <td>${methodBadge(t.method)}</td>
@@ -2259,18 +2621,25 @@ window.renderReport = function() {
 // ══════════════════════════════════════════
 window.renderUsers = function() {
   const tbody = document.getElementById('users-tbody');
-  tbody.innerHTML = DB.users.map(u => `<tr>
+  tbody.innerHTML = DB.users.map(u => {
+    const recentlySeen = u.lastSeen ? (Date.now() - new Date(u.lastSeen).getTime()) < ONLINE_TIMEOUT_MS : false;
+    const isOnline = Boolean(u.online && recentlySeen);
+    return `<tr>
     <td style="font-weight:700">${u.username}</td>
     <td><span class="badge ${u.role==='admin' ? 'badge-amber' : 'badge-blue'}">${u.role==='admin' ? '👑 Admin' : '💼 Cashier'}</span></td>
+    <td style="font-size:11px;font-family:DM Mono,monospace;color:var(--text-2)">${u.clientId || getClientDisplayId()}</td>
     <td style="font-size:12px">${u.created}</td>
     <td style="font-size:12px">${u.lastLogin ? fDate(u.lastLogin) : 'Never'}</td>
+    <td><span class="badge ${isOnline ? 'badge-green' : 'badge-red'}">${isOnline ? 'Online' : 'Offline'}</span></td>
     <td><span class="badge ${u.active ? 'badge-green' : 'badge-red'}">${u.active ? 'Active' : 'Inactive'}</span></td>
     <td><div style="display:flex;gap:6px">
       <button class="btn btn-outline btn-sm" onclick="editUser(${u.id})">✏️ Edit</button>
       ${u.id !== currentUser.id ? `<button class="btn ${u.active ? 'btn-danger' : 'btn-success'} btn-sm" onclick="toggleUser(${u.id})">${u.active ? '🔒 Disable' : '🔓 Enable'}</button>` : ''}
     </div></td>
-  </tr>`).join('');
+  </tr>`;
+  }).join('');
 }
+
 
 window.openAddUser = function() {
   document.getElementById('um-id').value = '';
@@ -2305,9 +2674,10 @@ window.saveUser = async function() {
   } else {
     if (!password || password.length < 6) { toast('Password must be at least 6 characters', 'error'); return; }
     if (DB.users.find(u => u.username === username)) { toast('Username already exists', 'error'); return; }
-    DB.users.push({ id: DB.nextId.user++, username, password, role, created: new Date().toLocaleDateString('en-KE'), lastLogin: null, active: true });
+    DB.users.push({ id: DB.nextId.user++, username, password, role, created: new Date().toLocaleDateString('en-KE'), lastLogin: null, active: true, clientId: getClientDisplayId(), online: false, lastSeen: null });
     toast('User added — ' + username, 'success');
   }
+  saveUserClientMapping(username, clientID);
   closeModal('modal-user');
   renderUsers();
   await syncToCloud();
@@ -2382,7 +2752,8 @@ async function restoreSession() {
   const session = localStorage.getItem('manribs_session');
   if (session) {
     try {
-      const { username, password, page } = JSON.parse(session);
+      const { username, password, page, clientID: savedClientID } = JSON.parse(session);
+      if (savedClientID) saveUserClientMapping(username, savedClientID);
       document.getElementById('l-user').value = username;
       document.getElementById('l-pass').value = password;
       
