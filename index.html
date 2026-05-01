@@ -1767,6 +1767,7 @@ window.registerStore = async function() {
   regBtn.disabled = true;
   regBtn.textContent = 'Connecting...';
 
+  
   const withTimeout = (promise, ms, errorMsg) => {
     return Promise.race([
       promise,
@@ -1774,11 +1775,24 @@ window.registerStore = async function() {
     ]);
   };
 
+  const retryOperation = async (operation, maxRetries = 2) => {
+    for (let i = 0; i <= maxRetries; i++) {
+      try {
+        return await operation();
+      } catch (err) {
+        if (i === maxRetries) throw err;
+        console.warn(`Operation failed, retrying... (${i + 1}/${maxRetries})`, err);
+        await new Promise(r => setTimeout(r, 1000));
+      }
+    }
+  };
+
   try {
     const newClientID = 'client_' + storeName.toLowerCase().replace(/[^a-z0-9]/g, '_') + '_' + Math.random().toString(36).slice(2, 7);
     
     regBtn.textContent = 'Checking Username...';
-    const existing = await withTimeout(fetchRegisteredClientId(adminUser), 10000, 'Username check timed out. Please try again.');
+    // Increase username check timeout to 20s
+    const existing = await withTimeout(fetchRegisteredClientId(adminUser), 20000, 'Username check timed out. Please try again.');
     if (existing) {
       toast('Username already taken', 'error');
       regBtn.disabled = false;
@@ -1787,11 +1801,12 @@ window.registerStore = async function() {
     }
 
     regBtn.textContent = 'Creating Store...';
+    // Optimization: Minimize initial data to reduce payload size
     const initialData = {
       clientID: newClientID,
       storeName: storeName,
       users: [
-        { id: 1, username: adminUser, password: adminPass, role: 'admin', created: new Date().toLocaleDateString('en-KE'), lastLogin: null, active: true, clientId: newClientID, online: false, lastSeen: null }
+        { id: 1, username: adminUser, password: adminPass, role: 'admin', created: new Date().toLocaleDateString('en-KE'), active: true, clientId: newClientID }
       ],
       products: [],
       nextId: { product: 1, user: 2, transaction: 1 },
@@ -1799,18 +1814,22 @@ window.registerStore = async function() {
       lastUpdated: new Date().toISOString()
     };
 
-    await withTimeout(Promise.all([
-      setDoc(doc(db, "clients", newClientID), initialData),
-      setDoc(doc(db, 'client_user_registry', safeUsernameKey(adminUser)), {
-        username: adminUser,
-        clientID: newClientID,
-        role: 'admin',
-        active: true,
-        lastUpdated: new Date().toISOString()
-      })
-    ]), 15000, 'Store creation timed out. Please check your connection.');
+    // Increase store creation timeout to 45s and add retries
+    await withTimeout(retryOperation(async () => {
+      await Promise.all([
+        setDoc(doc(db, "clients", newClientID), initialData),
+        setDoc(doc(db, 'client_user_registry', safeUsernameKey(adminUser)), {
+          username: adminUser,
+          clientID: newClientID,
+          role: 'admin',
+          active: true,
+          lastUpdated: new Date().toISOString()
+        })
+      ]);
+    }), 45000, 'Store creation timed out. Please check your connection.');
 
     toast('Store Registered Successfully!', 'success');
+
     closeModal('modal-register');
     document.getElementById('l-user').value = adminUser;
     document.getElementById('l-pass').value = adminPass;
