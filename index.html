@@ -1298,7 +1298,25 @@ function saveProduct() {
   renderInventory();
   renderProducts();
 }
+// --- ADDED FOR DASHBOARD REVENUE ---
+window.updateDashboardStats = function(salesArray) {
+    let totals = { all: 0, cash: 0, mpesa: 0, mobile: 0 };
 
+    salesArray.forEach(sale => {
+        const amount = parseFloat(sale.total.replace(/[^\d.]/g, '')) || 0;
+        totals.all += amount;
+
+        const method = sale.paymentMethod?.toLowerCase();
+        if (method === 'cash') totals.cash += amount;
+        else if (method === 'mpesa') totals.mpesa += amount;
+        else if (method === 'mobile') totals.mobile += amount;
+    });
+
+    // Update your UI Cards
+    if (document.getElementById('all-time-revenue')) {
+        document.getElementById('all-time-revenue').innerText = `KES ${totals.all.toLocaleString()}`;
+    }
+};
 function deleteProduct(id) {
   const idx = db.products.findIndex(p => p.id === id);
   if (idx !== -1) {
@@ -1562,38 +1580,46 @@ renderCart();
   const db = getDatabase(app);
   const salesRef = ref(db, 'sales');
 
-  // We attach to 'window' so the HTML buttons can find this function
-  window.completeSale = function() {
-    if (!window.cart || window.cart.length === 0) {
-      alert("Cart is empty!");
-      return;
-    }
+window.completeSale = function() {
+    const totalText = document.getElementById('cart-total').innerText;
+    const paidAmount = document.getElementById('pay-cash-amount').value || 0;
+    const totalNum = parseFloat(totalText.replace(/[^\d.]/g, '')) || 0;
+    const balance = parseFloat(paidAmount) - totalNum;
 
     const saleData = {
-      timestamp: new Date().toISOString(),
-      items: [...window.cart],
-      total: document.getElementById('cart-total').innerText,
-      paymentMethod: window.currentPayMethod || 'cash',
-      amountTendered: document.getElementById('pay-cash-amount')?.value || 0,
-      store: "ManribsTech_Hardware_001"
+        timestamp: new Date().toLocaleString(),
+        items: [...window.cart],
+        total: totalText,
+        paid: `KES ${parseFloat(paidAmount).toLocaleString()}`,
+        balance: `KES ${balance.toLocaleString()}`,
+        paymentMethod: window.currentPayMethod || 'cash'
     };
 
-    push(salesRef, saleData)
-      .then(() => {
-        // --- PRINT RECEIPT ---
-        window.print(); // This triggers the browser print dialog
+    push(salesRef, saleData).then(() => {
+        // --- AUTO-GENERATE RECEIPT FOR PRINTING ---
+        const receiptContent = `
+            <div style="font-family:monospace; width:80mm; padding:10px;">
+                <center><h2>MANRIBSTECH HARDWARE</h2></center>
+                <hr>
+                ${saleData.items.map(i => `<div>${i.name} x${i.qty}<span style="float:right;">${i.price * i.qty}</span></div>`).join('')}
+                <hr>
+                <b>TOTAL: ${saleData.total}</b><br>
+                CASH PAID: ${saleData.paid}<br>
+                BALANCE: ${saleData.balance}
+                <hr><center>Thank you! Visit again.</center>
+            </div>`;
 
-        alert(`✅ Sale Saved Successfully!`);
-        
+        const printWindow = window.open('', '', 'width=400,height=600');
+        printWindow.document.write(receiptContent);
+        printWindow.document.close();
+        printWindow.print(); // Triggers the print dialog for the admin
+        printWindow.close();
+
+        alert("✅ Sale Saved & Receipt Printed!");
         if (window.clearCart) window.clearCart();
-        if (window.closeModal) window.closeModal('modal-payment');
-        if (window.showPage) window.showPage('page-transactions');
-      })
-      .catch((error) => {
-        console.error("Firebase Error:", error);
-        alert("Error saving to cloud.");
-      });
-  };
+        showPage('page-transactions');
+    });
+};
 
   // Keep your live sync listener to update reports
   onValue(salesRef, (snapshot) => {
