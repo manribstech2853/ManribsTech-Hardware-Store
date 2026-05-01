@@ -302,7 +302,9 @@ body {
   transition: color .15s;
   flex-shrink: 0;
 }
-.logout-btn:hover { color: var(--accent); }
+
+.logout-btn:hover { transform: scale(1.1); filter: brightness(1.2); }
+
 
 /* ── CLOUD STATUS PILL ── */
 .cloud-pill {
@@ -884,13 +886,16 @@ tr:hover td { background: rgba(238,241,245,0.4); }
     </div>
 
     <div class="sb-footer">
-      <div class="user-card">
-        <div class="user-av" id="user-av">A</div>
-        <div class="user-meta">
-          <div class="uname" id="user-name-display">Admin User</div>
-          <div class="urole" id="user-role-display">Administrator</div>
+      <div class="user-card" style="padding: 10px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);">
+        <div class="user-av" id="user-av" style="width: 34px; height: 34px; font-size: 14px;">A</div>
+        <div class="user-meta" style="margin-left: 2px;">
+          <div class="uname" id="user-name-display" style="font-size: 13px; font-weight: 700;">Admin User</div>
+          <div class="urole" id="user-role-display" style="font-size: 10px; color: rgba(255,255,255,0.4);">Administrator</div>
         </div>
-        <button class="logout-btn" onclick="doLogout()" title="Logout">🚪</button>
+        <div style="display:flex; gap:6px; align-items:center;">
+          <button class="logout-btn" onclick="openSwitchAccount()" title="Switch Account" style="background: rgba(255,255,255,0.1); color: #fff; width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 14px; transition: all 0.2s;">🔄</button>
+          <button class="logout-btn" onclick="doLogout()" title="Logout" style="background: rgba(239, 68, 68, 0.1); color: #ef4444; width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 14px; transition: all 0.2s;">🚪</button>
+        </div>
       </div>
     </div>
   </div>
@@ -1233,6 +1238,24 @@ tr:hover td { background: rgba(238,241,245,0.4); }
     <div class="modal-foot">
       <button class="btn btn-outline" onclick="closeModal('modal-register')">Cancel</button>
       <button class="btn btn-primary" id="reg-btn" onclick="registerStore()">Register Store</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- Switch Account Modal -->
+<div class="modal-overlay" id="modal-switch">
+  <div class="modal" style="max-width:380px">
+    <div class="modal-head">
+      <h2>🔄 Switch Account</h2>
+      <button class="modal-close" onclick="closeModal('modal-switch')">✕</button>
+    </div>
+    <div class="modal-body" style="padding:10px 20px">
+      <p style="font-size:13px;color:var(--text-2);margin-bottom:15px">Select a user from your store to switch to:</p>
+      <div id="switch-user-list" style="display:flex;flex-direction:column;gap:8px"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="closeModal('modal-switch')">Cancel</button>
     </div>
   </div>
 </div>
@@ -1743,6 +1766,58 @@ window.addEventListener('beforeunload', () => { updatePresence(false); });
 // ══════════════════════════════════════════
 
 
+
+window.openSwitchAccount = function() {
+  const list = document.getElementById('switch-user-list');
+  if (!list) return;
+  list.innerHTML = DB.users.filter(u => u.active).map(u => `
+    <div onclick="switchUser('${u.username}')" style="display:flex;align-items:center;gap:12px;padding:12px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r-sm);cursor:pointer;transition:all 0.2s">
+      <div style="width:32px;height:32px;background:var(--accent);color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700">${u.username[0].toUpperCase()}</div>
+      <div style="flex:1">
+        <div style="font-weight:600;font-size:14px">${u.username} ${u.id === currentUser.id ? '<span style="font-size:10px;color:var(--text-3)">(Current)</span>' : ''}</div>
+        <div style="font-size:11px;color:var(--text-2);text-transform:uppercase">${u.role}</div>
+      </div>
+      <div style="font-size:18px;color:var(--text-3)">→</div>
+    </div>
+  `).join('');
+  openModal('modal-switch');
+}
+
+window.switchUser = async function(username) {
+  const user = DB.users.find(u => u.username === username);
+  if (!user || !currentUser) return;
+  if (user.id === currentUser.id) { closeModal('modal-switch'); return; }
+  
+  try {
+    await updatePresence(false);
+    stopPresence();
+    
+    currentUser = user;
+    currentUser.lastLogin = new Date().toISOString();
+    sessionID = generateSessionId();
+    
+    document.getElementById('user-av').textContent = currentUser.username[0].toUpperCase();
+    document.getElementById('user-name-display').textContent = currentUser.username;
+    document.getElementById('user-role-display').textContent = currentUser.role === 'admin' ? 'Administrator' : 'Cashier';
+    document.getElementById('admin-nav').style.display = currentUser.role === 'admin' ? 'block' : 'none';
+    
+    localStorage.setItem('manribs_session', JSON.stringify({
+      username: currentUser.username,
+      password: currentUser.password,
+      clientID,
+      page: currentActivePage
+    }));
+    
+    startPresence();
+    closeModal('modal-switch');
+    goPage(currentActivePage);
+    toast(`Switched to ${username}`, 'success');
+  } catch (e) {
+    console.error("Switch error:", e);
+    toast("Failed to switch account", "error");
+  }
+}
+
 window.registerStore = async function() {
   const storeName = document.getElementById('reg-store-name').value.trim();
   const adminUser = document.getElementById('reg-admin-user').value.trim();
@@ -1757,17 +1832,11 @@ window.registerStore = async function() {
     return;
   }
 
-  if (!navigator.onLine) {
-    toast('You are offline. Registration requires an internet connection.', 'error');
-    return;
-  }
-
   const regBtn = document.getElementById('reg-btn');
   const originalText = regBtn.textContent;
   regBtn.disabled = true;
-  regBtn.textContent = 'Connecting...';
+  regBtn.textContent = 'Preparing...';
 
-  
   const withTimeout = (promise, ms, errorMsg) => {
     return Promise.race([
       promise,
@@ -1790,18 +1859,19 @@ window.registerStore = async function() {
   try {
     const newClientID = 'client_' + storeName.toLowerCase().replace(/[^a-z0-9]/g, '_') + '_' + Math.random().toString(36).slice(2, 7);
     
-    regBtn.textContent = 'Checking Username...';
-    // Increase username check timeout to 20s
-    const existing = await withTimeout(fetchRegisteredClientId(adminUser), 20000, 'Username check timed out. Please try again.');
-    if (existing) {
-      toast('Username already taken', 'error');
-      regBtn.disabled = false;
-      regBtn.textContent = originalText;
-      return;
+    // Check username uniqueness (Cloud only, if offline we skip this and hope for the best)
+    if (navigator.onLine) {
+      regBtn.textContent = 'Checking Username...';
+      const existing = await withTimeout(fetchRegisteredClientId(adminUser), 10000, 'Username check timed out.').catch(() => null);
+      if (existing) {
+        toast('Username already taken', 'error');
+        regBtn.disabled = false;
+        regBtn.textContent = originalText;
+        return;
+      }
     }
 
-    regBtn.textContent = 'Creating Store...';
-    // Optimization: Minimize initial data to reduce payload size
+    regBtn.textContent = 'Saving Locally...';
     const initialData = {
       clientID: newClientID,
       storeName: storeName,
@@ -1814,8 +1884,15 @@ window.registerStore = async function() {
       lastUpdated: new Date().toISOString()
     };
 
-    // Increase store creation timeout to 45s and add retries
-    await withTimeout(retryOperation(async () => {
+    // CRITICAL: Save to Local DB first so it works even if cloud fails
+    clientID = newClientID;
+    applyClientData(initialData);
+    await saveToLocal();
+    saveUserClientMapping(adminUser, newClientID);
+
+    // Now try Cloud in background/timeout
+    regBtn.textContent = 'Syncing to Cloud...';
+    const cloudWrite = async () => {
       await Promise.all([
         setDoc(doc(db, "clients", newClientID), initialData),
         setDoc(doc(db, 'client_user_registry', safeUsernameKey(adminUser)), {
@@ -1826,10 +1903,18 @@ window.registerStore = async function() {
           lastUpdated: new Date().toISOString()
         })
       ]);
-    }), 45000, 'Store creation timed out. Please check your connection.');
+    };
+
+    if (navigator.onLine) {
+      await withTimeout(retryOperation(cloudWrite), 15000, 'Cloud sync delayed.').catch(e => {
+        console.warn("Cloud sync delayed during registration:", e);
+        toast("Registration saved locally. It will sync when connection improves.", "info");
+      });
+    } else {
+      toast("Registered offline. Data will sync when you go online.", "info");
+    }
 
     toast('Store Registered Successfully!', 'success');
-
     closeModal('modal-register');
     document.getElementById('l-user').value = adminUser;
     document.getElementById('l-pass').value = adminPass;
