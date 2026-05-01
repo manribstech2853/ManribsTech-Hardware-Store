@@ -293,17 +293,31 @@ body {
 .user-meta { flex: 1; min-width: 0; }
 .user-meta .uname { font-size: 12px; font-weight: 600; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .user-meta .urole { font-size: 10px; color: rgba(255,255,255,0.38); text-transform: uppercase; letter-spacing: 0.5px; }
-.logout-btn {
-  background: none; border: none;
-  color: rgba(255,255,255,0.3);
+.user-action-btn {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: rgba(255,255,255,0.7);
   cursor: pointer;
-  font-size: 15px;
-  padding: 3px;
-  transition: color .15s;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  transition: all .2s ease;
   flex-shrink: 0;
 }
-
-.logout-btn:hover { transform: scale(1.1); filter: brightness(1.2); }
+.user-action-btn:hover {
+  background: rgba(255,255,255,0.15);
+  color: #fff;
+  transform: translateY(-1px);
+}
+.user-action-btn.logout:hover {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+  border-color: rgba(239, 68, 68, 0.3);
+}
 
 
 /* ── CLOUD STATUS PILL ── */
@@ -886,15 +900,15 @@ tr:hover td { background: rgba(238,241,245,0.4); }
     </div>
 
     <div class="sb-footer">
-      <div class="user-card" style="padding: 10px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);">
-        <div class="user-av" id="user-av" style="width: 34px; height: 34px; font-size: 14px;">A</div>
-        <div class="user-meta" style="margin-left: 2px;">
-          <div class="uname" id="user-name-display" style="font-size: 13px; font-weight: 700;">Admin User</div>
-          <div class="urole" id="user-role-display" style="font-size: 10px; color: rgba(255,255,255,0.4);">Administrator</div>
+      <div class="user-card">
+        <div class="user-av" id="user-av">A</div>
+        <div class="user-meta">
+          <div class="uname" id="user-name-display">Admin User</div>
+          <div class="urole" id="user-role-display">Administrator</div>
         </div>
-        <div style="display:flex; gap:6px; align-items:center;">
-          <button class="logout-btn" onclick="openSwitchAccount()" title="Switch Account" style="background: rgba(255,255,255,0.1); color: #fff; width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 14px; transition: all 0.2s;">🔄</button>
-          <button class="logout-btn" onclick="doLogout()" title="Logout" style="background: rgba(239, 68, 68, 0.1); color: #ef4444; width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 14px; transition: all 0.2s;">🚪</button>
+        <div style="display:flex; gap:8px;">
+          <button class="user-action-btn" onclick="openSwitchAccount()" title="Switch Account">🔄</button>
+          <button class="user-action-btn logout" onclick="doLogout()" title="Logout">🚪</button>
         </div>
       </div>
     </div>
@@ -1784,9 +1798,17 @@ window.openSwitchAccount = function() {
 }
 
 window.switchUser = async function(username) {
+  // Use a more robust way to find the user that doesn't depend on the current DB state alone
   const user = DB.users.find(u => u.username === username);
-  if (!user || !currentUser) return;
-  if (user.id === currentUser.id) { closeModal('modal-switch'); return; }
+  if (!user) {
+    toast(`User "${username}" not found in current store.`, 'error');
+    return;
+  }
+  
+  if (currentUser && user.id === currentUser.id) { 
+    closeModal('modal-switch'); 
+    return; 
+  }
 
   // Ask for the target user's password before switching
   const enteredPass = window.prompt(`Enter password for "${username}":`);
@@ -1797,24 +1819,33 @@ window.switchUser = async function(username) {
   }
 
   try {
-    await updatePresence(false);
-    stopPresence();
+    // Clear old session
+    if (currentUser) {
+      await updatePresence(false);
+      stopPresence();
+    }
 
+    // Switch to new user
     currentUser = user;
     currentUser.lastLogin = new Date().toISOString();
     sessionID = generateSessionId();
 
+    // Update UI
     document.getElementById('user-av').textContent = currentUser.username[0].toUpperCase();
     document.getElementById('user-name-display').textContent = currentUser.username;
     document.getElementById('user-role-display').textContent = currentUser.role === 'admin' ? 'Administrator' : 'Cashier';
-    document.getElementById('admin-nav').style.display = currentUser.role === 'admin' ? 'block' : 'none';
+    
+    // Toggle admin navigation visibility
+    const adminNav = document.getElementById('admin-nav');
+    if (adminNav) adminNav.style.display = currentUser.role === 'admin' ? 'block' : 'none';
 
-    // If the new user is a cashier and we are on an admin-only page, redirect to dashboard
+    // Determine target page (redirect from admin pages if new user is cashier)
     const adminOnlyPages = ['reports', 'users'];
     const targetPage = (currentUser.role !== 'admin' && adminOnlyPages.includes(currentActivePage))
       ? 'dashboard'
       : currentActivePage;
 
+    // Persist new session
     localStorage.setItem('manribs_session', JSON.stringify({
       username: currentUser.username,
       password: currentUser.password,
@@ -1822,10 +1853,11 @@ window.switchUser = async function(username) {
       page: targetPage
     }));
 
+    // Start new session
     startPresence();
     closeModal('modal-switch');
     goPage(targetPage);
-    toast(`Switched to ${username}`, 'success');
+    toast(`Successfully switched to ${username}`, 'success');
   } catch (e) {
     console.error('Switch error:', e);
     toast('Failed to switch account', 'error');
