@@ -1258,7 +1258,7 @@ tr:hover td { background: rgba(238,241,245,0.4); }
 // FIREBASE INTEGRATION (SDK v12.12.1)
 // ══════════════════════════════════════════
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore, doc, setDoc, getDoc, onSnapshot, collection, addDoc, query, orderBy, limit, enableIndexedDbPersistence } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, doc, setDoc, getDoc, getDocs, onSnapshot, collection, addDoc, query, orderBy, limit, enableIndexedDbPersistence } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBez8Pwram5ACy6CgC1NUMH-fEh59kzoDg",
@@ -1316,36 +1316,84 @@ let reportTab = 'summary';
 let currentReceiptTx = null;
 let cloudStatus = 'offline';
 let clientID = null; // Multi-client isolation ID
+let currentActivePage = 'dashboard';
 
 // ══════════════════════════════════════════
-// LOCAL STORAGE PERSISTENCE
+// PROFESSIONAL INDEXEDDB PERSISTENCE
 // ══════════════════════════════════════════
-function saveToLocal() {
-  if (!clientID) return;
-  const localData = {
-    products: DB.products,
-    users: DB.users,
-    nextId: DB.nextId,
-    transactions: DB.transactions,
-    lastSaved: new Date().toISOString()
-  };
-  localStorage.setItem('manribs_data_' + clientID, JSON.stringify(localData));
+const IDB_NAME = 'ManribsTechBMS';
+const IDB_VERSION = 1;
+const IDB_STORE = 'clientData';
+
+function openIDB() {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open(IDB_NAME, IDB_VERSION);
+    request.onupgradeneeded = (e) => {
+      const db = e.target.result;
+      if (!db.objectStoreNames.contains(IDB_STORE)) {
+        db.createObjectStore(IDB_STORE);
+      }
+    };
+    request.onsuccess = (e) => resolve(e.target.result);
+    request.onerror = (e) => reject(e.target.error);
+  });
 }
 
-function loadFromLocal() {
+async function saveToLocal() {
+  if (!clientID) return;
+  try {
+    const db = await openIDB();
+    const tx = db.transaction(IDB_STORE, 'readwrite');
+    const store = tx.objectStore(IDB_STORE);
+    const localData = {
+      products: DB.products,
+      users: DB.users,
+      nextId: DB.nextId,
+      transactions: DB.transactions,
+      lastSaved: new Date().toISOString()
+    };
+    store.put(localData, clientID);
+    // Fallback to LocalStorage for ultra-fast initial boot
+    localStorage.setItem('manribs_last_client', clientID);
+    localStorage.setItem('manribs_data_' + clientID, JSON.stringify(localData));
+  } catch (e) {
+    console.error("IndexedDB save error:", e);
+  }
+}
+
+async function loadFromLocal() {
   if (!clientID) return false;
-  const saved = localStorage.getItem('manribs_data_' + clientID);
-  if (saved) {
-    try {
-      const data = JSON.parse(saved);
+  try {
+    // Try IndexedDB first (Professional storage)
+    const db = await openIDB();
+    const tx = db.transaction(IDB_STORE, 'readonly');
+    const store = tx.objectStore(IDB_STORE);
+    const data = await new Promise((resolve) => {
+      const req = store.get(clientID);
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => resolve(null);
+    });
+
+    if (data) {
       if (data.products) DB.products = data.products;
       if (data.users) DB.users = data.users;
       if (data.nextId) DB.nextId = data.nextId;
       if (data.transactions) DB.transactions = data.transactions;
       return true;
-    } catch (e) {
-      console.error("Local load error:", e);
     }
+
+    // Fallback to LocalStorage
+    const saved = localStorage.getItem('manribs_data_' + clientID);
+    if (saved) {
+      const lsData = JSON.parse(saved);
+      if (lsData.products) DB.products = lsData.products;
+      if (lsData.users) DB.users = lsData.users;
+      if (lsData.nextId) DB.nextId = lsData.nextId;
+      if (lsData.transactions) DB.transactions = lsData.transactions;
+      return true;
+    }
+  } catch (e) {
+    console.error("Local load error:", e);
   }
   return false;
 }
@@ -1440,8 +1488,8 @@ window.doLogin = async function() {
     let clientDoc = null;
     let isOffline = false;
 
-    // 1. Try loading from LocalStorage first (Instant refresh recovery)
-    const hasLocal = loadFromLocal();
+    // 1. Try loading from Professional Local Storage first (Instant refresh recovery)
+    const hasLocal = await loadFromLocal();
     
     try {
       // 2. Attempt to get from cloud (or cache if offline)
@@ -1453,11 +1501,21 @@ window.doLogin = async function() {
 
     if (clientDoc && clientDoc.exists()) {
       const data = clientDoc.data();
-      // Only override if cloud data is newer or local was empty
+      // Merge cloud data into local state
       if (data.users) DB.users = data.users;
       if (data.products) DB.products = data.products;
       if (data.nextId) DB.nextId = data.nextId;
-      saveToLocal(); // Update local cache with cloud data
+      
+      // Also fetch transactions from cloud to ensure local is complete
+      const txQuery = query(collection(db, "clients", clientID, "transactions"), orderBy("date", "desc"), limit(500));
+      const txSnap = await getDocs(txQuery).catch(() => null);
+      if (txSnap) {
+        const cloudTxs = [];
+        txSnap.forEach(doc => cloudTxs.push(doc.data()));
+        if (cloudTxs.length > 0) DB.transactions = cloudTxs;
+      }
+      
+      await saveToLocal(); // Update local cache with cloud data
     }
 
     const user = DB.users.find(x => x.username === u && x.password === p && x.active);
@@ -1519,6 +1577,7 @@ window.doLogout = function() {
   currentUser = null;
   clientID = null;
   cart = [];
+  localStorage.removeItem('manribs_session');
   document.getElementById('app').style.display = 'none';
   document.getElementById('login-screen').style.display = 'flex';
   document.getElementById('l-user').value = '';
@@ -1542,14 +1601,38 @@ const PAGE_META = {
 };
 
 window.goPage = function(name, el) {
+  currentActivePage = name;
+  if (currentUser) {
+    localStorage.setItem('manribs_session', JSON.stringify({
+      username: currentUser.username,
+      password: currentUser.password,
+      page: name
+    }));
+  }
+
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  document.getElementById('page-' + name).classList.add('active');
-  if (el) el.classList.add('active');
+  
+  const pageEl = document.getElementById('page-' + name);
+  if (pageEl) pageEl.classList.add('active');
+  
+  if (el) {
+    el.classList.add('active');
+  } else {
+    // If no element provided (e.g. on auto-restore), find the nav item
+    const navItems = document.querySelectorAll('.nav-item');
+    navItems.forEach(item => {
+      if (item.textContent.toLowerCase().includes(name.toLowerCase())) {
+        item.classList.add('active');
+      }
+    });
+  }
+
   const [title, sub] = PAGE_META[name] || [name, ''];
   document.getElementById('page-title').textContent = title;
   document.getElementById('page-sub').textContent = sub;
   document.getElementById('topbar-actions').innerHTML = '';
+  
   if (name === 'pos') renderProducts();
   if (name === 'inventory') setupInventory();
   if (name === 'dashboard') updateDashboard();
@@ -1799,6 +1882,7 @@ window.completeSale = async function() {
   const total = getCartTotal();
   let payInfo = {};
 
+  // 1. Validation
   if (payMethod === 'cash') {
     const tendered = parseFloat(document.getElementById('pay-cash-in')?.value) || 0;
     if (tendered < total) { toast('Amount tendered is less than total', 'error'); return; }
@@ -1818,46 +1902,63 @@ window.completeSale = async function() {
     payInfo = { cashAmount: cash, mpesaAmount: mpesa, code: document.getElementById('split-code')?.value?.trim() || '' };
   }
 
-  // Deduct stock
-  cart.forEach(c => {
-    const p = DB.products.find(pr => pr.id === c.id);
-    if (p) p.stock -= c.qty;
-  });
+  // 2. Visual Feedback
+  const btn = document.getElementById('complete-btn');
+  const originalText = btn.innerHTML;
+  btn.innerHTML = "⌛ Processing...";
+  btn.disabled = true;
 
-  const tx = {
-    id: DB.nextId.transaction++,
-    receipt: 'RCP-' + String(DB.nextId.transaction - 1).padStart(4, '0'),
-    date: new Date().toISOString(),
-    cashier: currentUser.username,
-    items: cart.map(c => ({ ...c })),
-    total,
-    method: payMethod,
-    status: 'completed',
-    ...payInfo
-  };
+  try {
+    // 3. Update Local State
+    cart.forEach(c => {
+      const p = DB.products.find(pr => pr.id === c.id);
+      if (p) p.stock -= c.qty;
+    });
 
-  // Save locally
-  DB.transactions.push(tx);
-  currentReceiptTx = tx;
-  saveToLocal(); // Immediate LocalStorage save
+    const tx = {
+      id: DB.nextId.transaction++,
+      receipt: 'RCP-' + String(DB.nextId.transaction - 1).padStart(4, '0'),
+      date: new Date().toISOString(),
+      cashier: currentUser.username,
+      items: cart.map(c => ({ ...c })),
+      total,
+      method: payMethod,
+      status: 'completed',
+      ...payInfo
+    };
 
-  // Save to Firebase (Cloud)
-  if (clientID) {
-    setCloudStatus('syncing');
-    try {
-      await addDoc(collection(db, "clients", clientID, "transactions"), tx);
-      await syncToCloud(); // Sync product stock changes and update LocalStorage
-      setCloudStatus('synced');
-    } catch (e) {
-      console.error("Cloud save error:", e);
-      setCloudStatus('offline');
-      toast('Sale saved locally. Cloud sync failed.', 'error');
+    DB.transactions.push(tx);
+    currentReceiptTx = tx;
+    
+    // 4. Immediate Local Persistence (Crucial for refresh resilience)
+    saveToLocal();
+
+    // 5. Cloud Persistence (Non-blocking for UI)
+    if (clientID) {
+      setCloudStatus('syncing');
+      // We don't 'await' these to prevent UI hang, but we handle their errors
+      addDoc(collection(db, "clients", clientID, "transactions"), tx)
+        .then(() => syncToCloud())
+        .then(() => setCloudStatus('synced'))
+        .catch(e => {
+          console.error("Background cloud sync failed:", e);
+          setCloudStatus('offline');
+          toast('Cloud sync pending...', 'info');
+        });
     }
-  }
 
-  closeModal('modal-payment');
-  showReceipt(tx);
-  toast('Sale completed — ' + tx.receipt, 'success');
+    // 6. Success UI
+    closeModal('modal-payment');
+    showReceipt(tx);
+    toast('Sale completed — ' + tx.receipt, 'success');
+
+  } catch (error) {
+    console.error("Critical sale error:", error);
+    toast('Error processing sale. Please try again.', 'error');
+  } finally {
+    btn.innerHTML = originalText;
+    btn.disabled = false;
+  }
 }
 
 // ══════════════════════════════════════════
@@ -2275,6 +2376,30 @@ window.toast = function(msg, type = '') {
 // INIT
 // ══════════════════════════════════════════
 renderCart();
+
+// Auto-restore session on refresh
+async function restoreSession() {
+  const session = localStorage.getItem('manribs_session');
+  if (session) {
+    try {
+      const { username, password, page } = JSON.parse(session);
+      document.getElementById('l-user').value = username;
+      document.getElementById('l-pass').value = password;
+      
+      // Perform login
+      await doLogin();
+      
+      // After login, navigate to the saved page
+      if (page && page !== 'dashboard') {
+        goPage(page);
+      }
+    } catch (e) {
+      console.error("Session restore failed", e);
+    }
+  }
+}
+// Delay slightly to ensure all DOM elements are ready
+setTimeout(restoreSession, 100);
 </script>
 </body>
 </html>
