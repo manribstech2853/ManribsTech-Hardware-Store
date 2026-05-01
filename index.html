@@ -1378,41 +1378,68 @@ window.doLogin = async function() {
   const u = document.getElementById('l-user').value.trim();
   const p = document.getElementById('l-pass').value;
   
-  // Client ID is derived from username for isolation
-  clientID = "client_" + u.toLowerCase().replace(/[^a-z0-9]/g, '');
-  
-  // Check if client exists in cloud
-  const clientDoc = await getDoc(doc(db, "clients", clientID));
-  if (clientDoc.exists()) {
-    const data = clientDoc.data();
-    DB.users = data.users || DB.users;
-    DB.products = data.products || DB.products;
-    DB.nextId = data.nextId || DB.nextId;
-  } else {
-    // First time login for this client - initialize cloud
-    await syncToCloud();
-  }
-
-  const user = DB.users.find(x => x.username === u && x.password === p && x.active);
-  if (!user) {
+  if (!u || !p) {
+    document.getElementById('login-error').textContent = "Please enter both username and password.";
     document.getElementById('login-error').style.display = 'block';
     return;
   }
 
-  initCloudListeners();
-  
-  user.lastLogin = new Date().toISOString();
-  currentUser = user;
-  document.getElementById('login-error').style.display = 'none';
-  document.getElementById('login-screen').style.display = 'none';
-  document.getElementById('app').style.display = 'flex';
-  document.getElementById('user-av').textContent = user.username[0].toUpperCase();
-  document.getElementById('user-name-display').textContent = user.username;
-  document.getElementById('user-role-display').textContent = user.role === 'admin' ? 'Administrator' : 'Cashier';
-  document.getElementById('admin-nav').style.display = user.role === 'admin' ? 'block' : 'none';
-  goPage('dashboard', document.querySelector('.nav-item.active'));
-  renderProducts();
-  syncToCloud(); // Update last login
+  // Show loading state
+  const loginBtn = document.querySelector('.btn-login');
+  const originalBtnText = loginBtn.textContent;
+  loginBtn.textContent = "Authenticating...";
+  loginBtn.disabled = true;
+
+  try {
+    // Client ID is derived from username for isolation
+    clientID = "client_" + u.toLowerCase().replace(/[^a-z0-9]/g, '');
+    
+    // Check if client exists in cloud
+    const clientDoc = await getDoc(doc(db, "clients", clientID));
+    if (clientDoc.exists()) {
+      const data = clientDoc.data();
+      if (data.users) DB.users = data.users;
+      if (data.products) DB.products = data.products;
+      if (data.nextId) DB.nextId = data.nextId;
+    }
+
+    const user = DB.users.find(x => x.username === u && x.password === p && x.active);
+    if (!user) {
+      document.getElementById('login-error').textContent = "Invalid username or password.";
+      document.getElementById('login-error').style.display = 'block';
+      loginBtn.textContent = originalBtnText;
+      loginBtn.disabled = false;
+      return;
+    }
+
+    // If client didn't exist, initialize it now that we've verified the default user
+    if (!clientDoc.exists()) {
+      await syncToCloud();
+    }
+
+    initCloudListeners();
+    
+    user.lastLogin = new Date().toISOString();
+    currentUser = user;
+    document.getElementById('login-error').style.display = 'none';
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app').style.display = 'flex';
+    document.getElementById('user-av').textContent = user.username[0].toUpperCase();
+    document.getElementById('user-name-display').textContent = user.username;
+    document.getElementById('user-role-display').textContent = user.role === 'admin' ? 'Administrator' : 'Cashier';
+    document.getElementById('admin-nav').style.display = user.role === 'admin' ? 'block' : 'none';
+    
+    goPage('dashboard', document.querySelector('.nav-item.active'));
+    renderProducts();
+    await syncToCloud(); // Update last login in cloud
+  } catch (error) {
+    console.error("Login error:", error);
+    document.getElementById('login-error').textContent = "Connection error. Please try again.";
+    document.getElementById('login-error').style.display = 'block';
+  } finally {
+    loginBtn.textContent = originalBtnText;
+    loginBtn.disabled = false;
+  }
 }
 
 window.doLogout = function() {
@@ -2177,4 +2204,3 @@ renderCart();
 </script>
 </body>
 </html>
-Add Firebase Online Functionality with Client Data Separation - Manus
