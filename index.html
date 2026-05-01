@@ -718,7 +718,7 @@
     </div>
     <div class="modal-footer">
       <button class="btn btn-outline" onclick="closeModal('modal-payment')">Cancel</button>
-   <button class="btn btn-orange" onclick="processFinalSale()" id="complete-sale-btn">
+   <button class="btn btn-orange" onclick="completeSale()" id="complete-sale-btn">
     Complete Sale ✓
 </button>
 </div>
@@ -1548,7 +1548,6 @@ renderCart();
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
   import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-database.js";
 
-  // Configuration from your Firebase console
   const firebaseConfig = {
     apiKey: "AIzaSyBez8Pwram5ACy6CgC1NUMH-fEh59kzoDg",
     authDomain: "manribstech-store.firebaseapp.com",
@@ -1561,9 +1560,10 @@ renderCart();
 
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
+  const salesRef = ref(db, 'sales');
 
-  // --- 1. THE SAVE FUNCTION ---
-  window.processFinalSale = function() {
+  // We attach to 'window' so the HTML buttons can find this function
+  window.completeSale = function() {
     if (!window.cart || window.cart.length === 0) {
       alert("Cart is empty!");
       return;
@@ -1571,57 +1571,38 @@ renderCart();
 
     const saleData = {
       timestamp: new Date().toISOString(),
-      items: window.cart,
+      items: [...window.cart],
       total: document.getElementById('cart-total').innerText,
-      // Captures your M-Pesa/Cash selection from line 822
       paymentMethod: window.currentPayMethod || 'cash',
-      tendered: amountPaid,
+      amountTendered: document.getElementById('pay-cash-amount')?.value || 0,
       store: "ManribsTech_Hardware_001"
     };
-    
-  push(salesRef, saleData)
-      .then(() => {
-        // Trigger Receipt Printing before clearing data
-        if (window.printReceipt) {
-            window.printReceipt(saleData); 
-        } else {
-            window.print(); // Browser fallback
-        }
 
-        alert(`✅ Sale Saved! Method: ${saleData.paymentMethod.toUpperCase()}`);
+    push(salesRef, saleData)
+      .then(() => {
+        // --- PRINT RECEIPT ---
+        window.print(); // This triggers the browser print dialog
+
+        alert(`✅ Sale Saved Successfully!`);
         
-        // Clear UI and go to Records
         if (window.clearCart) window.clearCart();
         if (window.closeModal) window.closeModal('modal-payment');
         if (window.showPage) window.showPage('page-transactions');
       })
       .catch((error) => {
-        console.error("Cloud Error:", error);
-        alert("❌ Error saving sale.");
+        console.error("Firebase Error:", error);
+        alert("Error saving to cloud.");
       });
   };
 
-  // 3. THE LIVE SYNC LISTENER (Updates Records & Reports)
+  // Keep your live sync listener to update reports
   onValue(salesRef, (snapshot) => {
     const data = snapshot.val();
-    if (data) {
-      const salesArray = Object.keys(data).map(key => ({
-        id: key,
-        ...data[key]
-      })).reverse(); // Most recent first
-      
-      // Update Transactions Table
-      if (window.renderTransactions) {
-        window.renderTransactions(salesArray);
-      }
-
-      // Update Dashboard & Reports Stats
-      if (window.updateDashboardStats) {
-        window.updateDashboardStats(salesArray);
-      }
+    if (data && window.updateDashboardStats) {
+      const salesArray = Object.keys(data).map(key => ({ id: key, ...data[key] }));
+      window.updateDashboardStats(salesArray);
     }
   });
-
   console.log("ManribsTech Cloud Engine Active & Synced!");
 </script>  
 
