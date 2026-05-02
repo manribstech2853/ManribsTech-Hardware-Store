@@ -2305,25 +2305,47 @@ function setCloudStatus(status) {
   const labels={synced:'Online • Cloud Synced',syncing:'Online • Syncing…',offline:browserOnline?'Online':'Offline'};
   pill.innerHTML=`<span class="cloud-pill ${eff}"><span class="cloud-dot"></span>${icons[eff]} ${labels[eff]}</span>`;
 }
+// Ensure locationID is defined (e.g., 'Kisii_Branch_01')
+const locationID = "Kisii_Branch_01"; 
 
 async function syncToCloud() {
-  if (!clientID) return;
-  normalizeDBForClient(clientID);
-  await saveToLocal();
-  if (!navigator.onLine) { setCloudStatus('offline'); return; }
-  setCloudStatus('syncing');
-  try {
-    await setDoc(doc(db,"users",clientID),{clientID,products:DB.products,users:DB.users,nextId:DB.nextId,transactions:DB.transactions,lastUpdated:new Date().toISOString()},{merge:true});
-    await registerClientUsers();
-    setCloudStatus('synced');
-  
-} catch(e) { 
-    console.error("Cloud sync:", e);
-    if (!navigator.onLine) {
+    if (!clientID || !locationID) return;
+    
+    normalizedDBForClient(clientID);
+    await saveToLocal();
+    
+    if (!navigator.onLine) { 
         setCloudStatus('offline'); 
-    } else {
-        setCloudStatus('synced'); 
-        toast('Sync failed, but you are online. Retrying...', 'warning');
+        return; 
+    }
+    
+    setCloudStatus('syncing');
+    
+    try {
+        // Path updated to: users -> {clientID} -> locations -> {locationID}
+        const locationDocRef = doc(db, "users", clientID, "locations", locationID);
+        
+        await setDoc(locationDocRef, {
+            locationID: locationID,
+            products: DB.products,
+            users: DB.users,
+            nextId: DB.nextId,
+            transactions: DB.transactions,
+            lastUpdated: new Date().toISOString()
+        }, { merge: true });
+        
+        // Removed registerClientUsers() to keep database clean
+        setCloudStatus('synced');
+        
+    } catch(e) {
+        console.error("Cloud sync:", e);
+        if (!navigator.onLine) {
+            setCloudStatus('offline');
+        } else {
+            // Maintains the green 'Online' look if the error isn't connection-related
+            setCloudStatus('synced');
+            toast('Sync failed, but you are online. Retrying...', 'warning');
+        }
     }
 }
 
