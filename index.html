@@ -57,65 +57,6 @@ body {
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
 
-/* ─── OFFLINE SYNC BANNER ─── */
-#sync-banner {
-  display: none;
-  position: fixed;
-  top: 0; left: 0; right: 0;
-  z-index: 9999;
-  padding: 0;
-  font-size: 13px;
-  font-weight: 600;
-  text-align: center;
-  animation: slideDown .3s ease;
-}
-@keyframes slideDown { from { transform:translateY(-100%); opacity:0; } to { transform:translateY(0); opacity:1; } }
-#sync-banner.offline-mode {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  padding: 9px 20px;
-  background: linear-gradient(90deg, #7A3A0A, #C0392B);
-  color: #fff;
-  border-bottom: 2px solid rgba(255,255,255,0.15);
-}
-#sync-banner.syncing-mode {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  padding: 9px 20px;
-  background: linear-gradient(90deg, #1558C0, #2563eb);
-  color: #fff;
-  border-bottom: 2px solid rgba(255,255,255,0.15);
-}
-#sync-banner.synced-mode {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  padding: 9px 20px;
-  background: linear-gradient(90deg, #0E7A48, #16a34a);
-  color: #fff;
-  border-bottom: 2px solid rgba(255,255,255,0.15);
-}
-.sync-dot {
-  width: 8px; height: 8px;
-  border-radius: 50%;
-  background: currentColor;
-  flex-shrink: 0;
-}
-.sync-dot.pulse { animation: pulseAnim 1s infinite; }
-@keyframes pulseAnim { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(0.7)} }
-#sync-pending-count {
-  background: rgba(255,255,255,0.2);
-  padding: 2px 8px;
-  border-radius: 99px;
-  font-size: 11px;
-  font-family: 'DM Mono', monospace;
-}
-
 /* ─── LOGIN ─── */
 #login-screen {
   min-height: 100vh;
@@ -653,11 +594,7 @@ tr.pending-sync { background: rgba(21,88,192,0.03) !important; }
 <div class="sidebar-backdrop" id="sidebar-backdrop" onclick="closeSidebar()"></div>
 
 <!-- ── GLOBAL SYNC BANNER ── -->
-<div id="sync-banner">
-  <span class="sync-dot" id="sync-dot"></span>
-  <span id="sync-banner-text">You are offline. Changes are saved locally.</span>
-  <span id="sync-pending-count" style="display:none"></span>
-</div>
+
 
 <!-- SESSION WARNING BAR -->
 <div id="session-warning-bar" style="display:none">
@@ -804,12 +741,12 @@ tr.pending-sync { background: rgba(21,88,192,0.03) !important; }
         <div class="nav-item" onclick="goPage('users',this)"><span class="nav-icon">👥</span> Users</div>
         <div class="nav-item" onclick="goPage('audit',this)"><span class="nav-icon">🔐</span> Audit Log</div>
         <div class="nav-item" onclick="goPage('security',this)"><span class="nav-icon">🛡️</span> Security</div>
-        <div class="nav-item" onclick="goPage('syncqueue',this)" id="nav-syncqueue" style="display:none"><span class="nav-icon">🔄</span> Sync Queue</div>
+        
       </div>
     </div>
     <div class="sb-footer">
       <div style="margin-bottom:8px;padding:0 2px">
-        <div id="sidebar-sync-status"></div>
+        
       </div>
       <div class="user-card">
         <div class="user-av" id="user-av">A</div>
@@ -835,7 +772,7 @@ tr.pending-sync { background: rgba(21,88,192,0.03) !important; }
         </div>
       </div>
       <div class="topbar-right">
-        <div id="pending-sync-badge" onclick="goPage('syncqueue')" title="View pending sync items"></div>
+        
         <div id="cloud-status-pill"></div>
         <div id="topbar-actions"></div>
       </div>
@@ -982,17 +919,6 @@ tr.pending-sync { background: rgba(21,88,192,0.03) !important; }
           🛡️ This log records all critical user actions and security events. Do not share or delete unless necessary.
         </div>
         <div class="card"><div class="table-wrap"><table><thead><tr><th>Timestamp</th><th>User</th><th>Action</th><th>Details</th><th>IP / Session</th></tr></thead><tbody id="audit-tbody"></tbody></table></div></div>
-      </div>
-
-      <!-- SYNC QUEUE PAGE (admin only) -->
-      <div class="page" id="page-syncqueue">
-        <div class="toolbar">
-          <div class="card-title">🔄 Offline Sync Queue</div>
-          <div style="flex:1"></div>
-          <button class="btn btn-primary btn-sm" id="manual-sync-btn" onclick="manualSync()">⚡ Sync Now</button>
-        </div>
-        <div id="sync-queue-status-bar" style="margin-bottom:16px"></div>
-        <div id="sync-queue-list"></div>
       </div>
 
       <!-- SECURITY SETTINGS -->
@@ -1324,7 +1250,7 @@ async function flushSyncQueue() {
   if (pendingItems.length === 0) return;
 
   isSyncing = true;
-  showSyncBanner('syncing', `Syncing ${pendingItems.length} item${pendingItems.length !== 1 ? 's' : ''}…`);
+  
 
   let successCount = 0, failCount = 0;
 
@@ -1357,12 +1283,12 @@ async function flushSyncQueue() {
   isSyncing = false;
 
   if (successCount > 0 && failCount === 0) {
-    showSyncBanner('synced', `✅ ${successCount} item${successCount !== 1 ? 's' : ''} synced successfully!`);
+    
     writeAudit(currentUser?.username || 'system', 'sync', `${successCount} queued item(s) synced to cloud after connectivity restored`, sessionID);
-    toast(`☁️ ${successCount} offline item${successCount !== 1 ? 's' : ''} synced to cloud!`, 'success');
+    
     setTimeout(() => hideSyncBanner(), 4000);
   } else if (failCount > 0) {
-    showSyncBanner('offline', `⚠️ ${failCount} item(s) failed — will retry automatically.`);
+    
     setTimeout(() => updateGlobalNetworkUI(), 5000);
   }
 
@@ -1381,48 +1307,9 @@ window.manualSync = async function() {
 
 // ─── SYNC BANNER MANAGEMENT ───
 let syncBannerTimer = null;
-function showSyncBanner(mode, text) {
-  const banner = document.getElementById('sync-banner');
-  const bannerText = document.getElementById('sync-banner-text');
-  const dot = document.getElementById('sync-dot');
-  const countEl = document.getElementById('sync-pending-count');
-  if (!banner) return;
+function showSyncBanner(mode, text) { /* Removed */ }
 
-  // clear previous classes
-  banner.className = '';
-  if (mode === 'offline') {
-    banner.className = 'offline-mode';
-    if (dot) { dot.className = 'sync-dot'; dot.style.animation = ''; }
-  } else if (mode === 'syncing') {
-    banner.className = 'syncing-mode';
-    if (dot) dot.className = 'sync-dot pulse';
-  } else if (mode === 'synced') {
-    banner.className = 'synced-mode';
-    if (dot) { dot.className = 'sync-dot'; dot.style.animation = ''; }
-  }
-  if (bannerText) bannerText.textContent = text;
-
-  const pending = syncQueue.filter(q => q.status === 'pending').length;
-  if (countEl) {
-    if (pending > 0 && mode !== 'synced') {
-      countEl.style.display = 'inline';
-      countEl.textContent = `${pending} queued`;
-    } else {
-      countEl.style.display = 'none';
-    }
-  }
-  banner.style.display = 'flex';
-  // Add top padding to body content so banner doesn't overlap
-  document.getElementById('app').style.paddingTop = '40px';
-  document.getElementById('login-screen').style.paddingTop = '40px';
-}
-
-function hideSyncBanner() {
-  const banner = document.getElementById('sync-banner');
-  if (banner) banner.style.display = 'none';
-  document.getElementById('app').style.paddingTop = '0';
-  document.getElementById('login-screen').style.paddingTop = '0';
-}
+function hideSyncBanner() { /* Removed */ }
 
 function updateGlobalNetworkUI() {
   const isOnline = navigator.onLine;
@@ -1449,13 +1336,7 @@ function updateGlobalNetworkUI() {
   if (payNotice) payNotice.style.display = isOnline ? 'none' : 'block';
 
   // Global sync banner
-  if (!isOnline) {
-    showSyncBanner('offline', `📵 Offline — Changes are saved locally and will sync automatically.`);
-  } else if (pending > 0) {
-    // online but with pending items — banner shows during flush
-  } else {
-    hideSyncBanner();
-  }
+  // Banner logic removed
 
   // Cloud status pill in topbar
   setCloudStatus(isOnline ? (pending > 0 ? 'pending' : 'synced') : 'offline');
@@ -1555,7 +1436,7 @@ function sanitizePhone(p) { return String(p||'').trim().replace(/[^0-9+]/g,'').s
 
 // ─── RBAC ───
 const ROLE_PERMISSIONS = {
-  admin: ['dashboard','pos','transactions','inventory','reports','users','audit','security','syncqueue'],
+  admin: ['dashboard','pos','transactions','inventory','reports','users','audit','security',],
   cashier: ['dashboard','pos','transactions','inventory'],
 };
 function hasPermission(page) {
@@ -2223,7 +2104,7 @@ window.goPage=function(name,el){
   if(name==='users') renderUsers();
   if(name==='audit') renderAuditLog();
   if(name==='security'){renderActiveSessions();loadSecuritySettings();}
-  if(name==='syncqueue'){updateSyncQueuePage();}
+  if(name===){updateSyncQueuePage();}
 };
 function loadSecuritySettings(){
   const sel=document.getElementById('sec-timeout'); if(sel) sel.value=securityPolicy.sessionTimeout;
@@ -2270,7 +2151,7 @@ window.confirmSwitchAccount=async function(){
     document.getElementById('user-name-display').textContent=currentUser.username;
     document.getElementById('user-role-display').textContent=currentUser.role==='admin'?'Administrator':'Cashier';
     const adminNav=document.getElementById('admin-nav'); if(adminNav) adminNav.style.display=currentUser.role==='admin'?'block':'none';
-    const adminOnly=['reports','users','audit','security','syncqueue'];
+    const adminOnly=['reports','users','audit','security',];
     const target=(currentUser.role!=='admin'&&adminOnly.includes(currentActivePage))?'dashboard':currentActivePage;
     saveSessionToken(currentUser.username,clientID,target);
     writeAudit(currentUser.username,'switch',`Switched from ${prevUser} → ${currentUser.username}`,sessionID);
@@ -2435,7 +2316,7 @@ window.completeSale=async function(){
       // Offline — queue for sync
       enqueueSync('transaction', tx);
       updateSyncBadge();
-      toast(`💾 Sale saved offline — will sync when connected.`, 'info');
+      
     }
     closeModal('modal-payment'); showReceipt(tx);
     if(navigator.onLine) toast('Sale completed — '+tx.receipt,'success');
@@ -2496,7 +2377,7 @@ window.saveProduct=async function(){
   else{DB.products.push({id:DB.nextId.product++,name,category:cat,price,stock,minStock:min});writeAudit(currentUser.username,'product',`Added new product: ${name} (${cat}, KES ${price})`,sessionID);toast('Product added — '+name,'success');}
   closeModal('modal-product'); renderInventory(); renderProducts();
   await saveToLocal();
-  if(navigator.onLine){await syncToCloud();}else{enqueueSync('product_update',{name,category:cat,price,stock,minStock:min});updateSyncBadge();toast('Product saved offline — will sync when connected.','info');}
+  if(navigator.onLine){await syncToCloud();}else{enqueueSync('product_update',{name,category:cat,price,stock,minStock:min});updateSyncBadge();}
 };
 window.deleteProduct=async function(id){
   if(currentUser?.role!=='admin'){toast('Admin access required','error');return;}
