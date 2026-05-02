@@ -2313,16 +2313,15 @@ async function syncToCloud() {
   if (!navigator.onLine) { setCloudStatus('offline'); return; }
   setCloudStatus('syncing');
   try {
-    await setDoc(doc(db,"clients",clientID),{clientID,products:DB.products,users:DB.users,nextId:DB.nextId,transactions:DB.transactions,lastUpdated:new Date().toISOString()},{merge:true});
+    await setDoc(doc(db,"users",clientID),{clientID,products:DB.products,users:DB.users,nextId:DB.nextId,transactions:DB.transactions,lastUpdated:new Date().toISOString()},{merge:true});
     await registerClientUsers();
     setCloudStatus('synced');
-  // Change Line 2319 in image_974173.png to this:
+  
 } catch(e) { 
     console.error("Cloud sync:", e);
     if (!navigator.onLine) {
         setCloudStatus('offline'); 
     } else {
-        // Keep it green/synced if internet is fine but this specific call failed
         setCloudStatus('synced'); 
         toast('Sync failed, but you are online. Retrying...', 'warning');
     }
