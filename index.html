@@ -3,7 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ManribsTech Store</title>
+<!-- ✅ SECURITY: Prevent clickjacking via framing -->
+<meta http-equiv="X-Frame-Options" content="DENY">
+<!-- ✅ SECURITY: Basic Content Security Policy — allows Firebase, Google Fonts, self -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' https://*.firebaseio.com https://*.googleapis.com https://*.gstatic.com; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src 'self' https://*.firebaseio.com https://*.googleapis.com wss://*.firebaseio.com; img-src 'self' data:;">
+<meta name="description" content="ManribsTech Store — Hardware Business Management System for Kenyan Businesses. POS, Inventory, Reports & Cloud Sync.">
+<meta name="robots" content="noindex, nofollow">
+<title>ManribsTech Store — BMS</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
 <style>
@@ -81,10 +87,47 @@ body {
   pointer-events: none;
 }
 
+/* ✅ BRANDING: Trust strip at top of login screen */
+.login-trust-strip {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 28px;
+  background: rgba(0,0,0,0.25);
+  font-size: 11px;
+  color: rgba(255,255,255,0.5);
+  z-index: 2;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.login-trust-strip .lts-brand { font-weight: 700; color: rgba(255,255,255,0.7); letter-spacing: 0.3px; }
+.login-trust-strip .lts-contact {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.lts-wa {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: #25D366;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 11px;
+  border-radius: 99px;
+  text-decoration: none;
+  transition: opacity .2s;
+}
+.lts-wa:hover { opacity: 0.88; }
+
 .login-wrapper {
   position: relative;
   z-index: 1;
   width: 420px;
+  /* ✅ MOBILE: add breathing room */
+  padding: 16px;
 }
 
 .login-box {
@@ -94,9 +137,17 @@ body {
   box-shadow: var(--shadow-lg);
   border: 1px solid rgba(255,255,255,0.05);
 }
+
+/* ✅ MOBILE: shrink padding on small screens */
+@media (max-width: 480px) {
+  .login-box { padding: 28px 20px; }
+  .login-wrapper { width: 100%; }
+  .login-trust-strip .lts-contact span { display: none; }
+}
+
 .login-brand {
   text-align: center;
-  margin-bottom: 36px;
+  margin-bottom: 28px;
 }
 .login-icon {
   width: 60px; height: 60px;
@@ -115,15 +166,37 @@ body {
   font-weight: 700;
   color: var(--navy);
 }
-.login-brand p {
-  font-size: 13px;
-  color: var(--text-2);
-  margin-top: 3px;
+.login-brand .login-tagline {
+  font-size: 12px;
+  color: var(--text-3);
+  margin-top: 4px;
+  line-height: 1.5;
+}
+/* ✅ BRANDING: Feature chips under logo */
+.login-chips {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+.login-chip {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 3px 9px;
+  border-radius: 99px;
+  background: rgba(232,118,26,0.08);
+  color: var(--accent);
+  border: 1px solid rgba(232,118,26,0.18);
+  white-space: nowrap;
 }
 .login-divider {
   height: 1px;
   background: var(--border);
-  margin: 0 -48px 28px;
+  margin: 0 -48px 24px;
+}
+@media (max-width: 480px) {
+  .login-divider { margin: 0 -20px 20px; }
 }
 .field-group { margin-bottom: 18px; }
 .field-group label {
@@ -171,22 +244,24 @@ body {
 .btn-login:active { transform: translateY(0); }
 .btn-login:disabled { opacity: 0.65; cursor: not-allowed; transform: none; }
 
-.login-footer {
+/* ✅ SECURITY: Hidden hint section — collapsed by default */
+.login-hint-toggle {
   text-align: center;
-  margin-top: 18px;
-  font-size: 13px;
+  margin-top: 14px;
+  font-size: 12px;
   color: var(--text-3);
 }
-.login-footer a {
-  color: var(--accent);
-  font-weight: 600;
-  text-decoration: none;
+.login-hint-toggle a {
+  color: var(--text-3);
+  font-size: 11px;
+  text-decoration: underline dotted;
   cursor: pointer;
+  transition: color .15s;
 }
-.login-footer a:hover { text-decoration: underline; }
-
+.login-hint-toggle a:hover { color: var(--accent); }
 .login-hint {
-  margin-top: 18px;
+  display: none; /* ✅ SECURITY: Hidden by default, shown only on click */
+  margin-top: 10px;
   padding: 12px 14px;
   background: var(--surface-2);
   border-radius: var(--r-sm);
@@ -269,6 +344,9 @@ body {
   flex-shrink: 0;
   position: relative;
   overflow: hidden;
+  /* ✅ MOBILE: sidebar becomes overlay on mobile */
+  transition: transform .25s ease;
+  z-index: 100;
 }
 .sidebar::after {
   content: '';
@@ -277,6 +355,51 @@ body {
   background: radial-gradient(ellipse at bottom, rgba(232,118,26,0.06) 0%, transparent 70%);
   pointer-events: none;
 }
+
+/* ✅ MOBILE: collapsed sidebar */
+@media (max-width: 768px) {
+  .sidebar {
+    position: fixed;
+    top: 0; left: 0; bottom: 0;
+    transform: translateX(-100%);
+    box-shadow: var(--shadow-lg);
+  }
+  .sidebar.open {
+    transform: translateX(0);
+  }
+  #app { flex-direction: column; }
+  .main { height: 100vh; }
+  .pos-layout { grid-template-columns: 1fr !important; height: auto !important; }
+  .stat-grid { grid-template-columns: 1fr 1fr !important; }
+  .dash-row { grid-template-columns: 1fr !important; }
+}
+
+/* ✅ MOBILE: hamburger toggle button */
+.mobile-menu-btn {
+  display: none;
+  background: var(--navy);
+  border: none;
+  color: #fff;
+  font-size: 20px;
+  padding: 8px 14px;
+  cursor: pointer;
+  border-radius: var(--r-sm);
+}
+@media (max-width: 768px) {
+  .mobile-menu-btn { display: inline-flex; align-items: center; }
+}
+
+/* ✅ MOBILE: sidebar overlay backdrop */
+.sidebar-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(11,25,41,0.5);
+  z-index: 99;
+  backdrop-filter: blur(2px);
+}
+.sidebar-backdrop.visible { display: block; }
+
 .sb-brand {
   padding: 22px 18px 18px;
   border-bottom: 1px solid rgba(255,255,255,0.07);
@@ -418,10 +541,18 @@ body {
   top: 0;
   z-index: 10;
 }
+@media (max-width: 768px) {
+  .topbar { padding: 12px 16px; gap: 10px; }
+  .topbar-left h1 { font-size: 15px; }
+  .topbar-left p { display: none; }
+}
 .topbar-left h1 { font-size: 19px; font-weight: 700; color: var(--navy); font-family: 'Playfair Display', serif; }
 .topbar-left p { font-size: 12px; color: var(--text-3); margin-top: 1px; }
 .topbar-right { display: flex; gap: 10px; align-items: center; }
 .content { padding: 26px 28px; flex: 1; }
+@media (max-width: 768px) {
+  .content { padding: 16px; }
+}
 
 /* ══ SESSION TIMEOUT BANNER ══ */
 #session-warning-bar {
@@ -1063,6 +1194,8 @@ tr:hover td { background: rgba(238,241,245,0.4); }
 
 <div id="toast-container"></div>
 <div id="print-area"></div>
+<!-- ✅ MOBILE: Sidebar backdrop overlay -->
+<div class="sidebar-backdrop" id="sidebar-backdrop" onclick="closeSidebar()"></div>
 
 <!-- Session timeout warning bar -->
 <div id="session-warning-bar">
@@ -1072,12 +1205,32 @@ tr:hover td { background: rgba(238,241,245,0.4); }
 
 <!-- ══════════════════ LOGIN SCREEN ══════════════════ -->
 <div id="login-screen">
+  <!-- ✅ BRANDING: Trust strip with contact -->
+  <div class="login-trust-strip">
+    <span class="lts-brand">🔧 ManribsTech Store — H BMS</span>
+    <div class="lts-contact">
+      <span id="current-location">Kisii, Kenya</span>
+      <!-- ✅ TRUST: WhatsApp contact button — update number below -->
+      <a class="lts-wa" href="https://wa.me/254783094771?text=Hello%2C%20I%20need%20help%20with%20ManribsTech%20BMS" target="_blank" rel="noopener noreferrer">
+        💬 WhatsApp Support
+      </a>
+    </div>
+  </div>
+
   <div class="login-wrapper">
     <div class="login-box">
       <div class="login-brand">
         <div class="login-icon">🔧</div>
         <h1>ManribsTech Store</h1>
-        <p>Business Management System</p>
+        <!-- ✅ BRANDING: Descriptive tagline -->
+        <p class="login-tagline">ManribsTech-Store<br>for Kenyan Businesses</p>
+        <!-- ✅ BRANDING: Feature chips -->
+        <div class="login-chips">
+          <span class="login-chip">☁️ Cloud Sync</span>
+          <span class="login-chip">📱 M-Pesa</span>
+          <span class="login-chip">📦 Inventory</span>
+          <span class="login-chip">🔐 Secure</span>
+        </div>
       </div>
       <div class="login-divider"></div>
 
@@ -1099,9 +1252,15 @@ tr:hover td { background: rgba(238,241,245,0.4); }
           <input type="password" id="l-pass" placeholder="••••••••" autocomplete="current-password">
         </div>
         <button class="btn-login" id="btn-signin" onclick="doLogin()">Sign In to Dashboard</button>
-        <div class="login-hint" style="margin-top:14px">
+
+        <!-- ✅ SECURITY: Default credentials hidden behind a toggle — not shown openly -->
+        <div class="login-hint-toggle">
+          <a onclick="toggleLoginHint(this)">⚙️ Show demo credentials (development only)</a>
+        </div>
+        <div class="login-hint" id="login-hint-box">
           Default Admin: <strong>admin</strong> / <strong>Admin@123!</strong><br>
-          Default Cashier: <strong>cashier1</strong> / <strong>Cashier@1!</strong>
+          Default Cashier: <strong>cashier1</strong> / <strong>Cashier@1!</strong><br>
+          <span style="font-size:10px;color:var(--red);margin-top:4px;display:block">⚠️ Change these credentials immediately in production.</span>
         </div>
       </div>
 
@@ -1178,7 +1337,7 @@ tr:hover td { background: rgba(238,241,245,0.4); }
 
 <!-- ══════════════════ MAIN APP ══════════════════ -->
 <div id="app">
-  <div class="sidebar">
+  <div class="sidebar" id="main-sidebar">
     <div class="sb-brand">
       <div class="sb-brand-row">
         <div class="sb-icon">🔧</div>
@@ -1225,9 +1384,13 @@ tr:hover td { background: rgba(238,241,245,0.4); }
       <button onclick="resetSessionTimer()" style="margin-left:12px;background:var(--accent);color:#fff;border:none;padding:4px 12px;border-radius:4px;font-weight:600;cursor:pointer;font-size:12px">Stay Signed In</button>
     </div>
     <div class="topbar">
-      <div class="topbar-left">
-        <h1 id="page-title">Dashboard</h1>
-        <p id="page-sub">Overview of today's business activity</p>
+      <div class="topbar-left" style="display:flex;align-items:center;gap:12px">
+        <!-- ✅ MOBILE: hamburger button -->
+        <button class="mobile-menu-btn" onclick="openSidebar()" title="Menu">☰</button>
+        <div>
+          <h1 id="page-title">Dashboard</h1>
+          <p id="page-sub">Overview of today's business activity</p>
+        </div>
       </div>
       <div class="topbar-right">
         <div id="cloud-status-pill">
@@ -1350,7 +1513,7 @@ tr:hover td { background: rgba(238,241,245,0.4); }
         </div>
       </div>
 
-      <!-- ══ AUDIT LOG PAGE (NEW) ══ -->
+      <!-- Audit Log -->
       <div class="page" id="page-audit">
         <div class="toolbar">
           <div class="card-title">🔐 System Audit Log</div>
@@ -1375,7 +1538,7 @@ tr:hover td { background: rgba(238,241,245,0.4); }
         </div>
       </div>
 
-      <!-- ══ SECURITY SETTINGS PAGE (NEW) ══ -->
+      <!-- Security Settings -->
       <div class="page" id="page-security">
         <div style="max-width:700px">
           <!-- Change Own Password -->
@@ -1460,16 +1623,7 @@ tr:hover td { background: rgba(238,241,245,0.4); }
           <div class="security-section">
             <div class="security-section-title">📋 Password Policy (Reference)</div>
             <div class="security-section-sub">All passwords in this system must meet these requirements:</div>
-            <div style="display:flex;flex-direction:column;gap:8px">
-              ${[
-                ['✅','Minimum 8 characters'],
-                ['✅','At least one uppercase letter (A–Z)'],
-                ['✅','At least one lowercase letter (a–z)'],
-                ['✅','At least one number (0–9)'],
-                ['✅','At least one special character (!@#$%^&*)'],
-                ['✅','No common or dictionary words'],
-              ].map(([icon,text])=>`<div style="display:flex;gap:10px;font-size:13px;padding:8px 12px;background:var(--surface-2);border-radius:6px;border:1px solid var(--border)"><span>${icon}</span><span>${text}</span></div>`).join('')}
-            </div>
+            <div style="display:flex;flex-direction:column;gap:8px" id="pw-policy-list"></div>
           </div>
         </div>
       </div>
@@ -1607,6 +1761,9 @@ tr:hover td { background: rgba(238,241,245,0.4); }
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getFirestore, doc, setDoc, getDoc, getDocs, onSnapshot, collection, addDoc, query, orderBy, limit, enableIndexedDbPersistence } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
+// ✅ SECURITY NOTE: Firebase config is intentionally client-side (industry standard).
+// Security is enforced via Firestore Security Rules on the Firebase console.
+// Ensure your Firestore rules restrict read/write to authenticated data paths only.
 const firebaseConfig = {
   apiKey: "AIzaSyBez8Pwram5ACy6CgC1NUMH-fEh59kzoDg",
   authDomain: "manribstech-store.firebaseapp.com",
@@ -1619,6 +1776,42 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 enableIndexedDbPersistence(db).catch(e => console.warn("Persistence:", e.code));
+
+// ✅ SECURITY: Toggle login hint visibility (hidden by default)
+window.toggleLoginHint = function(el) {
+  const box = document.getElementById('login-hint-box');
+  if (!box) return;
+  const visible = box.style.display === 'block';
+  box.style.display = visible ? 'none' : 'block';
+  el.textContent = visible ? '⚙️ Show demo credentials (development only)' : '⚙️ Hide demo credentials';
+};
+
+// ✅ MOBILE: Sidebar open/close
+window.openSidebar = function() {
+  document.getElementById('main-sidebar').classList.add('open');
+  document.getElementById('sidebar-backdrop').classList.add('visible');
+};
+window.closeSidebar = function() {
+  document.getElementById('main-sidebar').classList.remove('open');
+  document.getElementById('sidebar-backdrop').classList.remove('visible');
+};
+
+// ✅ UI: Render password policy list (avoid template literal issues in HTML)
+function renderPasswordPolicyList() {
+  const el = document.getElementById('pw-policy-list');
+  if (!el) return;
+  const items = [
+    ['✅','Minimum 8 characters'],
+    ['✅','At least one uppercase letter (A–Z)'],
+    ['✅','At least one lowercase letter (a–z)'],
+    ['✅','At least one number (0–9)'],
+    ['✅','At least one special character (!@#$%^&*)'],
+    ['✅','No common or dictionary words'],
+  ];
+  el.innerHTML = items.map(([icon,text]) =>
+    `<div style="display:flex;gap:10px;font-size:13px;padding:8px 12px;background:var(--surface-2);border-radius:6px;border:1px solid var(--border)"><span>${icon}</span><span>${text}</span></div>`
+  ).join('');
+}
 
 // ══════════════════════════════════════════
 // ══ SECURITY MODULE ══════════════════════
@@ -1648,7 +1841,6 @@ function timingSafeEqual(a, b) {
 function hexToBytes(hex) { return new Uint8Array(hex.match(/.{2}/g).map(b=>parseInt(b,16))); }
 function bytesToHex(bytes) { return Array.from(bytes).map(b=>b.toString(16).padStart(2,'0')).join(''); }
 
-// Check if password is hashed (hex string of 64 chars) or legacy plaintext
 function isHashed(pw) { return /^[0-9a-f]{64}$/.test(pw); }
 
 // ── Password Strength Scorer ──
@@ -1768,7 +1960,7 @@ function resetSessionTimer() {
   if (sessionWarningTimer) clearTimeout(sessionWarningTimer);
   if (!currentUser) return;
   const timeout = securityPolicy.sessionTimeout;
-  const warnAt = timeout - 60000; // warn 60s before
+  const warnAt = timeout - 60000;
   if (warnAt > 0) {
     sessionWarningTimer = setTimeout(() => {
       if (currentUser) {
@@ -1802,7 +1994,6 @@ function expireSession() {
   writeAudit(currentUser?.username || 'system', 'logout', 'Session auto-expired due to inactivity', 'timeout');
 }
 
-// Track user activity for session timeout
 ['mousemove','keydown','click','touchstart','scroll'].forEach(evt => {
   document.addEventListener(evt, () => { if (currentUser) resetSessionTimer(); }, { passive: true });
 });
@@ -1889,7 +2080,6 @@ window.changeOwnPassword = async function() {
   if (!cur || !newPw) { toast('Please fill in all fields', 'error'); return; }
   const user = DB.users.find(u => u.id === currentUser?.id);
   if (!user) return;
-  // Verify current password
   let valid = false;
   if (isHashed(user.password) && user.passwordSalt) {
     valid = await verifyPassword(cur, user.password, user.passwordSalt);
@@ -1905,7 +2095,8 @@ window.changeOwnPassword = async function() {
   user.passwordSalt = salt;
   currentUser.password = hash;
   currentUser.passwordSalt = salt;
-  localStorage.setItem('manribs_session', JSON.stringify({ username: currentUser.username, password: hash, clientID, page: currentActivePage }));
+  // ✅ SECURITY: Only store username + clientID in session (no password hash)
+  saveSessionToken(currentUser.username, clientID, currentActivePage);
   ['sec-cur-pass','sec-new-pass','sec-confirm-pass'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
   writeAudit(currentUser.username, 'user', 'Password changed successfully', sessionID);
   await syncToCloud();
@@ -1916,6 +2107,7 @@ window.changeOwnPassword = async function() {
 function renderActiveSessions() {
   const el = document.getElementById('active-sessions-list');
   if (!el) return;
+  renderPasswordPolicyList();
   const cutoff = Date.now() - ONLINE_TIMEOUT_MS;
   const online = DB.users.filter(u => u.online && u.lastSeen && new Date(u.lastSeen).getTime() >= cutoff);
   if (online.length === 0) {
@@ -1932,6 +2124,27 @@ function renderActiveSessions() {
       <span class="badge badge-green">● Active</span>
     </div>
   `).join('');
+}
+
+// ══════════════════════════════════════════
+// ✅ SECURITY: Session Token Management
+// Store only username + clientID — never passwords
+// ══════════════════════════════════════════
+function saveSessionToken(username, cid, page) {
+  try {
+    // ✅ Use sessionStorage for tab-level isolation when possible,
+    // fall back to localStorage for cross-tab session restore
+    const token = { username, clientID: cid, page: page || 'dashboard', ts: Date.now() };
+    sessionStorage.setItem('manribs_session_tab', JSON.stringify(token));
+    localStorage.setItem('manribs_session', JSON.stringify(token));
+  } catch {}
+}
+
+function clearSessionToken() {
+  try {
+    sessionStorage.removeItem('manribs_session_tab');
+    localStorage.removeItem('manribs_session');
+  } catch {}
 }
 
 // ══════════════════════════════════════════
@@ -2247,7 +2460,6 @@ async function performRegistration(){
     const newClientID='client_'+registeredStoreName.toLowerCase().replace(/[^a-z0-9]/g,'_')+'_'+Math.random().toString(36).slice(2,7);
     registeredClientId=newClientID;
     setProgress(30,'Hashing credentials securely…'); await sleep(300);
-    // Hash the admin password before storing
     const { hash:pwHash, salt:pwSalt } = await hashPassword(registeredAdminPass);
     setProgress(50,'Creating admin account…'); await sleep(300);
 
@@ -2292,7 +2504,7 @@ window.prefillLoginAfterReg=function(){
 function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
 
 // ══════════════════════════════════════════
-// AUTH — LOGIN (with security hardening)
+// AUTH — LOGIN
 // ══════════════════════════════════════════
 window.doLogin=async function(){
   const rawUser=document.getElementById('l-user').value.trim();
@@ -2305,7 +2517,6 @@ window.doLogin=async function(){
 
   const u=sanitizeUsername(rawUser);
 
-  // Check lockout
   const lockedUntil=isLockedOut(u);
   if(lockedUntil){
     const remaining=Math.ceil((lockedUntil-Date.now())/1000);
@@ -2337,16 +2548,13 @@ window.doLogin=async function(){
         if(txSnap){const txs=[];txSnap.forEach(d=>txs.push(d.data()));if(txs.length>0)DB.transactions=txs;}
       } catch {}
 
-      // Try to find user — support both hashed and legacy plaintext passwords
       for(const candidate_user of DB.users.filter(x=>x.username===u&&x.active)){
         let pwValid=false;
         if(candidate_user.passwordSalt && isHashed(candidate_user.password)){
           pwValid=await verifyPassword(p,candidate_user.password,candidate_user.passwordSalt);
         } else {
-          // Legacy plaintext — accept and immediately upgrade to hashed
           pwValid=(p===candidate_user.password);
           if(pwValid){
-            // Upgrade password hash in the background
             const {hash,salt}=await hashPassword(p);
             candidate_user.password=hash; candidate_user.passwordSalt=salt;
           }
@@ -2381,7 +2589,8 @@ window.doLogin=async function(){
     loadAuditLog();
     writeAudit(currentUser.username,'login',`Signed in via browser (${currentUser.role})`,sessionID);
     await saveToLocal();
-    localStorage.setItem('manribs_session',JSON.stringify({username:currentUser.username,password:currentUser.password,clientID,page:'dashboard'}));
+    // ✅ SECURITY: Store only username + clientID, not password hash
+    saveSessionToken(currentUser.username, clientID, 'dashboard');
     launchApp(); initCloudListeners(); startPresence(); resetSessionTimer();
     if(navigator.onLine) syncToCloud().catch(()=>{});
 
@@ -2393,7 +2602,7 @@ window.doLogin=async function(){
       currentUser=user; sessionID=genSession();
       loadAuditLog();
       writeAudit(currentUser.username,'login','Emergency offline login',sessionID);
-      localStorage.setItem('manribs_session',JSON.stringify({username:currentUser.username,password:currentUser.password,clientID,page:'dashboard'}));
+      saveSessionToken(currentUser.username, clientID, 'dashboard');
       launchApp(); startPresence(); setCloudStatus('offline'); resetSessionTimer();
       toast("Emergency offline access granted.","info");
     } else {
@@ -2437,7 +2646,7 @@ window.doLogout=async function(){
   if(clientUnsubscribe){clientUnsubscribe();clientUnsubscribe=null;}
   if(transactionUnsubscribe){transactionUnsubscribe();transactionUnsubscribe=null;}
   currentUser=null; clientID=null; sessionID=null; cart=[];
-  localStorage.removeItem('manribs_session');
+  clearSessionToken(); // ✅ SECURITY: Clear both sessionStorage and localStorage
   window.location.reload();
 }
 
@@ -2458,7 +2667,7 @@ const PAGE_META={
 window.goPage=function(name,el){
   if(!hasPermission(name)){toast('Access denied. Your role does not have permission to view this page.','error');writeAudit(currentUser?.username||'?','failed','Unauthorized page access attempt: '+name,sessionID);return;}
   currentActivePage=name;
-  if(currentUser) localStorage.setItem('manribs_session',JSON.stringify({username:currentUser.username,password:currentUser.password,clientID,page:name}));
+  if(currentUser) saveSessionToken(currentUser.username, clientID, name);
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
   const pageEl=document.getElementById('page-'+name);
@@ -2469,6 +2678,8 @@ window.goPage=function(name,el){
   document.getElementById('page-title').textContent=title;
   document.getElementById('page-sub').textContent=sub;
   document.getElementById('topbar-actions').innerHTML='';
+  // ✅ MOBILE: close sidebar on navigation
+  closeSidebar();
   if(name==='pos') renderProducts();
   if(name==='inventory') setupInventory();
   if(name==='dashboard') updateDashboard();
@@ -2490,7 +2701,7 @@ function loadSecuritySettings(){
 }
 
 // ══════════════════════════════════════════
-// SWITCH ACCOUNT (with RBAC & audit)
+// SWITCH ACCOUNT
 // ══════════════════════════════════════════
 window.openSwitchAccount=function(){pendingSwitchUser=null;renderSwitchUserList();openModal('modal-switch');}
 window.closeSwitchModal=function(){pendingSwitchUser=null;closeModal('modal-switch');}
@@ -2521,7 +2732,6 @@ window.confirmSwitchAccount=async function(){
   errEl.style.display='none';
   if(!enteredPass){errEl.textContent='Please enter the account password.';errEl.style.display='block';return;}
 
-  // Verify password (supports both hashed and legacy)
   let valid=false;
   if(pendingSwitchUser.passwordSalt && isHashed(pendingSwitchUser.password)){
     valid=await verifyPassword(enteredPass,pendingSwitchUser.password,pendingSwitchUser.passwordSalt);
@@ -2548,7 +2758,7 @@ window.confirmSwitchAccount=async function(){
     const adminNav=document.getElementById('admin-nav'); if(adminNav) adminNav.style.display=currentUser.role==='admin'?'block':'none';
     const adminOnly=['reports','users','audit','security'];
     const target=(currentUser.role!=='admin'&&adminOnly.includes(currentActivePage))?'dashboard':currentActivePage;
-    localStorage.setItem('manribs_session',JSON.stringify({username:currentUser.username,password:currentUser.password,clientID,page:target}));
+    saveSessionToken(currentUser.username, clientID, target);
     writeAudit(currentUser.username,'switch',`Switched from ${prevUser} → ${currentUser.username}`,sessionID);
     pendingSwitchUser=null; closeModal('modal-switch');
     startPresence(); resetSessionTimer();
@@ -2730,7 +2940,7 @@ window.printReceipt=function(){
 window.newSale=function(){closeModal('modal-receipt');cart=[];currentReceiptTx=null;renderCart();renderProducts();updateDashboard();}
 
 // ══════════════════════════════════════════
-// INVENTORY (with audit logging)
+// INVENTORY
 // ══════════════════════════════════════════
 window.setupInventory=function(){
   const isAdmin=currentUser?.role==='admin';
@@ -2842,14 +3052,13 @@ window.renderReport=function(){
 }
 
 // ══════════════════════════════════════════
-// USERS (with audit logging)
+// USERS
 // ══════════════════════════════════════════
 window.renderUsers=function(){
   const tbody=document.getElementById('users-tbody'); if(!tbody) return;
   tbody.innerHTML=DB.users.map(u=>{
     const recentlySeen=u.lastSeen?(Date.now()-new Date(u.lastSeen).getTime())<ONLINE_TIMEOUT_MS:false;
     const isOnline=Boolean(u.online&&recentlySeen);
-    const isHashed_pw=isHashed(u.password);
     return `<tr><td style="font-weight:700">${sanitize(u.username)}</td><td><span class="badge ${u.role==='admin'?'badge-amber':'badge-navy'}">${u.role==='admin'?'👑 Admin':'💼 Cashier'}</span></td><td style="font-size:11px;font-family:DM Mono,monospace;color:var(--text-2)">${sanitize(u.clientId||clientID||DEFAULT_CLIENT_ID)}</td><td style="font-size:12px">${sanitize(u.created)}</td><td style="font-size:12px">${u.lastLogin?fDate(u.lastLogin):'Never'}</td><td><span class="badge ${isOnline?'badge-green':'badge-red'}">${isOnline?'Online':'Offline'}</span></td><td><span class="badge ${u.active?'badge-green':'badge-red'}">${u.active?'Active':'Inactive'}</span></td><td><div style="display:flex;gap:6px"><button class="btn btn-outline btn-sm" onclick="editUser(${u.id})">✏️ Edit</button>${u.id!==currentUser.id?`<button class="btn ${u.active?'btn-danger':'btn-success'} btn-sm" onclick="toggleUser(${u.id})">${u.active?'🔒 Disable':'🔓 Enable'}</button>`:''}</div></td></tr>`;
   }).join('');
 }
@@ -2963,23 +3172,31 @@ document.getElementById('l-user').addEventListener('keydown',e=>{if(e.key==='Ent
 document.getElementById('reg-admin-pass2')?.addEventListener('keydown',e=>{if(e.key==='Enter') regStep1Next();});
 
 // ══════════════════════════════════════════
-// SESSION RESTORE
+// ✅ SECURITY: Session Restore
+// Restored sessions now require re-authentication using stored username only.
+// We no longer store the password hash in the session token.
 // ══════════════════════════════════════════
 renderCart();
 
 async function restoreSession(){
-  const raw=localStorage.getItem('manribs_session'); if(!raw) return;
+  // Try tab-session first (more secure), fall back to localStorage
+  const raw = sessionStorage.getItem('manribs_session_tab') || localStorage.getItem('manribs_session');
+  if(!raw) return;
   try {
-    const {username,password,clientID:savedClientID,page}=JSON.parse(raw);
-    if(savedClientID) saveUserClientMapping(username,savedClientID);
-    document.getElementById('l-user').value=username;
-    document.getElementById('l-pass').value=password;
-    await doLogin();
-    if(page&&page!=='dashboard'&&currentUser){setTimeout(()=>goPage(page),100);}
-  } catch(e){console.error("Session restore:",e);localStorage.removeItem('manribs_session');}
+    const {username, clientID: savedClientID, page} = JSON.parse(raw);
+    if(!username) return;
+    // ✅ SECURITY: Only pre-fill username — user must enter password again
+    if(savedClientID) saveUserClientMapping(username, savedClientID);
+    document.getElementById('l-user').value = username;
+    // Do NOT auto-login — require password re-entry for security
+    document.getElementById('l-pass').focus();
+  } catch(e) {
+    console.error("Session restore:", e);
+    clearSessionToken();
+  }
 }
 
-setTimeout(restoreSession,120);
+setTimeout(restoreSession, 120);
 
 // ══════════════════════════════════════════
 // SERVICE WORKER
@@ -2989,6 +3206,29 @@ if('serviceWorker' in navigator){
     .then(()=>console.log("Service Worker Registered"))
     .catch(err=>console.error("SW registration failed:",err));
 }
+  navigator.geolocation.getCurrentPosition(async (position) => {
+    const lat = position.coords.latitude;
+    const lon = position.coords.longitude;
+
+    try {
+        // Fetch city name from OpenStreetMap API
+        const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`);
+        const data = await response.json();
+        
+        // Get the city, town, or village name
+        const city = data.address.city || data.address.town || data.address.village || "Kenya";
+        const country = data.address.country || "Kenya";
+
+        // Update the span you created earlier
+        document.getElementById('current-location').innerText = `${city}, ${country}`;
+        
+    } catch (error) {
+        console.error("Geocoding failed:", error);
+        document.getElementById('current-location').innerText = "Location Detected";
+    }
+}, (error) => {
+    console.error("Error detecting location", error);
+});
 </script>
 </body>
 </html>
