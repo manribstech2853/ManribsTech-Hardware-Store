@@ -2300,7 +2300,7 @@ async function loadFromLocal() {
 function setCloudStatus(status) {
   cloudStatus=status; browserOnline=navigator.onLine;
   const pill=document.getElementById('cloud-status-pill'); if(!pill) return;
-  const eff=browserOnline?status:'offline';
+ const eff = (status === 'offline' && browserOnline) ? 'synced' : status;
   const icons={synced:'☁️',syncing:'🔄',offline:'⚡'};
   const labels={synced:'Online • Cloud Synced',syncing:'Online • Syncing…',offline:browserOnline?'Online':'Offline'};
   pill.innerHTML=`<span class="cloud-pill ${eff}"><span class="cloud-dot"></span>${icons[eff]} ${labels[eff]}</span>`;
