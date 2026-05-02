@@ -2302,7 +2302,7 @@ function setCloudStatus(status) {
   const pill=document.getElementById('cloud-status-pill'); if(!pill) return;
   const eff=browserOnline?status:'offline';
   const icons={synced:'☁️',syncing:'🔄',offline:'⚡'};
-  const labels={synced:'Online • Cloud Synced',syncing:'Online • Syncing…',offline:browserOnline?'Local Only':'Offline'};
+  const labels={synced:'Online • Cloud Synced',syncing:'Online • Syncing…',offline:browserOnline?'Online':'Offline'};
   pill.innerHTML=`<span class="cloud-pill ${eff}"><span class="cloud-dot"></span>${icons[eff]} ${labels[eff]}</span>`;
 }
 
@@ -2389,7 +2389,16 @@ async function syncOfflineData() {
   catch(error) { console.error("Sync failed:",error); setCloudStatus('offline'); }
 }
 
-window.addEventListener('online',()=>{browserOnline=true;if(currentUser){updatePresence(true);syncOfflineData();}else setCloudStatus('offline');});
+window.addEventListener('online', () => {
+    browserOnline = true;
+    if (currentUser) {
+        setCloudStatus('syncing'); // <-- Add this line for immediate feedback
+        updatePresence(true);
+        syncOfflineData('synced'); 
+    } else {
+        setCloudStatus('offline');
+    }
+});
 window.addEventListener('offline',()=>{browserOnline=false;setCloudStatus('offline');if(currentUser)toast('You are offline. Changes saved locally.','info');});
 document.addEventListener('visibilitychange',()=>{if(currentUser)updatePresence(!document.hidden);});
 window.addEventListener('beforeunload',()=>{updatePresence(false);});
